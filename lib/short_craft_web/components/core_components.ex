@@ -284,7 +284,7 @@ defmodule ShortCraftWeb.CoreComponents do
   attr :type, :string,
     default: "text",
     values: ~w(checkbox color date datetime-local email file month number password
-               range search select tel text textarea time url week)
+               range search select tel text textarea time url week hidden)
 
   attr :field, Phoenix.HTML.FormField,
     doc: "a form field struct retrieved from the form, for example: @form[:email]"
@@ -326,7 +326,10 @@ defmodule ShortCraftWeb.CoreComponents do
           name={@name}
           value="true"
           checked={@checked}
-          class="rounded border-zinc-300 text-zinc-900 focus:ring-0"
+          class={[
+            "rounded border-zinc-300 text-zinc-900 focus:ring-0",
+            @rest[:disabled] && "bg-zinc-100 text-zinc-500 cursor-not-allowed"
+          ]}
           {@rest}
         />
         {@label}
@@ -343,7 +346,10 @@ defmodule ShortCraftWeb.CoreComponents do
       <select
         id={@id}
         name={@name}
-        class="mt-2 block w-full rounded-md border border-gray-300 bg-white shadow-sm focus:border-zinc-400 focus:ring-0 sm:text-sm"
+        class={[
+          "mt-2 block w-full rounded-md border border-gray-300 bg-white shadow-sm focus:border-zinc-400 focus:ring-0 sm:text-sm",
+          @rest[:disabled] && "bg-zinc-100 text-zinc-500 cursor-not-allowed"
+        ]}
         multiple={@multiple}
         {@rest}
       >
@@ -365,7 +371,8 @@ defmodule ShortCraftWeb.CoreComponents do
         class={[
           "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6 min-h-[6rem]",
           @errors == [] && "border-zinc-300 focus:border-zinc-400",
-          @errors != [] && "border-rose-400 focus:border-rose-400"
+          @errors != [] && "border-rose-400 focus:border-rose-400",
+          @rest[:disabled] && "bg-zinc-100 text-zinc-500 cursor-not-allowed"
         ]}
         {@rest}
       ><%= Phoenix.HTML.Form.normalize_value("textarea", @value) %></textarea>
@@ -387,7 +394,8 @@ defmodule ShortCraftWeb.CoreComponents do
         class={[
           "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
           @errors == [] && "border-zinc-300 focus:border-zinc-400",
-          @errors != [] && "border-rose-400 focus:border-rose-400"
+          @errors != [] && "border-rose-400 focus:border-rose-400",
+          @rest[:disabled] && "bg-zinc-100 text-zinc-500 cursor-not-allowed"
         ]}
         {@rest}
       />
@@ -481,10 +489,11 @@ defmodule ShortCraftWeb.CoreComponents do
       end
 
     ~H"""
-    <div class="overflow-y-auto px-4 sm:overflow-visible sm:px-0">
-      <table class="w-[40rem] mt-11 sm:w-full">
+    <div class="w-full max-w-7xl mx-auto overflow-x-auto px-4 items-center">
+      <table class="min-w-max mt-11">
         <thead class="text-sm text-left leading-6 text-zinc-500">
           <tr>
+            <th class="p-0 pb-4 pr-6 font-normal">No.</th>
             <th :for={col <- @col} class="p-0 pb-4 pr-6 font-normal">{col[:label]}</th>
             <th :if={@action != []} class="relative p-0 pb-4">
               <span class="sr-only">{gettext("Actions")}</span>
@@ -496,7 +505,19 @@ defmodule ShortCraftWeb.CoreComponents do
           phx-update={match?(%Phoenix.LiveView.LiveStream{}, @rows) && "stream"}
           class="relative divide-y divide-zinc-100 border-t border-zinc-200 text-sm leading-6 text-zinc-700"
         >
-          <tr :for={row <- @rows} id={@row_id && @row_id.(row)} class="group hover:bg-zinc-50">
+          <tr
+            :for={{row, idx} <- Enum.with_index(@rows)}
+            id={@row_id && @row_id.(row)}
+            class="group hover:bg-zinc-50"
+          >
+            <td>
+              <div class="block py-4 pr-6">
+                <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl" />
+                <span class={["relative", idx == 0 && "font-semibold text-zinc-900"]}>
+                  {idx + 1}
+                </span>
+              </div>
+            </td>
             <td
               :for={{col, i} <- Enum.with_index(@col)}
               phx-click={@row_click && @row_click.(row)}
@@ -602,6 +623,59 @@ defmodule ShortCraftWeb.CoreComponents do
   def icon(%{name: "hero-" <> _} = assigns) do
     ~H"""
     <span class={[@name, @class]} />
+    """
+  end
+
+  @doc """
+  Renders a progress bar.
+
+  ## Examples
+
+      <.progress_bar progress={50} />
+  """
+  attr :progress, :integer, required: true
+
+  def progress_bar(assigns) do
+    ~H"""
+    <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+      <div
+        class="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
+        style={"width: #{@progress}%"}
+      >
+      </div>
+    </div>
+    """
+  end
+
+  @doc """
+  Renders a Avatar.
+
+  ## Examples
+
+      <.avatar src={@user.avatar_url} />
+  """
+  attr :src, :string, required: true
+  attr :class, :string, default: nil
+
+  def avatar(assigns) do
+    ~H"""
+    <img src={@src} class={["rounded-full w-10 h-10", @class]} />
+    """
+  end
+
+  @doc """
+  Renders a Avatar with name.
+
+  ## Examples
+
+      <.avatar_with_name src={@user.avatar_url} name={@user.name} />
+  """
+  def avatar_with_name(assigns) do
+    ~H"""
+    <div class="flex items-center gap-2">
+      <.avatar src={@src} />
+      <span class="text-sm font-medium">{@name}</span>
+    </div>
     """
   end
 

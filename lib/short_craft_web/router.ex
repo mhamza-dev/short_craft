@@ -68,6 +68,13 @@ defmodule ShortCraftWeb.Router do
       on_mount: [{ShortCraftWeb.UserAuth, :ensure_authenticated}] do
       live "/users/settings", UserSettingsLive, :edit
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
+
+      scope "/shorts" do
+        live "/", ShortsLive.Index, :index
+        live "/new", ShortsLive.Index, :new
+        live "/:id/edit", ShortsLive.Index, :edit
+        live "/:id/show", ShortsLive.Show, :show
+      end
     end
   end
 

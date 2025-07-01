@@ -7,7 +7,11 @@ defmodule ShortCraft.Repo.Migrations.CreateSourceVideos do
       add :url, :string
       add :title, :string
       add :duration, :integer
-      add :status, :string
+      add :thumbnail, :string
+      add :channel_title, :string
+      add :status, :string, default: "not_started"
+      add :auto_upload_shorts, :boolean, default: false
+      add :shorts_to_generate, :integer, default: 0
       add :user_id, references(:users, on_delete: :delete_all, type: :binary_id)
 
       timestamps(type: :utc_datetime)

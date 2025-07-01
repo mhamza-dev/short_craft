@@ -20,6 +20,8 @@ defmodule ShortCraft.Accounts.User do
     field :expires_at, :utc_datetime
     field :metadata, :map
 
+    has_many :source_videos, ShortCraft.Shorts.SourceVideo
+
     timestamps(type: :utc_datetime)
   end
 

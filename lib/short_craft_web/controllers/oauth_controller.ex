@@ -1,7 +1,7 @@
 defmodule ShortCraftWeb.OAuthController do
   use ShortCraftWeb, :controller
 
-  alias ShortCraft.OAuthService
+  alias ShortCraft.Services.OAuthService
   alias ShortCraftWeb.UserAuth
 
   @doc """

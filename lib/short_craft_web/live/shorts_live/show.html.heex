@@ -1,0 +1,54 @@
+<div class="max-w-xl mx-auto bg-white rounded shadow p-6 mt-8">
+  <div class="flex items-center mb-4">
+    <img
+      src={@source_video.thumbnail}
+      alt="Thumbnail"
+      class="w-32 h-20 rounded mr-4 object-cover border"
+    />
+    <div>
+      <h1 class="text-2xl font-bold mb-1">{@source_video.title}</h1>
+      <p class="text-gray-600 text-sm mb-1">
+        Channel: <span class="font-medium">{@source_video.channel_title}</span>
+      </p>
+      <p class="text-gray-500 text-xs">Duration: {format_duration(@source_video.duration)}</p>
+      <p class="text-gray-500 text-xs mt-1">
+        <span class="font-semibold">Video URL:</span>
+        <a href={@source_video.url} class="text-blue-600 underline break-all" target="_blank">
+          {@source_video.url}
+        </a>
+      </p>
+    </div>
+  </div>
+  <div class="mt-4 space-y-2">
+    <div class="flex items-center justify-between text-sm">
+      <span class="font-semibold w-40">Status:</span>
+      <span class={status_badge_class(@source_video.status)}>
+        {humanize_status(@source_video.status)}
+      </span>
+    </div>
+    <div class="flex items-center justify-between text-sm">
+      <span class="font-semibold w-40">Shorts to Generate:</span>
+      <span>
+        {(@source_video.shorts_to_generate > 0 && @source_video.shorts_to_generate) || "Not Set"}
+      </span>
+    </div>
+    <div class="flex items-center justify-between text-sm">
+      <span class="font-semibold w-40">Auto Upload Shorts:</span>
+      <span class={status_badge_class(@source_video.auto_upload_shorts)}>
+        {humanize_status(@source_video.auto_upload_shorts)}
+      </span>
+    </div>
+    <div class="flex items-center justify-between text-sm">
+      <span class="font-semibold w-40">Inserted At:</span>
+      <span>
+        {format_datetime(@source_video.inserted_at)}
+      </span>
+    </div>
+    <div class="flex items-center justify-between text-sm">
+      <span class="font-semibold w-40">Updated At:</span>
+      <span>
+        {format_datetime(@source_video.updated_at)}
+      </span>
+    </div>
+  </div>
+</div>

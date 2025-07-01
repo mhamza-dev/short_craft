@@ -1,0 +1,83 @@
+<div>
+  <div class="flex justify-between items-center mb-4">
+    <h1 class="text-2xl font-bold">Shorts</h1>
+    <.link href={~p"/shorts/new"} class="bg-black text-white px-4 py-2 rounded-md">
+      New Source Video
+    </.link>
+  </div>
+
+  <.table id="source_video" rows={@source_videos}>
+    <:col :let={source_video} label="Title">
+      <p class="text-sm font-medium min-w-[12rem]">{source_video.title || "-"}</p>
+    </:col>
+    <:col :let={source_video} label="URL">
+      <a href={source_video.url} class="text-blue-600 underline break-all" target="_blank">
+        {source_video.url || "-"}
+      </a>
+    </:col>
+    <:col :let={source_video} label="Thumbnail">
+      <img
+        src={source_video.thumbnail}
+        alt={source_video.title}
+        class="w-16 h-16 rounded object-cover border"
+      />
+    </:col>
+    <:col :let={source_video} label="Channel">
+      {source_video.channel_title || "-"}
+    </:col>
+    <:col :let={source_video} label="Auto Upload">
+      <span class={status_badge_class(source_video.auto_upload_shorts)}>
+        {humanize_status(source_video.auto_upload_shorts)}
+      </span>
+    </:col>
+    <:col :let={source_video} label="Duration">
+      {format_duration(source_video.duration)}
+    </:col>
+    <:col :let={source_video} label="Status">
+      <span class={status_badge_class(source_video.status)}>
+        {humanize_status(source_video.status)}
+      </span>
+    </:col>
+    <:col :let={source_video} label="Requested By">
+      <.avatar_with_name src={source_video.user.avatar_url} name={source_video.user.name} />
+    </:col>
+    <:col :let={source_video} label="Created At">
+      {format_datetime(source_video.inserted_at)}
+    </:col>
+    <:action :let={source_video}>
+      <.button phx-click={JS.navigate(~p"/shorts/#{source_video.id}/show")}>
+        Show
+      </.button>
+    </:action>
+    <:action :let={source_video}>
+      <.button phx-click={JS.navigate(~p"/shorts/#{source_video.id}/edit")}>
+        Edit
+      </.button>
+    </:action>
+    <:action :let={source_video}>
+      <.button phx-click="delete" phx-value-id={source_video.id}>
+        Delete
+      </.button>
+    </:action>
+  </.table>
+
+  <.modal
+    :if={@live_action in [:new, :edit]}
+    id={
+      if @live_action == :new,
+        do: "new_source_video_form",
+        else: "edit_source_video_form"
+    }
+    show={@live_action in [:new, :edit]}
+    on_cancel={JS.navigate(~p"/shorts")}
+  >
+    <.live_component
+      module={ShortCraftWeb.ShortsLive.FormComponent}
+      id="source_video_form"
+      action={@live_action}
+      source_video={@source_video}
+      page_title={@page_title}
+      current_user={@current_user}
+    />
+  </.modal>
+</div>

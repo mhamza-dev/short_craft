@@ -1,10 +1,11 @@
-defmodule ShortCraft.OAuthService do
+defmodule ShortCraft.Services.OAuthService do
   @moduledoc """
   Service module for handling OAuth2 authentication flows with enhanced security,
   error handling, and token management.
   """
 
   require Logger
+
   alias ShortCraft.Accounts
 
   @required_config_fields [:client_id, :client_secret, :redirect_uri, :default_scope]

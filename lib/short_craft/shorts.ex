@@ -111,8 +111,20 @@ defmodule ShortCraft.Shorts do
       [%SourceVideo{}, ...]
 
   """
-  def list_source_videos do
-    Repo.all(SourceVideo)
+  def list_source_videos(options \\ []) do
+    query = from(sv in SourceVideo)
+
+    query =
+      Enum.reduce(options, query, fn
+        {:user_id, value}, acc -> from(sv in acc, where: sv.user_id == ^value)
+        {:preload, value}, acc -> from(sv in acc, preload: ^value)
+        {:order_by, value}, acc -> from(sv in acc, order_by: ^value)
+        {:limit, value}, acc -> from(sv in acc, limit: ^value)
+        {:offset, value}, acc -> from(sv in acc, offset: ^value)
+        _, acc -> acc
+      end)
+
+    Repo.all(query)
   end
 
   @doc """

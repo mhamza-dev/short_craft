@@ -86,6 +86,7 @@ defmodule ShortCraftWeb do
       # Core UI components and translation
       import ShortCraftWeb.CoreComponents
       import ShortCraftWeb.Gettext
+      import ShortCraftWeb.LiveHelpers
 
       # Shortcut for generating JS commands
       alias Phoenix.LiveView.JS

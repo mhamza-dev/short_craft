@@ -15,8 +15,9 @@ defmodule ShortCraft.Shorts.GeneratedShort do
     field :youtube_id, :string
     field :uploaded_at, :utc_datetime
     field :processing_log, {:array, :map}
-    field :source_video_id, :binary_id
-    field :user_id, :binary_id
+
+    belongs_to :source_video, ShortCraft.Shorts.SourceVideo, foreign_key: :source_video_id
+    belongs_to :user, ShortCraft.Accounts.User, foreign_key: :user_id
 
     timestamps(type: :utc_datetime)
   end
