@@ -35,3 +35,45 @@ short_craft-*.tar
 npm-debug.log
 /assets/node_modules/
 
+# Environment files
+.env
+.env.local
+.env.production
+.env.staging
+
+# Logs
+*.log
+/logs/
+
+# Uploads and user-generated content
+/priv/uploads/
+/priv/static/uploads/
+
+# Database
+*.db
+*.sqlite3
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Backup files
+*.bak
+*.backup
+
+# Membrane and FFmpeg temporary files
+*.tmp
+*.temp
+

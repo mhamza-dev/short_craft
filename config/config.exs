@@ -31,6 +31,11 @@ config :short_craft, ShortCraftWeb.Endpoint,
 # at the `config/runtime.exs`.
 config :short_craft, ShortCraft.Mailer, adapter: Swoosh.Adapters.Local
 
+# Configure API KEYS
+config :short_craft,
+  openrouter_api_key: System.get_env("OPENROUTER_API_KEY"),
+  youtube_api_key: System.get_env("YOUTUBE_API_KEY")
+
 # Configure esbuild (the version is required)
 config :esbuild,
   version: "0.17.11",
@@ -60,6 +65,25 @@ config :logger, :console,
 
 # Use Jason for JSON parsing in Phoenix
 config :phoenix, :json_library, Jason
+
+# Configure OAuth2 providers
+config :ueberauth, Ueberauth.Strategy.Google.OAuth,
+  client_id: System.get_env("GOOGLE_CLIENT_ID"),
+  client_secret: System.get_env("GOOGLE_CLIENT_SECRET"),
+  redirect_uri: System.get_env("GOOGLE_REDIRECT_URI"),
+  default_scope: "email profile"
+
+config :ueberauth, Ueberauth.Strategy.GitHub.OAuth,
+  client_id: System.get_env("GITHUB_CLIENT_ID"),
+  client_secret: System.get_env("GITHUB_CLIENT_SECRET"),
+  redirect_uri: System.get_env("GITHUB_REDIRECT_URI"),
+  default_scope: "user:email"
+
+config :ueberauth, Ueberauth.Strategy.Facebook.OAuth,
+  client_id: System.get_env("FACEBOOK_CLIENT_ID"),
+  client_secret: System.get_env("FACEBOOK_CLIENT_SECRET"),
+  redirect_uri: System.get_env("FACEBOOK_REDIRECT_URI"),
+  default_scope: "email"
 
 # Import environment specific config. This must remain at the bottom
 # of this file so it overrides the configuration defined above.

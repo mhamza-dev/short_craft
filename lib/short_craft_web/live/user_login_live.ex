@@ -30,6 +30,34 @@ defmodule ShortCraftWeb.UserLoginLive do
             Log in <span aria-hidden="true">→</span>
           </.button>
         </:actions>
+        <:after_actions>
+          <p class="text-sm text-gray-500 mb-2">
+            Or login with
+          </p>
+          <div class="flex items-center justify-between w-[50%] gap-4">
+            <.link
+              href={~p"/auth/google"}
+              class="w-6 h-6 flex flex-col items-center justify-center gap-4 cursor-pointer hover:opacity-80"
+            >
+              <i class="fa-brands fa-google fa-xl"></i>
+              <span class="text-sm text-gray-400">Google</span>
+            </.link>
+            <.link
+              href={~p"/auth/github"}
+              class="w-6 h-6 flex flex-col items-center justify-center gap-4 cursor-pointer hover:opacity-80"
+            >
+              <i class="fa-brands fa-github fa-xl"></i>
+              <span class="text-sm text-gray-400">GitHub</span>
+            </.link>
+            <.link
+              href={~p"/auth/facebook"}
+              class="w-6 h-6 flex flex-col items-center justify-center gap-4 cursor-pointer hover:opacity-80"
+            >
+              <i class="fa-brands fa-facebook fa-xl"></i>
+              <span class="text-sm text-gray-400">Facebook</span>
+            </.link>
+          </div>
+        </:after_actions>
       </.simple_form>
     </div>
     """

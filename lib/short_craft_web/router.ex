@@ -82,4 +82,12 @@ defmodule ShortCraftWeb.Router do
       live "/users/confirm", UserConfirmationInstructionsLive, :new
     end
   end
+
+  # OAuth2 routes - using controllers
+  scope "/auth", ShortCraftWeb do
+    pipe_through :browser
+
+    get "/:provider", OAuthController, :request
+    get "/:provider/callback", OAuthController, :callback
+  end
 end

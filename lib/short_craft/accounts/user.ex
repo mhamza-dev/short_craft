@@ -9,6 +9,16 @@ defmodule ShortCraft.Accounts.User do
     field :hashed_password, :string, redact: true
     field :current_password, :string, virtual: true, redact: true
     field :confirmed_at, :utc_datetime
+    field :name, :string
+    field :avatar_url, :string
+
+    # OAuth2 fields
+    field :provider, :string
+    field :provider_id, :string
+    field :access_token, :string, redact: true
+    field :refresh_token, :string, redact: true
+    field :expires_at, :utc_datetime
+    field :metadata, :map
 
     timestamps(type: :utc_datetime)
   end
@@ -156,5 +166,28 @@ defmodule ShortCraft.Accounts.User do
     else
       add_error(changeset, :current_password, "is not valid")
     end
+  end
+
+  @doc """
+  A user changeset for OAuth2 registration.
+  """
+  def oauth2_registration_changeset(user, attrs) do
+    user
+    |> cast(attrs, [
+      :email,
+      :name,
+      :avatar_url,
+      :provider,
+      :provider_id,
+      :access_token,
+      :refresh_token,
+      :expires_at,
+      :metadata
+    ])
+    |> validate_required([:email, :provider, :provider_id])
+    |> validate_email(validate_email: false)
+    |> unique_constraint([:provider, :provider_id])
+    |> unique_constraint(:email)
+    |> put_change(:confirmed_at, DateTime.utc_now() |> DateTime.truncate(:second))
   end
 end

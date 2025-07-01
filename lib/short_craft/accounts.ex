@@ -60,6 +60,23 @@ defmodule ShortCraft.Accounts do
   """
   def get_user!(id), do: Repo.get!(User, id)
 
+  @doc """
+  Gets a user by OAuth2 provider and provider ID.
+
+  ## Examples
+
+      iex> get_user_by_oauth2("google", "123456789")
+      %User{}
+
+      iex> get_user_by_oauth2("google", "unknown")
+      nil
+
+  """
+  def get_user_by_oauth2(provider, provider_id)
+      when is_binary(provider) and is_binary(provider_id) do
+    Repo.get_by(User, provider: provider, provider_id: provider_id)
+  end
+
   ## User registration
 
   @doc """
@@ -81,6 +98,24 @@ defmodule ShortCraft.Accounts do
   end
 
   @doc """
+  Registers a user via OAuth2.
+
+  ## Examples
+
+      iex> register_oauth2_user(%{provider: "google", provider_id: "123", email: "user@example.com"})
+      {:ok, %User{}}
+
+      iex> register_oauth2_user(%{provider: "google", provider_id: "123"})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def register_oauth2_user(attrs) do
+    %User{}
+    |> User.oauth2_registration_changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
   Returns an `%Ecto.Changeset{}` for tracking user changes.
 
   ## Examples
@@ -92,8 +127,6 @@ defmodule ShortCraft.Accounts do
   def change_user_registration(%User{} = user, attrs \\ %{}) do
     User.registration_changeset(user, attrs, hash_password: false, validate_email: false)
   end
-
-  ## Settings
 
   @doc """
   Returns an `%Ecto.Changeset{}` for changing the user email.
@@ -348,6 +381,22 @@ defmodule ShortCraft.Accounts do
     |> case do
       {:ok, %{user: user}} -> {:ok, user}
       {:error, :user, changeset, _} -> {:error, changeset}
+    end
+  end
+
+  @doc """
+  Gets a user by OAuth2 provider and provider ID, or creates a new user.
+
+  ## Examples
+
+      iex> get_or_create_oauth2_user(%{provider: "google", provider_id: "123", email: "user@example.com"})
+      {:ok, %User{}}
+
+  """
+  def get_or_create_oauth2_user(attrs) do
+    case get_user_by_oauth2(attrs.provider, attrs.provider_id) do
+      nil -> register_oauth2_user(attrs)
+      user -> {:ok, user}
     end
   end
 end

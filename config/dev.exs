@@ -23,7 +23,7 @@ config :short_craft, ShortCraftWeb.Endpoint,
   check_origin: false,
   code_reloader: true,
   debug_errors: true,
-  secret_key_base: "4zPkbts63MpPY0f3+GLjtZyqY/kXpg1gVijpLr6vnAGgNGWXHuIq7vkmQ18ourap",
+  secret_key_base: System.get_env("SECRET_KEY_BASE"),
   watchers: [
     esbuild: {Esbuild, :install_and_run, [:short_craft, ~w(--sourcemap=inline --watch)]},
     tailwind: {Tailwind, :install_and_run, [:short_craft, ~w(--watch)]}

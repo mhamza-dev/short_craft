@@ -20,5 +20,5 @@ defmodule ShortCraftWeb.Gettext do
 
   See the [Gettext Docs](https://hexdocs.pm/gettext) for detailed usage.
   """
-  use Gettext, otp_app: :short_craft
+  use Gettext.Backend, otp_app: :short_craft
 end
