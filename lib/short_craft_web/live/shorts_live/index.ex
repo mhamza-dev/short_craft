@@ -41,6 +41,25 @@ defmodule ShortCraftWeb.ShortsLive.Index do
   end
 
   @impl true
+  def handle_event("delete", %{"id" => id}, socket) do
+    source_video = Shorts.get_source_video!(id)
+
+    case Shorts.delete_source_video(source_video) do
+      {:ok, _} ->
+        {:noreply,
+         socket
+         |> put_flash(:info, "Source video deleted successfully")
+         |> update(
+           :source_videos,
+           &Enum.reject(&1, fn source_video -> source_video.id == id end)
+         )}
+
+      {:error, _} ->
+        {:noreply, put_flash(socket, :error, "Error deleting source video")}
+    end
+  end
+
+  @impl true
   def handle_info({:new_source_video, source_video}, socket) do
     {:noreply, update(socket, :source_videos, &[&1 | source_video])}
   end

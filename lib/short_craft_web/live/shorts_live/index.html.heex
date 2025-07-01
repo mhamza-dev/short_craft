@@ -38,11 +38,15 @@
         {humanize_status(source_video.status)}
       </span>
     </:col>
+    <:col :let={source_video} label="Progress">
+      <%= if Map.has_key?(source_video, :progress) do %>
+        <.progress_bar progress={source_video.progress} />
+      <% else %>
+        -
+      <% end %>
+    </:col>
     <:col :let={source_video} label="Requested By">
       <.avatar_with_name src={source_video.user.avatar_url} name={source_video.user.name} />
-    </:col>
-    <:col :let={source_video} label="Created At">
-      {format_datetime(source_video.inserted_at)}
     </:col>
     <:action :let={source_video}>
       <.button phx-click={JS.navigate(~p"/shorts/#{source_video.id}/show")}>

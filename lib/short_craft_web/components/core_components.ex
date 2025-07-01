@@ -489,7 +489,7 @@ defmodule ShortCraftWeb.CoreComponents do
       end
 
     ~H"""
-    <div class="w-full max-w-7xl mx-auto overflow-x-auto px-4 items-center">
+    <div class="w-full mx-auto overflow-x-auto px-4 items-center">
       <table class="min-w-max mt-11">
         <thead class="text-sm text-left leading-6 text-zinc-500">
           <tr>
