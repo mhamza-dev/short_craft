@@ -113,8 +113,8 @@ defmodule ShortCraftWeb.LiveHelpers do
 
   ## Examples
 
-      iex> status_badge_class(:completed)
-      "px-2 py-1 rounded text-xs font-semibold bg-green-100 text-green-800"
+      iex> status_badge_class(:downloaded)
+      "px-2 py-1 rounded text-xs font-semibold bg-cyan-100 text-cyan-800"
       iex> status_badge_class(:downloading)
       "px-2 py-1 rounded text-xs font-semibold bg-yellow-100 text-yellow-800"
       iex> status_badge_class(:failed)
@@ -125,21 +125,42 @@ defmodule ShortCraftWeb.LiveHelpers do
     "px-2 py-1 rounded text-xs font-semibold #{colors_by_status(status)}"
   end
 
+  @doc """
+  Returns the number of shorts to generate based on the duration and short duration.
+
+  ## Examples
+
+      iex> to_integer("10")
+      10
+      iex> to_integer("10.5")
+      10
+      iex> to_integer(nil)
+      0
+  """
+  @spec to_integer(String.t() | integer() | nil, integer()) :: integer()
+  def to_integer(v, default \\ 0), do: to_int(v, default)
+
+  @doc false
+  defp to_int(nil, default), do: default
+  defp to_int("", default), do: default
+  defp to_int(val, _default) when is_integer(val), do: val
+  defp to_int(val, _default) when is_binary(val), do: String.to_integer(val)
+
   @doc false
   @spec colors_by_status(atom() | boolean()) :: String.t()
-  defp colors_by_status(:completed), do: "bg-green-100 text-green-800"
-  defp colors_by_status(:processing), do: "bg-yellow-100 text-yellow-800"
-  defp colors_by_status(:failed), do: "bg-red-100 text-red-800"
-  defp colors_by_status(:queued), do: "bg-blue-100 text-blue-800"
-  defp colors_by_status(:waiting_review), do: "bg-purple-100 text-purple-800"
-  defp colors_by_status(:rejected), do: "bg-gray-200 text-gray-700"
-  defp colors_by_status(:published), do: "bg-indigo-100 text-indigo-800"
   defp colors_by_status(:not_started), do: "bg-gray-100 text-gray-800"
+  defp colors_by_status(:queued), do: "bg-blue-100 text-blue-800"
   defp colors_by_status(:downloading), do: "bg-yellow-100 text-yellow-800"
+  defp colors_by_status(:downloaded), do: "bg-cyan-100 text-cyan-800"
+  defp colors_by_status(:shorts_processing), do: "bg-orange-100 text-orange-800"
+  defp colors_by_status(:waiting_review), do: "bg-purple-100 text-purple-800"
   defp colors_by_status(:cancelled), do: "bg-gray-300 text-gray-900"
-  defp colors_by_status(:progress), do: "bg-blue-100 text-blue-800"
-  defp colors_by_status(:started), do: "bg-cyan-100 text-cyan-800"
-  defp colors_by_status(true), do: "bg-green-100 text-green-800"
-  defp colors_by_status(false), do: "bg-red-100 text-red-800"
+
+  defp colors_by_status(status) when status in [:shorts_published, true],
+    do: "bg-green-100 text-green-800"
+
+  defp colors_by_status(status) when status in [:failed, false],
+    do: "bg-red-100 text-red-800"
+
   defp colors_by_status(_), do: "bg-gray-100 text-gray-800"
 end

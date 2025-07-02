@@ -1,4 +1,4 @@
-defmodule ShortCraftWeb.ShortsLive.Show do
+defmodule ShortCraftWeb.SourceVideoLive.Show do
   use ShortCraftWeb, :live_view
 
   alias ShortCraft.Shorts

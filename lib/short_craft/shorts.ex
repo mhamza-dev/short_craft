@@ -124,7 +124,7 @@ defmodule ShortCraft.Shorts do
         _, acc -> acc
       end)
 
-    Repo.all(query)
+    from(q in query, where: q.status != :source_deleted) |> Repo.all()
   end
 
   @doc """

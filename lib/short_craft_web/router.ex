@@ -69,11 +69,11 @@ defmodule ShortCraftWeb.Router do
       live "/users/settings", UserSettingsLive, :edit
       live "/users/settings/confirm_email/:token", UserSettingsLive, :confirm_email
 
-      scope "/shorts" do
-        live "/", ShortsLive.Index, :index
-        live "/new", ShortsLive.Index, :new
-        live "/:id/edit", ShortsLive.Index, :edit
-        live "/:id/show", ShortsLive.Show, :show
+      scope "/source_video" do
+        live "/", SourceVideoLive.Index, :index
+        live "/new", SourceVideoLive.Index, :new
+        live "/:id/edit", SourceVideoLive.Index, :edit
+        live "/:id/show", SourceVideoLive.Show, :show
       end
     end
   end

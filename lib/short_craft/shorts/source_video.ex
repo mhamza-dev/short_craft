@@ -9,14 +9,16 @@ defmodule ShortCraft.Shorts.SourceVideo do
     :not_started,
     :queued,
     :downloading,
-    :processing,
+    :downloaded,
+    :shorts_processing,
     :waiting_review,
-    :rejected,
-    :completed,
-    :published,
+    :shorts_publishing,
+    :shorts_published,
     :failed,
-    :cancelled
+    :cancelled,
+    :source_deleted
   ]
+
   schema "source_videos" do
     field :title, :string
     field :url, :string
@@ -30,6 +32,7 @@ defmodule ShortCraft.Shorts.SourceVideo do
     field :channel_title, :string
     field :auto_upload_shorts, :boolean, default: false
     field :shorts_to_generate, :integer, default: 0
+    field :short_duration, :integer, default: 15
     field :progress, :integer, default: 0
 
     belongs_to :user, ShortCraft.Accounts.User, foreign_key: :user_id
@@ -50,6 +53,8 @@ defmodule ShortCraft.Shorts.SourceVideo do
       :channel_title,
       :auto_upload_shorts,
       :shorts_to_generate,
+      :short_duration,
+      :progress,
       :user_id
     ])
     |> validate_required([
@@ -61,6 +66,8 @@ defmodule ShortCraft.Shorts.SourceVideo do
       :channel_title,
       :auto_upload_shorts,
       :shorts_to_generate,
+      :short_duration,
+      :progress,
       :user_id
     ])
   end

@@ -204,7 +204,7 @@ defmodule ShortCraftWeb.CoreComponents do
   def simple_form(assigns) do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
-      <div class="mt-10 space-y-8 bg-white">
+      <div class="mt-10 space-y-2 bg-white">
         {render_slot(@inner_block, f)}
         <div
           :for={action <- @actions}
@@ -230,6 +230,7 @@ defmodule ShortCraftWeb.CoreComponents do
   """
   attr :type, :string, default: nil
   attr :class, :string, default: nil
+  attr :variant, :string, default: "primary", values: ~w(primary secondary danger link)
   attr :rest, :global, include: ~w(disabled form name value)
 
   slot :inner_block, required: true
@@ -239,8 +240,12 @@ defmodule ShortCraftWeb.CoreComponents do
     <button
       type={@type}
       class={[
-        "phx-submit-loading:opacity-75 rounded-lg bg-zinc-900 hover:bg-zinc-700 py-2 px-3",
-        "text-sm font-semibold leading-6 text-white active:text-white/80",
+        "phx-submit-loading:opacity-75 rounded-lg py-2 px-3",
+        "text-sm font-semibold leading-6 active:text-white/80",
+        @variant == "primary" && "text-white bg-zinc-900 hover:bg-zinc-700",
+        @variant == "secondary" && "text-zinc-900 bg-zinc-100 hover:bg-zinc-200",
+        @variant == "danger" && "text-white bg-red-500 hover:bg-red-600",
+        @variant == "link" && "p-0 text-blue-600 hover:text-blue-700",
         @class
       ]}
       {@rest}
@@ -637,7 +642,7 @@ defmodule ShortCraftWeb.CoreComponents do
 
   def progress_bar(assigns) do
     ~H"""
-    <div class="w-full bg-gray-200 rounded-full h-2.5 mb-4">
+    <div class="w-full bg-gray-200 rounded-full h-2.5">
       <div
         class="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
         style={"width: #{@progress}%"}

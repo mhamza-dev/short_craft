@@ -53,11 +53,11 @@ defmodule ShortCraft.Services.YoutubeDownloader do
           output_path: String.t()
         }
 
-  @type download_status :: :running | :completed | :failed
+  @type download_status :: :running | :downloaded | :failed
 
   @type progress_message :: %{
           video_id: String.t(),
-          status: :started | :progress | :completed | :failed,
+          status: :started | :progress | :downloaded | :failed,
           timestamp: DateTime.t(),
           data: map()
         }
@@ -151,10 +151,10 @@ defmodule ShortCraft.Services.YoutubeDownloader do
 
         case find_downloaded_file(output_path) do
           {:ok, actual_file_path, size} when size > 0 ->
-            # Update source video status to completed
-            update_source_video_status(source_video_id, :completed)
+            # Update source video status to completed and progress to 33
+            update_source_video_status_and_progress(source_video_id, :downloaded, 33)
 
-            broadcast_status(user_id, video_id, :completed, %{
+            broadcast_status(user_id, video_id, :downloaded, %{
               file_path: actual_file_path,
               file_size: size,
               progress: 100,
@@ -347,10 +347,10 @@ defmodule ShortCraft.Services.YoutubeDownloader do
         # Download completed successfully
         case find_downloaded_file(output_path) do
           {:ok, actual_file_path, size} when size > 0 ->
-            # Update source video status to completed
-            update_source_video_status(source_video_id, :completed)
+            # Update source video status to completed and progress to 33
+            update_source_video_status_and_progress(source_video_id, :downloaded, 33)
 
-            broadcast_status(user_id, video_id, :completed, %{
+            broadcast_status(user_id, video_id, :downloaded, %{
               file_path: actual_file_path,
               file_size: size,
               progress: 100,
@@ -541,6 +541,35 @@ defmodule ShortCraft.Services.YoutubeDownloader do
   end
 
   @doc false
+  @spec update_source_video_status_and_progress(String.t() | nil, atom(), integer()) :: :ok
+  defp update_source_video_status_and_progress(nil, _status, _progress), do: :ok
+
+  defp update_source_video_status_and_progress(source_video_id, status, progress) do
+    case ShortCraft.Repo.get(Shorts.SourceVideo, source_video_id) do
+      %ShortCraft.Shorts.SourceVideo{} = source_video ->
+        changeset =
+          Shorts.SourceVideo.changeset(source_video, %{status: status, progress: progress})
+
+        case ShortCraft.Repo.update(changeset) do
+          {:ok, _} ->
+            :ok
+
+          {:error, changeset} ->
+            require Logger
+
+            Logger.error(
+              "Failed to update status/progress for source_video_id #{source_video_id}: #{inspect(changeset.errors)}"
+            )
+
+            :ok
+        end
+
+      _ ->
+        :ok
+    end
+  end
+
+  @doc false
   @spec broadcast_status(pos_integer() | nil, String.t(), atom(), map()) :: :ok
   defp broadcast_status(nil, _video_id, _status, _data), do: :ok
 
@@ -625,7 +654,7 @@ defmodule ShortCraft.Services.YoutubeDownloader do
 
   ## Returns
 
-  - `{:completed, result}` - Download completed successfully or with error
+  - `{:downloaded, result}` - Download completed successfully or with error
   - `{:failed, reason}` - Download task failed with given reason
   - `{:running, nil}` - Download is still in progress
 
@@ -634,7 +663,7 @@ defmodule ShortCraft.Services.YoutubeDownloader do
       {:ok, download_info} = YoutubeDownloader.download(url, async: true)
 
       case YoutubeDownloader.get_download_status(download_info) do
-        {:completed, {:ok, file_path}} ->
+        {:downloaded, {:ok, file_path}} ->
           IO.puts("Downloaded to " <> file_path)
         {:failed, reason} ->
           IO.puts("Download failed: " <> inspect(reason))
@@ -643,10 +672,10 @@ defmodule ShortCraft.Services.YoutubeDownloader do
       end
   """
   @spec get_download_status(async_download_info()) ::
-          {:completed, download_result()} | {:failed, term()} | {:running, nil}
+          {:downloaded, download_result()} | {:failed, term()} | {:running, nil}
   def get_download_status(%{task: task}) do
     case Task.yield(task, 0) do
-      {:ok, result} -> {:completed, result}
+      {:ok, result} -> {:downloaded, result}
       {:exit, reason} -> {:failed, reason}
       nil -> {:running, nil}
     end

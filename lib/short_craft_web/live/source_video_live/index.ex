@@ -1,4 +1,4 @@
-defmodule ShortCraftWeb.ShortsLive.Index do
+defmodule ShortCraftWeb.SourceVideoLive.Index do
   use ShortCraftWeb, :live_view
 
   alias ShortCraft.Shorts
@@ -8,7 +8,10 @@ defmodule ShortCraftWeb.ShortsLive.Index do
   @impl true
   def mount(_params, _session, socket) do
     source_videos =
-      Shorts.list_source_videos(user_id: socket.assigns.current_user.id, preload: [:user])
+      Shorts.list_source_videos(
+        user_id: socket.assigns.current_user.id,
+        preload: [:user]
+      )
 
     # Subscribe to download progress updates for this user
     YoutubeDownloader.subscribe_to_progress(socket.assigns.current_user.id)
@@ -44,7 +47,7 @@ defmodule ShortCraftWeb.ShortsLive.Index do
   def handle_event("delete", %{"id" => id}, socket) do
     source_video = Shorts.get_source_video!(id)
 
-    case Shorts.delete_source_video(source_video) do
+    case Shorts.update_source_video(source_video, %{status: :source_deleted}) do
       {:ok, _} ->
         {:noreply,
          socket
@@ -61,7 +64,7 @@ defmodule ShortCraftWeb.ShortsLive.Index do
 
   @impl true
   def handle_info(
-        {ShortCraftWeb.ShortsLive.FormComponent, {:new_source_video, source_video}},
+        {ShortCraftWeb.SourceVideoLive.FormComponent, {:new_source_video, source_video}},
         socket
       ) do
     IO.puts("New source video received: #{inspect(source_video)}")
@@ -108,10 +111,10 @@ defmodule ShortCraftWeb.ShortsLive.Index do
           |> update_source_video_progress_in_ui(progress_message.video_id, progress)
           |> put_flash(:info, "Download progress: #{progress}%")
 
-        :completed ->
+        :downloaded ->
           # Show completion notification and refresh the source videos list
           socket
-          |> update_source_video_status_in_ui(progress_message.video_id, :completed)
+          |> update_source_video_status_in_ui(progress_message.video_id, :downloaded)
           |> put_flash(:info, "Download completed successfully!")
           |> refresh_source_videos()
 

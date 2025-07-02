@@ -1,4 +1,4 @@
-defmodule ShortCraftWeb.ShortsLive.FormComponent do
+defmodule ShortCraftWeb.SourceVideoLive.FormComponent do
   use ShortCraftWeb, :live_component
 
   alias ShortCraft.Shorts
@@ -10,14 +10,34 @@ defmodule ShortCraftWeb.ShortsLive.FormComponent do
       <h1>{@page_title || "New Source Video"}</h1>
       <.simple_form
         for={@form}
-        phx-submit={(@need_validation && "validate") || "save"}
+        phx-submit={(@need_validation && "validate-url") || "save"}
+        phx-change="validate"
         phx-target={@myself}
       >
         <.input field={@form[:url]} type="text" label="URL" />
+        <.input
+          field={@form[:short_duration]}
+          type="select"
+          label="Short Duration"
+          options={[{"15 seconds", 15}, {"30 seconds", 30}, {"45 seconds", 45}, {"1 minute", 60}]}
+          disabled={@need_validation}
+        />
         <.error :if={@error}>{@error}</.error>
         <.input field={@form[:title]} type="text" label="Title" disabled />
         <.input field={@form[:channel_title]} type="text" label="Channel Title" disabled />
         <.input field={@form[:duration]} type="text" label="Duration" disabled />
+        <.input
+          field={@form[:shorts_to_generate]}
+          type="text"
+          label="Shorts to Generate"
+          value={
+            Integer.floor_div(
+              to_integer(@form[:duration].value),
+              to_integer(@form[:short_duration].value, 15)
+            )
+          }
+          disabled
+        />
         <.input
           field={@form[:status]}
           type="select"
@@ -25,11 +45,26 @@ defmodule ShortCraftWeb.ShortsLive.FormComponent do
           options={SourceVideo.statuses_as_list()}
           disabled
         />
-        <.input field={@form[:auto_upload_shorts]} type="checkbox" label="Auto Upload Shorts" />
+        <.input
+          field={@form[:auto_upload_shorts]}
+          type="checkbox"
+          label="Auto Upload Shorts"
+          disabled={@need_validation}
+        />
         <.input field={@form[:title]} type="hidden" />
         <.input field={@form[:channel_title]} type="hidden" />
         <.input field={@form[:duration]} type="hidden" />
         <.input field={@form[:thumbnail]} type="hidden" />
+        <.input
+          field={@form[:shorts_to_generate]}
+          type="hidden"
+          value={
+            Integer.floor_div(
+              to_integer(@form[:duration].value),
+              to_integer(@form[:short_duration].value, 15)
+            )
+          }
+        />
         <.input field={@form[:user_id]} value={@current_user.id} type="hidden" />
         <:actions>
           <.button
@@ -62,7 +97,16 @@ defmodule ShortCraftWeb.ShortsLive.FormComponent do
      |> assign_form(changeset)}
   end
 
-  def handle_event("validate", %{"source_video" => %{"url" => url}}, socket) do
+  def handle_event("validate", %{"source_video" => params}, socket) do
+    changeset =
+      socket.assigns.source_video
+      |> SourceVideo.changeset(params)
+      |> Map.put(:action, :validate)
+
+    {:noreply, socket |> assign_form(changeset)}
+  end
+
+  def handle_event("validate-url", %{"source_video" => %{"url" => url}}, socket) do
     case ShortCraft.Services.Youtube.get_video_details(url) do
       {:ok, video_details} ->
         params = %{
@@ -108,7 +152,7 @@ defmodule ShortCraftWeb.ShortsLive.FormComponent do
         {:noreply,
          socket
          |> put_flash(:info, "Source video updated successfully")
-         |> push_patch(to: ~p"/shorts")}
+         |> push_patch(to: ~p"/source_video")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign_form(socket, changeset)}
@@ -123,7 +167,7 @@ defmodule ShortCraftWeb.ShortsLive.FormComponent do
         {:noreply,
          socket
          |> put_flash(:info, "Source video created successfully")
-         |> push_patch(to: ~p"/shorts")}
+         |> push_patch(to: ~p"/source_video")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign_form(socket, changeset)}
