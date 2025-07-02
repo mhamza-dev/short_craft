@@ -17,6 +17,8 @@ defmodule ShortCraftWeb.CoreComponents do
   use Phoenix.Component
   use Gettext, backend: ShortCraftWeb.Gettext
 
+  import ShortCraftWeb.LiveHelpers
+
   alias Phoenix.LiveView.JS
 
   @doc """
@@ -637,16 +639,40 @@ defmodule ShortCraftWeb.CoreComponents do
   ## Examples
 
       <.progress_bar progress={50} />
+      <.progress_bar progress={75} variant="success" />
   """
   attr :progress, :integer, required: true
+  attr :variant, :string, default: "primary", values: ~w(primary success warning danger)
+  attr :size, :string, default: "md", values: ~w(sm md lg)
+  attr :show_label, :boolean, default: false
 
   def progress_bar(assigns) do
     ~H"""
-    <div class="w-full bg-gray-200 rounded-full h-2.5">
-      <div
-        class="bg-blue-600 h-2.5 rounded-full transition-all duration-300"
-        style={"width: #{@progress}%"}
-      >
+    <div class="flex items-center gap-2 w-full">
+      <div class={[
+        "flex-1 rounded-full transition-all duration-300",
+        @size == "sm" && "h-1.5",
+        @size == "md" && "h-2.5",
+        @size == "lg" && "h-3",
+        "bg-gray-200"
+      ]}>
+        <div
+          class={[
+            "rounded-full transition-all duration-300",
+            @size == "sm" && "h-1.5",
+            @size == "md" && "h-2.5",
+            @size == "lg" && "h-3",
+            @variant == "primary" && "bg-gradient-to-r from-blue-500 to-blue-600",
+            @variant == "success" && "bg-gradient-to-r from-green-500 to-green-600",
+            @variant == "warning" && "bg-gradient-to-r from-yellow-500 to-yellow-600",
+            @variant == "danger" && "bg-gradient-to-r from-red-500 to-red-600"
+          ]}
+          style={"width: #{@progress}%"}
+        >
+        </div>
+      </div>
+      <div :if={@show_label} class="text-xs font-medium text-gray-600 min-w-[2.5rem] text-right">
+        {@progress}%
       </div>
     </div>
     """
@@ -675,11 +701,169 @@ defmodule ShortCraftWeb.CoreComponents do
 
       <.avatar_with_name src={@user.avatar_url} name={@user.name} />
   """
+  attr :src, :string, required: true
+  attr :name, :string, required: true
+  attr :class, :string, default: nil
+
   def avatar_with_name(assigns) do
     ~H"""
-    <div class="flex items-center gap-2">
+    <div class={["flex items-center gap-2", @class]}>
       <.avatar src={@src} />
-      <span class="text-sm font-medium">{@name}</span>
+      <span class="text-sm font-medium text-gray-900">{@name}</span>
+    </div>
+    """
+  end
+
+  @doc """
+  Renders a status badge.
+
+  ## Examples
+
+      <.status_badge status="active" />
+      <.status_badge status="pending" variant="warning" />
+  """
+  attr :status, :string, required: true
+  attr :variant, :string, default: "default", values: ~w(default success warning danger info)
+  attr :size, :string, default: "md", values: ~w(sm md lg)
+
+  def status_badge(assigns) do
+    ~H"""
+    <span class={[
+      "inline-flex items-center rounded-full font-medium",
+      @size == "sm" && "px-2 py-0.5 text-xs",
+      @size == "md" && "px-2.5 py-0.5 text-sm",
+      @size == "lg" && "px-3 py-1 text-sm",
+      @variant == "default" && "bg-gray-100 text-gray-800",
+      @variant == "success" && "bg-green-100 text-green-800",
+      @variant == "warning" && "bg-yellow-100 text-yellow-800",
+      @variant == "danger" && "bg-red-100 text-red-800",
+      @variant == "info" && "bg-blue-100 text-blue-800"
+    ]}>
+      {@status}
+    </span>
+    """
+  end
+
+  @doc """
+  Renders a card container.
+
+  ## Examples
+
+      <.card>
+        <h2>Card Title</h2>
+        <p>Card content</p>
+      </.card>
+  """
+  attr :class, :string, default: nil
+  attr :padding, :string, default: "md", values: ~w(none sm md lg)
+
+  slot :inner_block, required: true
+  slot :header
+  slot :footer
+
+  def card(assigns) do
+    ~H"""
+    <div class={[
+      "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden",
+      @padding == "none" && "",
+      @padding == "sm" && "p-4",
+      @padding == "md" && "p-6",
+      @padding == "lg" && "p-8",
+      @class
+    ]}>
+      <div :if={@header != []} class="border-b border-gray-100 pb-4 mb-4">
+        {render_slot(@header)}
+      </div>
+      <div>
+        {render_slot(@inner_block)}
+      </div>
+      <div :if={@footer != []} class="border-t border-gray-100 pt-4 mt-4">
+        {render_slot(@footer)}
+      </div>
+    </div>
+    """
+  end
+
+  @doc """
+  Renders a page header with title and actions.
+
+  ## Examples
+
+      <.page_header title="Users">
+        <:actions>
+          <.button>Add User</.button>
+        </:actions>
+      </.page_header>
+  """
+  attr :title, :string, required: true
+  attr :subtitle, :string, default: nil
+  attr :class, :string, default: nil
+
+  slot :actions
+
+  def page_header(assigns) do
+    ~H"""
+    <div class={["mb-8", @class]}>
+      <div class="flex items-center justify-between">
+        <div>
+          <h1 class="text-3xl font-bold text-gray-900">{@title}</h1>
+          <p :if={@subtitle} class="mt-2 text-lg text-gray-600">{@subtitle}</p>
+        </div>
+        <div :if={@actions != []} class="flex items-center gap-3">
+          {render_slot(@actions)}
+        </div>
+      </div>
+    </div>
+    """
+  end
+
+  @doc """
+  Renders a stats card.
+
+  ## Examples
+
+      <.stats_card title="Total Users" value="1,234" icon="hero-users" />
+  """
+  attr :title, :string, required: true
+  attr :value, :string, required: true
+  attr :icon, :string, default: nil
+  attr :trend, :string, default: nil
+  attr :trend_direction, :string, default: "up", values: ~w(up down)
+  attr :class, :string, default: nil
+
+  def stats_card(assigns) do
+    ~H"""
+    <div class={["bg-white rounded-xl shadow-sm border border-gray-200 p-6", @class]}>
+      <div class="flex items-center">
+        <div class="flex-1">
+          <p class="text-sm font-medium text-gray-600">{@title}</p>
+          <p class="text-2xl font-bold text-gray-900 mt-1">{@value}</p>
+          <div :if={@trend} class="flex items-center mt-2">
+            <.icon
+              name={
+                if @trend_direction == "up",
+                  do: "hero-arrow-trending-up",
+                  else: "hero-arrow-trending-down"
+              }
+              class={[
+                "w-4 h-4 mr-1",
+                @trend_direction == "up" && "text-green-500",
+                @trend_direction == "down" && "text-red-500"
+              ]}
+            />
+            <span class={[
+              "text-sm font-medium",
+              @trend_direction == "up" && "text-green-600",
+              @trend_direction == "down" && "text-red-600"
+            ]}>
+              {@trend}
+            </span>
+          </div>
+        </div>
+        <div :if={@icon} class="flex-shrink-0">
+          <.icon name={@icon} class="w-8 h-8 text-gray-400" />
+        </div>
+      </div>
     </div>
     """
   end

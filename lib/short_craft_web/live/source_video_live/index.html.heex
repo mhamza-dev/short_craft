@@ -1,74 +1,137 @@
 <div>
-  <div class="flex justify-between items-center mb-4">
-    <h1 class="text-2xl font-bold">Shorts</h1>
-    <.link href={~p"/source_video/new"} class="bg-black text-white px-4 py-2 rounded-md">
-      New Source Video
-    </.link>
+  <.page_header title="Source Videos" subtitle="Manage your YouTube videos for shorts generation">
+    <:actions>
+      <.link
+        href={~p"/source_videos/new"}
+        class="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-medium rounded-lg hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-sm hover:shadow-md"
+      >
+        <.icon name="hero-plus" class="w-4 h-4" /> New Source Video
+      </.link>
+    </:actions>
+  </.page_header>
+  
+<!-- Stats Overview -->
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+    <.stats_card
+      title="Total Videos"
+      value={length(@source_videos) |> to_string()}
+      icon="hero-video-camera"
+    />
+    <.stats_card
+      title="Downloaded"
+      value={@source_videos |> Enum.count(&(&1.status == :downloaded)) |> to_string()}
+      icon="hero-arrow-down-tray"
+      variant="success"
+    />
+    <.stats_card
+      title="Processing"
+      value={
+        @source_videos
+        |> Enum.count(&(&1.status in [:downloading, :shorts_processing]))
+        |> to_string()
+      }
+      icon="hero-cog-6-tooth"
+      variant="warning"
+    />
+    <.stats_card
+      title="Completed"
+      value={@source_videos |> Enum.count(&(&1.status == :shorts_published)) |> to_string()}
+      icon="hero-check-circle"
+      variant="success"
+    />
   </div>
 
-  <.table id="source_video" rows={@source_videos}>
-    <:col :let={source_video} label="Thumbnail">
-      <img
-        src={source_video.thumbnail}
-        alt={source_video.title}
-        class="w-16 h-16 rounded object-cover border"
-      />
-    </:col>
-    <:col :let={source_video} label="Title">
-      <p class="text-sm font-medium w-[12rem] truncate">{source_video.title || "-"}</p>
-    </:col>
-    <:col :let={source_video} label="URL">
-      <.link
-        href={source_video.url}
-        class="text-blue-600 underline w-[10rem] truncate block"
-        target="_blank"
-      >
-        {source_video.url || "-"}
-      </.link>
-    </:col>
-    <:col :let={source_video} label="Channel">
-      {source_video.channel_title || "-"}
-    </:col>
-    <:col :let={source_video} label="Shorts">
-      {source_video.shorts_to_generate || "-"}
-    </:col>
-    <:col :let={source_video} label="Shorts Duration">
-      {source_video.short_duration || "-"}
-    </:col>
-    <:col :let={source_video} label="Auto Upload">
-      <span class={status_badge_class(source_video.auto_upload_shorts)}>
-        {humanize_status(source_video.auto_upload_shorts)}
-      </span>
-    </:col>
-    <:col :let={source_video} label="Duration">
-      {format_duration(source_video.duration)}
-    </:col>
-    <:col :let={source_video} label="Status">
-      <span class={status_badge_class(source_video.status)}>
-        {humanize_status(source_video.status)}
-      </span>
-    </:col>
-    <:col :let={source_video} label="Progress">
-      <div class="flex space-x-1 items-center w-[10rem]">
-        <.progress_bar progress={source_video.progress} />
-        <p class="text-xs text-gray-600 text-center">{source_video.progress}%</p>
-      </div>
-    </:col>
-    <:col :let={source_video} label="Requested By">
-      <.avatar_with_name src={source_video.user.avatar_url} name={source_video.user.name} />
-    </:col>
-    <:col :let={source_video}>
-      <.button variant="link" phx-click={JS.navigate(~p"/source_video/#{source_video.id}/show")}>
-        Show
-      </.button>
-      <.button variant="link" phx-click={JS.navigate(~p"/source_video/#{source_video.id}/edit")}>
-        Edit
-      </.button>
-      <.button variant="danger" phx-click="delete" phx-value-id={source_video.id} class="p-0">
-        Delete
-      </.button>
-    </:col>
-  </.table>
+  <.card>
+    <:header>
+      <h2 class="text-lg font-semibold text-gray-900">Video List</h2>
+    </:header>
+
+    <.table id="source_video" rows={@source_videos}>
+      <:col :let={source_video} label="Video">
+        <div class="flex items-center gap-3">
+          <img
+            src={source_video.thumbnail}
+            alt={source_video.title}
+            class="w-12 h-8 rounded object-cover border shadow-sm"
+          />
+          <div class="min-w-0 flex-1">
+            <p class="text-sm font-medium text-gray-900 truncate">
+              {source_video.title || "Untitled"}
+            </p>
+            <p class="text-xs text-gray-500 truncate">
+              {source_video.channel_title || "Unknown Channel"}
+            </p>
+          </div>
+        </div>
+      </:col>
+
+      <:col :let={source_video} label="Duration">
+        <div class="flex items-center gap-2">
+          <.icon name="hero-clock" class="w-4 h-4 text-gray-400" />
+          <span class="text-sm text-gray-900">{format_duration(source_video.duration)}</span>
+        </div>
+      </:col>
+
+      <:col :let={source_video} label="Shorts">
+        <div class="flex items-center gap-2">
+          <.icon name="hero-film" class="w-4 h-4 text-gray-400" />
+          <span class="text-sm text-gray-900">{source_video.shorts_to_generate || 0}</span>
+          <span class="text-xs text-gray-500">× {source_video.short_duration}s</span>
+        </div>
+      </:col>
+
+      <:col :let={source_video} label="Status">
+        <.status_badge
+          status={humanize_status(source_video.status)}
+          variant={get_status_variant(source_video.status)}
+        />
+      </:col>
+
+      <:col :let={source_video} label="Progress">
+        <div class="w-32">
+          <.progress_bar
+            progress={source_video.progress}
+            variant={get_progress_variant(source_video.progress)}
+            show_label={true}
+          />
+        </div>
+      </:col>
+
+      <:col :let={source_video} label="Requested By">
+        <.avatar_with_name
+          src={source_video.user.avatar_url || "https://via.placeholder.com/32"}
+          name={source_video.user.name || source_video.user.email}
+        />
+      </:col>
+
+      <:action :let={source_video}>
+        <div class="flex items-center gap-2">
+          <.button
+            variant="link"
+            phx-click={JS.navigate(~p"/source_videos/#{source_video.id}/show")}
+            class="text-blue-600 hover:text-blue-800"
+          >
+            <.icon name="hero-eye" class="w-4 h-4" />
+          </.button>
+          <.button
+            variant="link"
+            phx-click={JS.navigate(~p"/source_videos/#{source_video.id}/edit")}
+            class="text-gray-600 hover:text-gray-800"
+          >
+            <.icon name="hero-pencil-square" class="w-4 h-4" />
+          </.button>
+          <.button
+            variant="danger"
+            phx-click="delete"
+            phx-value-id={source_video.id}
+            class="text-red-600 hover:text-red-800"
+          >
+            <.icon name="hero-trash" class="w-4 h-4" />
+          </.button>
+        </div>
+      </:action>
+    </.table>
+  </.card>
 
   <.modal
     :if={@live_action in [:new, :edit]}
@@ -78,7 +141,7 @@
         else: "edit_source_video_form"
     }
     show={@live_action in [:new, :edit]}
-    on_cancel={JS.navigate(~p"/source_video")}
+    on_cancel={JS.navigate(~p"/source_videos")}
   >
     <.live_component
       module={ShortCraftWeb.SourceVideoLive.FormComponent}

@@ -34,6 +34,7 @@ defmodule ShortCraft.Shorts.SourceVideo do
     field :shorts_to_generate, :integer, default: 0
     field :short_duration, :integer, default: 15
     field :progress, :integer, default: 0
+    field :downloaded_file_path, :string
 
     belongs_to :user, ShortCraft.Accounts.User, foreign_key: :user_id
     has_many :shorts, ShortCraft.Shorts.GeneratedShort
@@ -55,6 +56,7 @@ defmodule ShortCraft.Shorts.SourceVideo do
       :shorts_to_generate,
       :short_duration,
       :progress,
+      :downloaded_file_path,
       :user_id
     ])
     |> validate_required([

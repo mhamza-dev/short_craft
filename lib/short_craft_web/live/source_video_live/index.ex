@@ -1,6 +1,8 @@
 defmodule ShortCraftWeb.SourceVideoLive.Index do
   use ShortCraftWeb, :live_view
 
+  require Logger
+
   alias ShortCraft.Shorts
   alias ShortCraft.Shorts.SourceVideo
   alias ShortCraft.Services.YoutubeDownloader
@@ -67,7 +69,7 @@ defmodule ShortCraftWeb.SourceVideoLive.Index do
         {ShortCraftWeb.SourceVideoLive.FormComponent, {:new_source_video, source_video}},
         socket
       ) do
-    IO.puts("New source video received: #{inspect(source_video)}")
+    Logger.info("New source video received: #{inspect(source_video)}")
 
     # Start download in a separate task to avoid blocking
     Task.start(fn ->
@@ -77,11 +79,11 @@ defmodule ShortCraftWeb.SourceVideoLive.Index do
              source_video_id: source_video.id
            ) do
         {:ok, _download_info} ->
-          IO.puts("Download started successfully for video: #{source_video.url}")
+          Logger.info("Download started successfully for video: #{source_video.url}")
           :ok
 
         {:error, reason} ->
-          IO.puts("Failed to start download: #{inspect(reason)}")
+          Logger.info("Failed to start download: #{inspect(reason)}")
           :ok
       end
     end)
@@ -92,7 +94,7 @@ defmodule ShortCraftWeb.SourceVideoLive.Index do
   # Handle download progress updates from PubSub
   @impl true
   def handle_info({:download_progress, progress_message}, socket) do
-    IO.puts("Download progress: #{inspect(progress_message)}")
+    Logger.info("Download progress: #{inspect(progress_message)}")
 
     updated_socket =
       case progress_message.status do
@@ -105,7 +107,7 @@ defmodule ShortCraftWeb.SourceVideoLive.Index do
         :progress ->
           # Update progress in the UI with real-time progress
           progress = progress_message.data.progress
-          IO.puts("Progress: #{progress}")
+          Logger.info("Download progress: #{progress}%")
 
           socket
           |> update_source_video_progress_in_ui(progress_message.video_id, progress)
@@ -113,6 +115,8 @@ defmodule ShortCraftWeb.SourceVideoLive.Index do
 
         :downloaded ->
           # Show completion notification and refresh the source videos list
+          Logger.info("Download completed successfully for video: #{progress_message.video_id}")
+
           socket
           |> update_source_video_status_in_ui(progress_message.video_id, :downloaded)
           |> put_flash(:info, "Download completed successfully!")
@@ -133,14 +137,14 @@ defmodule ShortCraftWeb.SourceVideoLive.Index do
   # Handle task messages to prevent crashes
   @impl true
   def handle_info({ref, result}, socket) when is_reference(ref) do
-    IO.puts("Received task result: #{inspect(result)}")
+    Logger.info("Received task result: #{inspect(result)}")
     {:noreply, socket}
   end
 
   # Catch-all for any other messages
   @impl true
   def handle_info(message, socket) do
-    IO.puts("Unhandled message: #{inspect(message)}")
+    Logger.info("Unhandled message: #{inspect(message)}")
     {:noreply, socket}
   end
 

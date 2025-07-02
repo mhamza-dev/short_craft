@@ -34,6 +34,8 @@ defmodule ShortCraft.Services.YoutubeDownloader do
 
   """
 
+  require Logger
+
   alias Phoenix.PubSub
   alias ShortCraft.Shorts
 
@@ -151,8 +153,20 @@ defmodule ShortCraft.Services.YoutubeDownloader do
 
         case find_downloaded_file(output_path) do
           {:ok, actual_file_path, size} when size > 0 ->
+            Logger.info("Download completed successfully (sync)",
+              video_id: video_id,
+              file_path: actual_file_path,
+              file_size: size,
+              source_video_id: source_video_id
+            )
+
             # Update source video status to completed and progress to 33
-            update_source_video_status_and_progress(source_video_id, :downloaded, 33)
+            update_source_video_status_and_progress(
+              source_video_id,
+              :downloaded,
+              33,
+              actual_file_path
+            )
 
             broadcast_status(user_id, video_id, :downloaded, %{
               file_path: actual_file_path,
@@ -347,8 +361,20 @@ defmodule ShortCraft.Services.YoutubeDownloader do
         # Download completed successfully
         case find_downloaded_file(output_path) do
           {:ok, actual_file_path, size} when size > 0 ->
+            Logger.info("Download completed successfully (async)",
+              video_id: video_id,
+              file_path: actual_file_path,
+              file_size: size,
+              source_video_id: source_video_id
+            )
+
             # Update source video status to completed and progress to 33
-            update_source_video_status_and_progress(source_video_id, :downloaded, 33)
+            update_source_video_status_and_progress(
+              source_video_id,
+              :downloaded,
+              33,
+              actual_file_path
+            )
 
             broadcast_status(user_id, video_id, :downloaded, %{
               file_path: actual_file_path,
@@ -502,21 +528,34 @@ defmodule ShortCraft.Services.YoutubeDownloader do
   @doc false
   @spec find_downloaded_file(String.t()) ::
           {:ok, String.t(), pos_integer()} | {:error, String.t()}
-  defp find_downloaded_file(base_path) do
+  def find_downloaded_file(base_path) do
+    Logger.info("Searching for downloaded file", base_path: base_path)
+
     # Look for files with the base path and common video extensions
     extensions = [".mp4", ".webm", ".mkv", ".avi", ".mov", ".flv"]
 
-    Enum.find_value(extensions, {:error, "No video file found"}, fn ext ->
-      file_path = base_path <> ext
+    result =
+      Enum.find_value(extensions, {:error, "No video file found"}, fn ext ->
+        file_path = base_path <> ext
 
-      case File.stat(file_path) do
-        {:ok, %{size: size}} when size > 0 ->
-          {:ok, file_path, size}
+        case File.stat(file_path) do
+          {:ok, %{size: size}} when size > 0 ->
+            Logger.info("Found downloaded file", file_path: file_path, size: size)
+            {:ok, file_path, size}
 
-        _ ->
-          nil
-      end
-    end)
+          _ ->
+            nil
+        end
+      end)
+
+    case result do
+      {:error, reason} ->
+        Logger.warning("No downloaded file found", base_path: base_path, reason: reason)
+        result
+
+      _ ->
+        result
+    end
   end
 
   @doc false
@@ -541,17 +580,40 @@ defmodule ShortCraft.Services.YoutubeDownloader do
   end
 
   @doc false
-  @spec update_source_video_status_and_progress(String.t() | nil, atom(), integer()) :: :ok
-  defp update_source_video_status_and_progress(nil, _status, _progress), do: :ok
+  @spec update_source_video_status_and_progress(
+          String.t() | nil,
+          atom(),
+          integer(),
+          String.t() | nil
+        ) :: :ok
+  defp update_source_video_status_and_progress(nil, _status, _progress, _downloaded_file_path),
+    do: :ok
 
-  defp update_source_video_status_and_progress(source_video_id, status, progress) do
+  defp update_source_video_status_and_progress(
+         source_video_id,
+         status,
+         progress,
+         downloaded_file_path
+       ) do
     case ShortCraft.Repo.get(Shorts.SourceVideo, source_video_id) do
       %ShortCraft.Shorts.SourceVideo{} = source_video ->
         changeset =
-          Shorts.SourceVideo.changeset(source_video, %{status: status, progress: progress})
+          Shorts.SourceVideo.changeset(source_video, %{
+            status: status,
+            progress: progress,
+            downloaded_file_path: downloaded_file_path
+          })
 
         case ShortCraft.Repo.update(changeset) do
-          {:ok, _} ->
+          {:ok, updated_source_video} ->
+            Logger.info("Successfully updated source video with downloaded file path",
+              source_video_id: source_video_id,
+              status: status,
+              progress: progress,
+              downloaded_file_path: downloaded_file_path,
+              updated_video: inspect(updated_source_video)
+            )
+
             :ok
 
           {:error, changeset} ->

@@ -163,4 +163,33 @@ defmodule ShortCraftWeb.LiveHelpers do
     do: "bg-red-100 text-red-800"
 
   defp colors_by_status(_), do: "bg-gray-100 text-gray-800"
+
+  # Helper function to get status badge variant
+  def get_status_variant(status) do
+    case status do
+      :not_started -> "default"
+      :queued -> "info"
+      :downloading -> "warning"
+      :downloaded -> "success"
+      :shorts_processing -> "warning"
+      :waiting_review -> "info"
+      :shorts_publishing -> "warning"
+      :shorts_published -> "success"
+      :failed -> "danger"
+      :cancelled -> "default"
+      :source_deleted -> "danger"
+      _ -> "default"
+    end
+  end
+
+  # Helper function to get progress bar variant
+  def get_progress_variant(progress) do
+    cond do
+      progress >= 100 -> "success"
+      progress >= 66 -> "primary"
+      progress >= 33 -> "warning"
+      progress > 0 -> "primary"
+      true -> "default"
+    end
+  end
 end

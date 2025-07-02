@@ -1,54 +1,161 @@
-<div class="max-w-xl mx-auto bg-white rounded shadow p-6 mt-8">
-  <div class="flex items-center mb-4">
-    <img
-      src={@source_video.thumbnail}
-      alt="Thumbnail"
-      class="w-32 h-20 rounded mr-4 object-cover border"
-    />
-    <div>
-      <h1 class="text-2xl font-bold mb-1">{@source_video.title}</h1>
-      <p class="text-gray-600 text-sm mb-1">
-        Channel: <span class="font-medium">{@source_video.channel_title}</span>
-      </p>
-      <p class="text-gray-500 text-xs">Duration: {format_duration(@source_video.duration)}</p>
-      <p class="text-gray-500 text-xs mt-1">
-        <span class="font-semibold">Video URL:</span>
-        <a href={@source_video.url} class="text-blue-600 underline break-all" target="_blank">
-          {@source_video.url}
-        </a>
-      </p>
+<div>
+  <.page_header title="Video Details" subtitle="View and manage video information">
+    <:actions>
+      <.button phx-click="back" variant="secondary" class="inline-flex items-center gap-2">
+        <.icon name="hero-arrow-left" class="w-4 h-4" /> Back to Videos
+      </.button>
+    </:actions>
+  </.page_header>
+  
+<!-- Video Info Card -->
+  <.card>
+    <:header>
+      <div class="flex justify-between items-center">
+        <h2 class="text-xl font-semibold text-gray-900">Video Information</h2>
+        
+<!-- Action buttons -->
+        <div class="flex justify-end">
+          <%= if @source_video.status == :downloaded do %>
+            <.button
+              phx-click="generate_shorts"
+              phx-value-id={@source_video.id}
+              class="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+            >
+              <.icon name="hero-play" class="w-5 h-5 mr-2" /> Generate Shorts
+            </.button>
+          <% end %>
+        </div>
+      </div>
+    </:header>
+
+    <div class="flex flex-col lg:flex-row gap-6">
+      <!-- Thumbnail -->
+      <div class="flex-shrink-0">
+        <div class="relative group">
+          <img
+            src={@source_video.thumbnail}
+            alt="Video Thumbnail"
+            class="w-80 h-48 rounded-xl object-cover shadow-lg group-hover:shadow-xl transition-shadow duration-300"
+          />
+          <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-xl transition-colors duration-300">
+          </div>
+        </div>
+      </div>
+      
+<!-- Video details -->
+      <div class="flex-1 min-w-0 space-y-4">
+        <div>
+          <h1 class="text-2xl font-bold text-gray-900 mb-2 leading-tight">
+            {@source_video.title}
+          </h1>
+
+          <div class="space-y-2">
+            <div class="flex items-center text-gray-600">
+              <.icon name="hero-user-circle" class="w-4 h-4 mr-2 text-red-500" />
+              <span class="font-medium">{@source_video.channel_title}</span>
+            </div>
+
+            <div class="flex items-center text-gray-600">
+              <.icon name="hero-clock" class="w-4 h-4 mr-2 text-blue-500" />
+              <span>{format_duration(@source_video.duration)}</span>
+            </div>
+
+            <div class="flex items-center text-gray-600">
+              <.icon name="hero-link" class="w-4 h-4 mr-2 text-green-500" />
+              <a
+                href={@source_video.url}
+                class="text-blue-600 hover:text-blue-800 underline break-all"
+                target="_blank"
+              >
+                View on YouTube
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-  <div class="mt-4 space-y-2">
-    <div class="flex items-center justify-between text-sm">
-      <span class="font-semibold w-40">Status:</span>
-      <span class={status_badge_class(@source_video.status)}>
-        {humanize_status(@source_video.status)}
-      </span>
+  </.card>
+  
+<!-- Status and Progress Card -->
+  <.card>
+    <:header>
+      <h2 class="text-lg font-semibold text-gray-900">Status & Progress</h2>
+    </:header>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Left column -->
+      <div class="space-y-4">
+        <!-- Status -->
+        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <span class="text-sm font-semibold text-gray-700">Status</span>
+          <.status_badge
+            status={humanize_status(@source_video.status)}
+            variant={get_status_variant(@source_video.status)}
+          />
+        </div>
+        
+<!-- Progress -->
+        <div class="space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-sm font-semibold text-gray-700">Progress</span>
+            <span class="text-sm font-bold text-blue-600">{@source_video.progress}%</span>
+          </div>
+          <.progress_bar
+            progress={@source_video.progress}
+            variant={get_progress_variant(@source_video.progress)}
+            size="lg"
+          />
+        </div>
+        
+<!-- Shorts to Generate -->
+        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <span class="text-sm font-semibold text-gray-700">Shorts to Generate</span>
+          <span class="text-sm text-gray-900 font-medium">
+            {(@source_video.shorts_to_generate > 0 && @source_video.shorts_to_generate) ||
+              "Not Set"}
+          </span>
+        </div>
+      </div>
+      
+<!-- Right column -->
+      <div class="space-y-4">
+        <!-- Auto Upload -->
+        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+          <span class="text-sm font-semibold text-gray-700">Auto Upload Shorts</span>
+          <.status_badge
+            status={humanize_status(@source_video.auto_upload_shorts)}
+            variant={if @source_video.auto_upload_shorts, do: "success", else: "default"}
+          />
+        </div>
+        
+<!-- Downloaded File -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <div class="flex items-start justify-between">
+            <span class="text-sm font-semibold text-gray-700">Downloaded File</span>
+            <span class="text-xs text-gray-600 break-all max-w-48 text-right">
+              {if @source_video.downloaded_file_path do
+                @source_video.downloaded_file_path
+              else
+                "Not downloaded yet"
+              end}
+            </span>
+          </div>
+        </div>
+        
+<!-- Timestamps -->
+        <div class="p-4 bg-gray-50 rounded-lg">
+          <div class="space-y-2">
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-500">Created</span>
+              <span class="text-gray-900">{format_datetime(@source_video.inserted_at)}</span>
+            </div>
+            <div class="flex items-center justify-between text-xs">
+              <span class="text-gray-500">Updated</span>
+              <span class="text-gray-900">{format_datetime(@source_video.updated_at)}</span>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
-    <div class="flex items-center justify-between text-sm">
-      <span class="font-semibold w-40">Shorts to Generate:</span>
-      <span>
-        {(@source_video.shorts_to_generate > 0 && @source_video.shorts_to_generate) || "Not Set"}
-      </span>
-    </div>
-    <div class="flex items-center justify-between text-sm">
-      <span class="font-semibold w-40">Auto Upload Shorts:</span>
-      <span class={status_badge_class(@source_video.auto_upload_shorts)}>
-        {humanize_status(@source_video.auto_upload_shorts)}
-      </span>
-    </div>
-    <div class="flex items-center justify-between text-sm">
-      <span class="font-semibold w-40">Inserted At:</span>
-      <span>
-        {format_datetime(@source_video.inserted_at)}
-      </span>
-    </div>
-    <div class="flex items-center justify-between text-sm">
-      <span class="font-semibold w-40">Updated At:</span>
-      <span>
-        {format_datetime(@source_video.updated_at)}
-      </span>
-    </div>
-  </div>
+  </.card>
 </div>
