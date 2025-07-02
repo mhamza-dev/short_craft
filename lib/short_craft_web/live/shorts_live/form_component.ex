@@ -97,14 +97,18 @@ defmodule ShortCraftWeb.ShortsLive.FormComponent do
   end
 
   def handle_event("save", %{"source_video" => params}, socket) do
-    dbg(params)
     save_source_video(socket, socket.assigns.action, params)
   end
 
   defp save_source_video(socket, :edit, params) do
     case Shorts.update_source_video(socket.assigns.source_video, params) do
-      {:ok, _source_video} ->
-        {:noreply, redirect(socket, to: ~p"/shorts")}
+      {:ok, source_video} ->
+        notify_parent({:updated_source_video, source_video})
+
+        {:noreply,
+         socket
+         |> put_flash(:info, "Source video updated successfully")
+         |> push_patch(to: ~p"/shorts")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign_form(socket, changeset)}
@@ -114,8 +118,12 @@ defmodule ShortCraftWeb.ShortsLive.FormComponent do
   defp save_source_video(socket, :new, params) do
     case Shorts.create_source_video(params) do
       {:ok, source_video} ->
-        send(self(), {:new_source_video, source_video})
-        {:noreply, redirect(socket, to: ~p"/shorts")}
+        notify_parent({:new_source_video, source_video})
+
+        {:noreply,
+         socket
+         |> put_flash(:info, "Source video created successfully")
+         |> push_patch(to: ~p"/shorts")}
 
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign_form(socket, changeset)}
@@ -124,5 +132,9 @@ defmodule ShortCraftWeb.ShortsLive.FormComponent do
 
   defp assign_form(socket, changeset) do
     assign(socket, form: to_form(changeset, as: :source_video))
+  end
+
+  defp notify_parent(message) do
+    send(self(), {__MODULE__, message})
   end
 end

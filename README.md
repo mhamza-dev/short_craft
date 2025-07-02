@@ -48,6 +48,7 @@ A modern Phoenix application for creating and managing short-form video content 
 - Erlang 25+
 - PostgreSQL
 - FFmpeg (for video processing)
+- yt-dlp (for YouTube video downloads)
 
 ## Installation
 
@@ -58,26 +59,39 @@ git clone <repository-url>
 cd short_craft
 ```
 
-2. Install dependencies:
+2. Install yt-dlp for YouTube video downloads:
+
+```bash
+# Recommended: use the setup script (auto-detects asdf, pip3, or python3)
+./scripts/setup_ytdlp.sh
+```
+
+- The script will install yt-dlp using asdf (if available), pip3, or python3, depending on your system.
+- It will automatically detect the yt-dlp executable and set `YTDLP_PATH` in your `.env` file.
+- The application will use the `YTDLP_PATH` from `.env` for all YouTube downloads.
+
+If you prefer manual installation, ensure `yt-dlp` is installed and available in your PATH, and set `YTDLP_PATH` in your `.env` file accordingly.
+
+3. Install dependencies:
 
 ```bash
 mix deps.get
 ```
 
-3. Setup the database:
+4. Setup the database:
 
 ```bash
 mix ecto.setup
 ```
 
-4. Install and build assets:
+5. Install and build assets:
 
 ```bash
 mix assets.setup
 mix assets.build
 ```
 
-5. Start the Phoenix server:
+6. Start the Phoenix server:
 
 ```bash
 mix phx.server
@@ -95,13 +109,22 @@ Now you can visit [`localhost:4000`](http://localhost:4000) from your browser.
 - `mix assets.build` - Build frontend assets
 - `mix assets.deploy` - Build and minify assets for production
 
+### Setup Scripts
+
+- `./scripts/setup_ytdlp.sh` - Install and configure yt-dlp for YouTube downloads
+
 ### Environment Variables
 
-Create a `.env` file with the following variables:
+The setup script will create or update your `.env` file with the correct `YTDLP_PATH` for your system. You do not need to manually set the PATH for yt-dlp if you use the script.
+
+Other environment variables (database, OAuth, etc.) should be set as described below:
 
 ```env
 # Database
 DATABASE_URL=postgresql://username:password@localhost/short_craft_dev
+
+# YouTube Downloader
+YTDLP_PATH=/full/path/to/yt-dlp
 
 # OAuth2 Providers
 GOOGLE_CLIENT_ID=your_google_client_id
@@ -113,6 +136,11 @@ FACEBOOK_CLIENT_SECRET=your_facebook_client_secret
 
 # Application
 SECRET_KEY_BASE=your_secret_key_base
+PHX_HOST=localhost
+PHX_PORT=4000
+
+# Storage
+STORAGE_PATH=priv/storage/videos
 ```
 
 ## Project Structure

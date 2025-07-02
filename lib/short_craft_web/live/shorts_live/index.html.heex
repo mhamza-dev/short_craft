@@ -39,8 +39,11 @@
       </span>
     </:col>
     <:col :let={source_video} label="Progress">
-      <%= if Map.has_key?(source_video, :progress) do %>
-        <.progress_bar progress={source_video.progress} />
+      <%= if Map.has_key?(source_video, :progress) and source_video.progress > 0 do %>
+        <div class="space-y-1">
+          <.progress_bar progress={source_video.progress} />
+          <p class="text-xs text-gray-600 text-center">{source_video.progress}%</p>
+        </div>
       <% else %>
         -
       <% end %>

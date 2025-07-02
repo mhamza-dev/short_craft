@@ -8,6 +8,7 @@ defmodule ShortCraft.Shorts.SourceVideo do
   @status_values [
     :not_started,
     :queued,
+    :downloading,
     :processing,
     :waiting_review,
     :rejected,
@@ -29,6 +30,7 @@ defmodule ShortCraft.Shorts.SourceVideo do
     field :channel_title, :string
     field :auto_upload_shorts, :boolean, default: false
     field :shorts_to_generate, :integer, default: 0
+    field :progress, :integer, default: 0
 
     belongs_to :user, ShortCraft.Accounts.User, foreign_key: :user_id
     has_many :shorts, ShortCraft.Shorts.GeneratedShort

@@ -40,7 +40,7 @@ defmodule ShortCraft.Services.Youtube do
   end
 
   defp parse_video_details(body) do
-    data = Jason.decode!(body) |> dbg()
+    data = Jason.decode!(body)
 
     case data["items"] do
       [item | _] ->
