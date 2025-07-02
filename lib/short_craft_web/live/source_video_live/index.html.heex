@@ -29,6 +29,12 @@
     <:col :let={source_video} label="Channel">
       {source_video.channel_title || "-"}
     </:col>
+    <:col :let={source_video} label="Shorts">
+      {source_video.shorts_to_generate || "-"}
+    </:col>
+    <:col :let={source_video} label="Shorts Duration">
+      {source_video.short_duration || "-"}
+    </:col>
     <:col :let={source_video} label="Auto Upload">
       <span class={status_badge_class(source_video.auto_upload_shorts)}>
         {humanize_status(source_video.auto_upload_shorts)}

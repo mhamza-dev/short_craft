@@ -98,12 +98,16 @@ defmodule ShortCraftWeb.SourceVideoLive.FormComponent do
   end
 
   def handle_event("validate", %{"source_video" => params}, socket) do
-    changeset =
-      socket.assigns.source_video
-      |> SourceVideo.changeset(params)
-      |> Map.put(:action, :validate)
+    if socket.assigns.need_validation do
+      {:noreply, socket}
+    else
+      changeset =
+        socket.assigns.source_video
+        |> SourceVideo.changeset(params)
+        |> Map.put(:action, :validate)
 
-    {:noreply, socket |> assign_form(changeset)}
+      {:noreply, socket |> assign_form(changeset)}
+    end
   end
 
   def handle_event("validate-url", %{"source_video" => %{"url" => url}}, socket) do
