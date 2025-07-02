@@ -9,7 +9,14 @@ echo "🎥 Setting up yt-dlp for YouTube video downloads..."
 if command -v yt-dlp &> /dev/null; then
     YTDLP_PATH="$(command -v yt-dlp)"
     echo "✅ yt-dlp is already installed at $YTDLP_PATH"
-    echo "YTDLP_PATH=\"$YTDLP_PATH\"" > .env
+    if grep -q '^YTDLP_PATH=' .env 2>/dev/null; then
+        # Update existing YTDLP_PATH
+        sed -i.bak "s|^YTDLP_PATH=.*$|YTDLP_PATH=\"$YTDLP_PATH\"|" .env
+        rm -f .env.bak
+    else
+        # Append if not present
+        echo "YTDLP_PATH=\"$YTDLP_PATH\"" >> .env
+    fi
     echo "YTDLP_PATH set in .env"
     yt-dlp --version
     exit 0
@@ -21,8 +28,8 @@ if command -v asdf &> /dev/null; then
     if ! asdf plugin-list | grep -q python; then
         asdf plugin-add python
     fi
-    asdf install python latest
-    asdf global python latest
+    asdf install python 3.12.2
+    asdf global python 3.12.2
     python3 -m pip install --user --upgrade yt-dlp
     # Find yt-dlp in asdf python user base
     YTDLP_PATH="$(asdf where python)/bin/yt-dlp"
@@ -32,7 +39,14 @@ if command -v asdf &> /dev/null; then
     fi
     if [ -x "$YTDLP_PATH" ]; then
         echo "✅ yt-dlp installed at: $YTDLP_PATH"
-        echo "YTDLP_PATH=\"$YTDLP_PATH\"" > .env
+        if grep -q '^YTDLP_PATH=' .env 2>/dev/null; then
+            # Update existing YTDLP_PATH
+            sed -i.bak "s|^YTDLP_PATH=.*$|YTDLP_PATH=\"$YTDLP_PATH\"|" .env
+            rm -f .env.bak
+        else
+            # Append if not present
+            echo "YTDLP_PATH=\"$YTDLP_PATH\"" >> .env
+        fi
         echo "YTDLP_PATH set in .env"
         "$YTDLP_PATH" --version
         exit 0
@@ -46,7 +60,14 @@ if command -v pip3 &> /dev/null; then
     YTDLP_PATH="$(python3 -m site --user-base)/bin/yt-dlp"
     if [ -x "$YTDLP_PATH" ]; then
         echo "✅ yt-dlp installed at: $YTDLP_PATH"
-        echo "YTDLP_PATH=\"$YTDLP_PATH\"" > .env
+        if grep -q '^YTDLP_PATH=' .env 2>/dev/null; then
+            # Update existing YTDLP_PATH
+            sed -i.bak "s|^YTDLP_PATH=.*$|YTDLP_PATH=\"$YTDLP_PATH\"|" .env
+            rm -f .env.bak
+        else
+            # Append if not present
+            echo "YTDLP_PATH=\"$YTDLP_PATH\"" >> .env
+        fi
         echo "YTDLP_PATH set in .env"
         "$YTDLP_PATH" --version
         exit 0
@@ -60,7 +81,14 @@ if command -v python3 &> /dev/null; then
     YTDLP_PATH="$(python3 -m site --user-base)/bin/yt-dlp"
     if [ -x "$YTDLP_PATH" ]; then
         echo "✅ yt-dlp installed at: $YTDLP_PATH"
-        echo "YTDLP_PATH=\"$YTDLP_PATH\"" > .env
+        if grep -q '^YTDLP_PATH=' .env 2>/dev/null; then
+            # Update existing YTDLP_PATH
+            sed -i.bak "s|^YTDLP_PATH=.*$|YTDLP_PATH=\"$YTDLP_PATH\"|" .env
+            rm -f .env.bak
+        else
+            # Append if not present
+            echo "YTDLP_PATH=\"$YTDLP_PATH\"" >> .env
+        fi
         echo "YTDLP_PATH set in .env"
         "$YTDLP_PATH" --version
         exit 0
@@ -69,6 +97,3 @@ fi
 
 echo "❌ yt-dlp installation failed. Please check your Python/pip3/asdf setup."
 exit 1
-
-echo "🎉 yt-dlp setup complete!"
-echo "You can now use the YouTube downloader service in ShortCraft." 

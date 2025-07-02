@@ -206,15 +206,15 @@ defmodule ShortCraftWeb.CoreComponents do
   def simple_form(assigns) do
     ~H"""
     <.form :let={f} for={@for} as={@as} {@rest}>
-      <div class="mt-10 space-y-2 bg-white">
+      <div class="space-y-2">
         {render_slot(@inner_block, f)}
         <div
           :for={action <- @actions}
-          class={["mt-2 flex items-center justify-between gap-6", @actions_class]}
+          class={["flex items-center justify-between gap-4", @actions_class]}
         >
           {render_slot(action, f)}
         </div>
-        <div class="mt-2 flex flex-col items-center justify-center gap-6">
+        <div class="flex flex-col items-center justify-center gap-4">
           {render_slot(@after_actions)}
         </div>
       </div>
@@ -223,16 +223,23 @@ defmodule ShortCraftWeb.CoreComponents do
   end
 
   @doc """
-  Renders a button.
+  Renders a button with enhanced variants and modern styling.
 
   ## Examples
 
       <.button>Send!</.button>
       <.button phx-click="go" class="ml-2">Send!</.button>
+      <.button variant="gradient">Gradient Button</.button>
+      <.button variant="outline" size="lg">Large Outline</.button>
   """
   attr :type, :string, default: nil
   attr :class, :string, default: nil
-  attr :variant, :string, default: "primary", values: ~w(primary secondary danger link)
+
+  attr :variant, :string,
+    default: "primary",
+    values: ~w(primary secondary danger link gradient success warning info outline ghost)
+
+  attr :size, :string, default: "md", values: ~w(sm md lg xl)
   attr :rest, :global, include: ~w(disabled form name value)
 
   slot :inner_block, required: true
@@ -241,15 +248,38 @@ defmodule ShortCraftWeb.CoreComponents do
     ~H"""
     <button
       type={@type}
-      class={[
-        "phx-submit-loading:opacity-75 rounded-lg py-2 px-3",
-        "text-sm font-semibold leading-6 active:text-white/80",
-        @variant == "primary" && "text-white bg-zinc-900 hover:bg-zinc-700",
-        @variant == "secondary" && "text-zinc-900 bg-zinc-100 hover:bg-zinc-200",
-        @variant == "danger" && "text-white bg-red-500 hover:bg-red-600",
-        @variant == "link" && "p-0 text-blue-600 hover:text-blue-700",
-        @class
-      ]}
+      class={
+        [
+          "phx-submit-loading:opacity-75 font-semibold transition-all duration-200",
+          "focus:outline-none focus:ring-2 focus:ring-offset-2",
+          "disabled:opacity-50 disabled:cursor-not-allowed",
+          # Size variants
+          @size == "sm" && "px-3 py-1.5 text-xs rounded-md",
+          @size == "md" && "px-4 py-2 text-sm rounded-lg",
+          @size == "lg" && "px-6 py-3 text-base rounded-xl",
+          @size == "xl" && "px-8 py-4 text-lg rounded-xl",
+          # Color variants
+          @variant == "primary" &&
+            "text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 shadow-sm hover:shadow-md",
+          @variant == "secondary" &&
+            "text-gray-700 bg-gray-100 hover:bg-gray-200 focus:ring-gray-500",
+          @variant == "danger" &&
+            "text-white bg-red-600 hover:bg-red-700 focus:ring-red-500 shadow-sm hover:shadow-md",
+          @variant == "link" && "p-0 text-blue-600 hover:text-blue-700 underline",
+          @variant == "gradient" &&
+            "text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:ring-blue-500 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5",
+          @variant == "success" &&
+            "text-white bg-green-600 hover:bg-green-700 focus:ring-green-500 shadow-sm hover:shadow-md",
+          @variant == "warning" &&
+            "text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500 shadow-sm hover:shadow-md",
+          @variant == "info" &&
+            "text-white bg-cyan-600 hover:bg-cyan-700 focus:ring-cyan-500 shadow-sm hover:shadow-md",
+          @variant == "outline" &&
+            "text-blue-600 bg-transparent border-2 border-blue-600 hover:bg-blue-50 focus:ring-blue-500",
+          @variant == "ghost" && "text-gray-700 bg-transparent hover:bg-gray-100 focus:ring-gray-500",
+          @class
+        ]
+      }
       {@rest}
     >
       {render_slot(@inner_block)}
@@ -399,10 +429,11 @@ defmodule ShortCraftWeb.CoreComponents do
         id={@id}
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
         class={[
-          "mt-2 block w-full rounded-lg text-zinc-900 focus:ring-0 sm:text-sm sm:leading-6",
-          @errors == [] && "border-zinc-300 focus:border-zinc-400",
-          @errors != [] && "border-rose-400 focus:border-rose-400",
-          @rest[:disabled] && "bg-zinc-100 text-zinc-500 cursor-not-allowed"
+          "mt-2 block w-full rounded-lg px-4 py-3 text-gray-900 transition-all duration-200",
+          "border-2 focus:outline-none focus:ring-2 focus:ring-offset-2 sm:text-sm",
+          @errors == [] && "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20",
+          @errors != [] && "border-red-400 focus:border-red-500 focus:ring-red-500/20",
+          @rest[:disabled] && "bg-gray-100 text-gray-500 cursor-not-allowed"
         ]}
         {@rest}
       />
@@ -452,10 +483,10 @@ defmodule ShortCraftWeb.CoreComponents do
     ~H"""
     <header class={[@actions != [] && "flex items-center justify-between gap-6", @class]}>
       <div>
-        <h1 class="text-lg font-semibold leading-8 text-zinc-800">
+        <h1 class="text-2xl font-bold leading-8 text-gray-900">
           {render_slot(@inner_block)}
         </h1>
-        <p :if={@subtitle != []} class="mt-2 text-sm leading-6 text-zinc-600">
+        <p :if={@subtitle != []} class="mt-2 text-base leading-6 text-gray-600">
           {render_slot(@subtitle)}
         </p>
       </div>
@@ -473,11 +504,19 @@ defmodule ShortCraftWeb.CoreComponents do
         <:col :let={user} label="id"><%= user.id %></:col>
         <:col :let={user} label="username"><%= user.username %></:col>
       </.table>
+
+  ## Options
+  - `scroll_class`: Optional. CSS class for horizontal scroll behavior. Defaults to `"overflow-x-auto"`.
   """
   attr :id, :string, required: true
   attr :rows, :list, required: true
   attr :row_id, :any, default: nil, doc: "the function for generating the row id"
   attr :row_click, :any, default: nil, doc: "the function for handling phx-click on each row"
+  attr :class, :string, default: nil
+
+  attr :scroll_class, :string,
+    default: "overflow-x-auto",
+    doc: "CSS class for horizontal scroll behavior"
 
   attr :row_item, :any,
     default: &Function.identity/1,
@@ -496,8 +535,8 @@ defmodule ShortCraftWeb.CoreComponents do
       end
 
     ~H"""
-    <div class="w-full mx-auto overflow-x-auto px-4 items-center">
-      <table class="min-w-max mt-11">
+    <div class={["w-full max-w-full", @scroll_class, @class]}>
+      <table class="w-full max-w-full table-auto">
         <thead class="text-sm text-left leading-6 text-zinc-500">
           <tr>
             <th class="p-0 pb-4 pr-6 font-normal">No.</th>
@@ -517,7 +556,7 @@ defmodule ShortCraftWeb.CoreComponents do
             id={@row_id && @row_id.(row)}
             class="group hover:bg-zinc-50"
           >
-            <td>
+            <td class="align-top" style="width: 1%; white-space: nowrap;">
               <div class="block py-4 pr-6">
                 <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl" />
                 <span class={["relative", idx == 0 && "font-semibold text-zinc-900"]}>
@@ -528,7 +567,8 @@ defmodule ShortCraftWeb.CoreComponents do
             <td
               :for={{col, i} <- Enum.with_index(@col)}
               phx-click={@row_click && @row_click.(row)}
-              class={["relative p-0", @row_click && "hover:cursor-pointer"]}
+              class={["relative p-0 align-top", @row_click && "hover:cursor-pointer"]}
+              style={"width: #{100 / (Enum.count(@col) + 1)}%;"}
             >
               <div class="block py-4 pr-6">
                 <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl" />
@@ -537,7 +577,7 @@ defmodule ShortCraftWeb.CoreComponents do
                 </span>
               </div>
             </td>
-            <td :if={@action != []} class="relative w-14 p-0">
+            <td :if={@action != []} class="relative w-14 p-0 align-top">
               <div class="relative whitespace-nowrap py-4 text-right text-sm font-medium">
                 <span class="absolute -inset-y-px -right-4 left-0 group-hover:bg-zinc-50 sm:rounded-r-xl" />
                 <span
@@ -830,14 +870,29 @@ defmodule ShortCraftWeb.CoreComponents do
   attr :trend, :string, default: nil
   attr :trend_direction, :string, default: "up", values: ~w(up down)
   attr :class, :string, default: nil
+  attr :variant, :string, default: "default", values: ~w(default success warning danger info)
 
   def stats_card(assigns) do
     ~H"""
-    <div class={["bg-white rounded-xl shadow-sm border border-gray-200 p-6", @class]}>
+    <div class={[
+      "rounded-xl shadow-sm border p-6",
+      get_stats_card_variant_classes(@variant),
+      @class
+    ]}>
       <div class="flex items-center">
         <div class="flex-1">
-          <p class="text-sm font-medium text-gray-600">{@title}</p>
-          <p class="text-2xl font-bold text-gray-900 mt-1">{@value}</p>
+          <p class={[
+            "text-sm font-medium",
+            get_stats_card_title_color(@variant)
+          ]}>
+            {@title}
+          </p>
+          <p class={[
+            "text-2xl font-bold mt-1",
+            get_stats_card_value_color(@variant)
+          ]}>
+            {@value}
+          </p>
           <div :if={@trend} class="flex items-center mt-2">
             <.icon
               name={
@@ -845,11 +900,14 @@ defmodule ShortCraftWeb.CoreComponents do
                   do: "hero-arrow-trending-up",
                   else: "hero-arrow-trending-down"
               }
-              class={[
-                "w-4 h-4 mr-1",
-                @trend_direction == "up" && "text-green-500",
-                @trend_direction == "down" && "text-red-500"
-              ]}
+              class={
+                [
+                  "w-4 h-4 mr-1",
+                  @trend_direction == "up" && "text-green-500",
+                  @trend_direction == "down" && "text-red-500"
+                ]
+                |> Enum.join(" ")
+              }
             />
             <span class={[
               "text-sm font-medium",
@@ -861,7 +919,16 @@ defmodule ShortCraftWeb.CoreComponents do
           </div>
         </div>
         <div :if={@icon} class="flex-shrink-0">
-          <.icon name={@icon} class="w-8 h-8 text-gray-400" />
+          <.icon
+            name={@icon}
+            class={
+              [
+                "w-8 h-8",
+                get_stats_card_icon_color(@variant)
+              ]
+              |> Enum.join(" ")
+            }
+          />
         </div>
       </div>
     </div>
@@ -939,9 +1006,181 @@ defmodule ShortCraftWeb.CoreComponents do
   end
 
   @doc """
+  Renders a social login button.
+
+  ## Examples
+
+      <.social_link provider="google" href="/auth/google" />
+      <.social_link provider="github" href="/auth/github" label="Sign in with GitHub" />
+  """
+  attr :provider, :string, required: true, values: ~w(google github facebook twitter linkedin)
+  attr :href, :string, required: true
+  attr :label, :string, default: nil
+  attr :class, :string, default: nil
+  attr :size, :string, default: "md", values: ~w(sm md lg)
+
+  def social_link(assigns) do
+    ~H"""
+    <.link
+      href={@href}
+      class={[
+        "flex flex-col items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200",
+        @size == "sm" && "p-2",
+        @size == "md" && "p-3",
+        @size == "lg" && "p-4",
+        @class
+      ]}
+    >
+      <i class={[
+        "fa-brands fa-#{@provider} mb-1",
+        @size == "sm" && "fa-sm",
+        @size == "md" && "fa-lg",
+        @size == "lg" && "fa-xl",
+        get_social_icon_color(@provider)
+      ]}>
+      </i>
+      <span class={[
+        "text-gray-600",
+        @size == "sm" && "text-xs",
+        @size == "md" && "text-xs",
+        @size == "lg" && "text-sm"
+      ]}>
+        {@label || String.capitalize(@provider)}
+      </span>
+    </.link>
+    """
+  end
+
+  @doc """
+  Renders the ShortCraft logo SVG.
+
+  ## Examples
+
+      <.logo class="w-8 h-8" />
+      <.logo class="w-16 h-16" color="white" />
+  """
+  attr :class, :string, default: "w-6 h-6"
+  attr :color, :string, default: "currentColor"
+
+  def logo(assigns) do
+    ~H"""
+    <svg class={@class} fill="none" stroke={@color} viewBox="0 0 24 24">
+      <path
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+        d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
+      >
+      </path>
+    </svg>
+    """
+  end
+
+  @doc """
+  Renders a grid of social login buttons.
+
+  ## Examples
+
+      <.social_links_grid>
+        <.social_link provider="google" href="/auth/google" />
+        <.social_link provider="github" href="/auth/github" />
+        <.social_link provider="facebook" href="/auth/facebook" />
+      </.social_links_grid>
+  """
+  attr :class, :string, default: nil
+  attr :columns, :integer, default: 3
+
+  slot :inner_block, required: true
+
+  def social_links_grid(assigns) do
+    ~H"""
+    <div class={[
+      "grid gap-3",
+      @columns == 2 && "grid-cols-2",
+      @columns == 3 && "grid-cols-3",
+      @columns == 4 && "grid-cols-4",
+      @class
+    ]}>
+      {render_slot(@inner_block)}
+    </div>
+    """
+  end
+
+  @doc """
   Translates the errors for a field from a keyword list of errors.
   """
   def translate_errors(errors, field) when is_list(errors) do
     for {^field, {msg, opts}} <- errors, do: translate_error({msg, opts})
+  end
+
+  @doc """
+  Renders a dropdown menu for row actions.
+
+  ## Example
+
+    <.row_actions id={row.id}>
+      <:item icon="hero-eye" label="View" navigate={~p"/source_videos/1/show"} />
+      <:item icon="hero-pencil-square" label="Edit" navigate={~p"/source_videos/1/edit"} />
+      <:item icon="hero-trash" label="Delete" phx_click="delete" phx_value_id="1" variant="danger" />
+    </.row_actions>
+  """
+  attr :id, :any, required: true
+
+  slot :item, required: true do
+    attr :icon, :string, required: true
+    attr :label, :string, required: true
+    attr :navigate, :string
+    attr :phx_click, :string
+    attr :phx_value_id, :string
+    attr :variant, :string
+  end
+
+  def row_actions(assigns) do
+    ~H"""
+    <div class="relative inline-block text-left">
+      <button
+        type="button"
+        phx-click={JS.toggle(to: "#dropdown-#{@id}")}
+        class="p-2 rounded-full hover:bg-gray-100 focus:outline-none transition-colors"
+      >
+        <.icon name="hero-ellipsis-vertical" class="w-5 h-5" />
+      </button>
+      <div
+        id={"dropdown-#{@id}"}
+        phx-click-away={JS.hide(to: "#dropdown-#{@id}")}
+        class="hidden absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+      >
+        <div class="py-1">
+          <%= for item <- @item do %>
+            <%= if Map.get(item, :navigate) do %>
+              <.link
+                navigate={item.navigate}
+                class={[
+                  "flex items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100",
+                  Map.get(item, :variant) == "danger" && "text-red-600"
+                ]}
+              >
+                <.icon name={item.icon} class="w-4 h-4" />
+                <span>{item.label}</span>
+              </.link>
+            <% else %>
+              <button
+                type="button"
+                phx-click={item.phx_click}
+                phx-value-id={item.phx_value_id}
+                class={[
+                  "flex w-full items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 text-left",
+                  Map.get(item, :variant) == "danger" && "text-red-600"
+                ]}
+              >
+                <.icon name={item.icon} class="w-4 h-4" />
+                <span>{item.label}</span>
+              </button>
+            <% end %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+    """
   end
 end

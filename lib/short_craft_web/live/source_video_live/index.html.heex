@@ -11,11 +11,12 @@
   </.page_header>
   
 <!-- Stats Overview -->
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
     <.stats_card
       title="Total Videos"
       value={length(@source_videos) |> to_string()}
       icon="hero-video-camera"
+      variant="default"
     />
     <.stats_card
       title="Downloaded"
@@ -37,7 +38,13 @@
       title="Completed"
       value={@source_videos |> Enum.count(&(&1.status == :shorts_published)) |> to_string()}
       icon="hero-check-circle"
-      variant="success"
+      variant="info"
+    />
+    <.stats_card
+      title="Failed"
+      value={@source_videos |> Enum.count(&(&1.status == :error)) |> to_string()}
+      icon="hero-exclamation-triangle"
+      variant="danger"
     />
   </div>
 
@@ -46,7 +53,7 @@
       <h2 class="text-lg font-semibold text-gray-900">Video List</h2>
     </:header>
 
-    <.table id="source_video" rows={@source_videos}>
+    <.table id="source_video" rows={@source_videos} class="min-h-[450px]">
       <:col :let={source_video} label="Video">
         <div class="flex items-center gap-3">
           <img
@@ -55,7 +62,7 @@
             class="w-12 h-8 rounded object-cover border shadow-sm"
           />
           <div class="min-w-0 flex-1">
-            <p class="text-sm font-medium text-gray-900 truncate">
+            <p class="text-sm font-medium text-gray-900 truncate max-w-[200px]">
               {source_video.title || "Untitled"}
             </p>
             <p class="text-xs text-gray-500 truncate">
@@ -105,30 +112,32 @@
       </:col>
 
       <:action :let={source_video}>
-        <div class="flex items-center gap-2">
-          <.button
-            variant="link"
-            phx-click={JS.navigate(~p"/source_videos/#{source_video.id}/show")}
-            class="text-blue-600 hover:text-blue-800"
-          >
-            <.icon name="hero-eye" class="w-4 h-4" />
-          </.button>
-          <.button
-            variant="link"
-            phx-click={JS.navigate(~p"/source_videos/#{source_video.id}/edit")}
-            class="text-gray-600 hover:text-gray-800"
-          >
-            <.icon name="hero-pencil-square" class="w-4 h-4" />
-          </.button>
-          <.button
+        <.row_actions id={source_video.id}>
+          <:item
+            icon="hero-eye"
+            label="View"
+            navigate={~p"/source_videos/#{source_video.id}/show"}
+          />
+          <:item
+            icon="hero-pencil-square"
+            label="Edit"
+            navigate={~p"/source_videos/#{source_video.id}/edit"}
+          />
+          <:item
+            icon="hero-trash"
+            label="Delete"
+            phx_click="delete"
+            phx_value_id={source_video.id}
             variant="danger"
-            phx-click="delete"
-            phx-value-id={source_video.id}
-            class="text-red-600 hover:text-red-800"
-          >
-            <.icon name="hero-trash" class="w-4 h-4" />
-          </.button>
-        </div>
+          />
+          <:item
+            :if={source_video.status == :downloaded}
+            icon="hero-play"
+            label="Generate Shorts"
+            phx_click="generate_shorts"
+            phx_value_id={source_video.id}
+          />
+        </.row_actions>
       </:action>
     </.table>
   </.card>

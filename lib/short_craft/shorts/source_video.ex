@@ -11,6 +11,7 @@ defmodule ShortCraft.Shorts.SourceVideo do
     :downloading,
     :downloaded,
     :shorts_processing,
+    :shorts_generation_failed,
     :waiting_review,
     :shorts_publishing,
     :shorts_published,

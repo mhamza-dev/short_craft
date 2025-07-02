@@ -192,4 +192,37 @@ defmodule ShortCraftWeb.LiveHelpers do
       true -> "default"
     end
   end
+
+  # Helper function to get social icon colors
+  def get_social_icon_color("google"), do: "text-red-500"
+  def get_social_icon_color("github"), do: "text-gray-800"
+  def get_social_icon_color("facebook"), do: "text-blue-600"
+  def get_social_icon_color("twitter"), do: "text-blue-400"
+  def get_social_icon_color("linkedin"), do: "text-blue-700"
+  def get_social_icon_color(_), do: "text-gray-600"
+
+  # Helper functions for stats card variants
+  def get_stats_card_variant_classes("default"), do: "bg-white border-gray-200"
+  def get_stats_card_variant_classes("success"), do: "bg-green-50 border-green-200"
+  def get_stats_card_variant_classes("warning"), do: "bg-yellow-50 border-yellow-200"
+  def get_stats_card_variant_classes("danger"), do: "bg-red-50 border-red-200"
+  def get_stats_card_variant_classes("info"), do: "bg-blue-50 border-blue-200"
+
+  def get_stats_card_title_color("default"), do: "text-gray-600"
+  def get_stats_card_title_color("success"), do: "text-green-700"
+  def get_stats_card_title_color("warning"), do: "text-yellow-700"
+  def get_stats_card_title_color("danger"), do: "text-red-700"
+  def get_stats_card_title_color("info"), do: "text-blue-700"
+
+  def get_stats_card_value_color("default"), do: "text-gray-900"
+  def get_stats_card_value_color("success"), do: "text-green-900"
+  def get_stats_card_value_color("warning"), do: "text-yellow-900"
+  def get_stats_card_value_color("danger"), do: "text-red-900"
+  def get_stats_card_value_color("info"), do: "text-blue-900"
+
+  def get_stats_card_icon_color("default"), do: "text-gray-400"
+  def get_stats_card_icon_color("success"), do: "text-green-500"
+  def get_stats_card_icon_color("warning"), do: "text-yellow-500"
+  def get_stats_card_icon_color("danger"), do: "text-red-500"
+  def get_stats_card_icon_color("info"), do: "text-blue-500"
 end

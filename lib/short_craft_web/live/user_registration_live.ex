@@ -6,38 +6,81 @@ defmodule ShortCraftWeb.UserRegistrationLive do
 
   def render(assigns) do
     ~H"""
-    <div class="mx-auto max-w-sm">
-      <.header class="text-center">
-        Register for an account
-        <:subtitle>
-          Already registered?
-          <.link navigate={~p"/users/log_in"} class="font-semibold text-brand hover:underline">
-            Log in
-          </.link>
-          to your account now.
-        </:subtitle>
-      </.header>
+    <div class="flex items-center justify-center">
+      <div class="max-w-md w-full space-y-8">
+        <!-- Logo and Brand -->
+        <div class="text-center">
+          <div class="mx-auto w-16 h-16 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center shadow-xl mb-6">
+            <.logo class="w-8 h-8" color="white" />
+          </div>
+          <h2 class="text-3xl font-bold text-gray-900 mb-2">Create your account</h2>
+          <p class="text-gray-600">
+            Already registered?
+            <.link
+              navigate={~p"/users/log_in"}
+              class="font-semibold text-blue-600 hover:text-blue-700 hover:underline"
+            >
+              Log in
+            </.link>
+            to your account now.
+          </p>
+        </div>
 
-      <.simple_form
-        for={@form}
-        id="registration_form"
-        phx-submit="save"
-        phx-change="validate"
-        phx-trigger-action={@trigger_submit}
-        action={~p"/users/log_in?_action=registered"}
-        method="post"
-      >
-        <.error :if={@check_errors}>
-          Oops, something went wrong! Please check the errors below.
-        </.error>
+    <!-- Registration Form -->
+        <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
+          <.simple_form
+            for={@form}
+            id="registration_form"
+            phx-submit="save"
+            phx-change="validate"
+            phx-trigger-action={@trigger_submit}
+            action={~p"/users/log_in?_action=registered"}
+            method="post"
+          >
+            <.error :if={@check_errors}>
+              <div class="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+                <div class="flex">
+                  <.icon name="hero-exclamation-circle" class="w-5 h-5 text-red-400 mr-2" />
+                  <p class="text-sm text-red-800">
+                    Oops, something went wrong! Please check the errors below.
+                  </p>
+                </div>
+              </div>
+            </.error>
 
-        <.input field={@form[:email]} type="email" label="Email" required />
-        <.input field={@form[:password]} type="password" label="Password" required />
+            <.input field={@form[:email]} type="email" label="Email address" required />
+            <.input field={@form[:password]} type="password" label="Password" required />
 
-        <:actions>
-          <.button phx-disable-with="Creating account..." class="w-full">Create an account</.button>
-        </:actions>
-      </.simple_form>
+            <:actions>
+              <.button
+                variant="gradient"
+                size="lg"
+                phx-disable-with="Creating account..."
+                class="w-full"
+              >
+                Create an account <.icon name="hero-arrow-right" class="w-4 h-4 ml-2" />
+              </.button>
+            </:actions>
+
+            <:after_actions>
+              <div class="relative">
+                <div class="absolute inset-0 flex items-center">
+                  <div class="w-full border-t border-gray-300"></div>
+                </div>
+                <div class="relative flex justify-center text-sm">
+                  <span class="px-2 bg-white text-gray-500">Or sign up with</span>
+                </div>
+              </div>
+
+              <.social_links_grid>
+                <.social_link provider="google" href={~p"/auth/google"} />
+                <.social_link provider="github" href={~p"/auth/github"} />
+                <.social_link provider="facebook" href={~p"/auth/facebook"} />
+              </.social_links_grid>
+            </:after_actions>
+          </.simple_form>
+        </div>
+      </div>
     </div>
     """
   end

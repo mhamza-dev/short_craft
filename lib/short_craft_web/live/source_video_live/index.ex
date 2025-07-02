@@ -6,6 +6,7 @@ defmodule ShortCraftWeb.SourceVideoLive.Index do
   alias ShortCraft.Shorts
   alias ShortCraft.Shorts.SourceVideo
   alias ShortCraft.Services.YoutubeDownloader
+  alias Phoenix.PubSub
 
   @impl true
   def mount(_params, _session, socket) do
@@ -17,6 +18,9 @@ defmodule ShortCraftWeb.SourceVideoLive.Index do
 
     # Subscribe to download progress updates for this user
     YoutubeDownloader.subscribe_to_progress(socket.assigns.current_user.id)
+
+    # Subscribe to source video updates for real-time status changes
+    PubSub.subscribe(ShortCraft.PubSub, "source_video_updates")
 
     {:ok, assign(socket, source_videos: source_videos)}
   end
@@ -61,6 +65,22 @@ defmodule ShortCraftWeb.SourceVideoLive.Index do
 
       {:error, _} ->
         {:noreply, put_flash(socket, :error, "Error deleting source video")}
+    end
+  end
+
+  @impl true
+  def handle_event("generate_shorts", %{"id" => id}, socket) do
+    case ShortCraft.Services.ShortsGenerator.generate_shorts(id) do
+      :ok ->
+        source_video = Shorts.get_source_video!(id)
+
+        {:noreply,
+         socket
+         |> put_flash(:info, "Shorts generation started! You'll see real-time progress updates.")
+         |> assign(source_video: source_video)}
+
+      {:error, reason} ->
+        {:noreply, put_flash(socket, :error, "Failed to generate shorts: #{reason}")}
     end
   end
 
@@ -132,6 +152,47 @@ defmodule ShortCraftWeb.SourceVideoLive.Index do
       end
 
     {:noreply, updated_socket}
+  end
+
+  # Handle source video updates from PubSub (shorts generation progress)
+  @impl true
+  def handle_info({:source_video_updated, updated_video}, socket) do
+    Logger.info("Source video updated: #{inspect(updated_video)}")
+
+    # Only update if this video belongs to the current user
+    if updated_video.user_id == socket.assigns.current_user.id do
+      updated_socket =
+        update(socket, :source_videos, fn source_videos ->
+          Enum.map(source_videos, fn source_video ->
+            if source_video.id == updated_video.id do
+              updated_video
+            else
+              source_video
+            end
+          end)
+        end)
+
+      # Add flash messages for status changes
+      updated_socket =
+        case updated_video.status do
+          :waiting_review when updated_video.progress == 100 ->
+            put_flash(
+              updated_socket,
+              :success,
+              "Shorts generation completed successfully! Ready for review."
+            )
+
+          :failed ->
+            put_flash(updated_socket, :error, "Shorts generation failed. Please try again.")
+
+          _ ->
+            updated_socket
+        end
+
+      {:noreply, updated_socket}
+    else
+      {:noreply, socket}
+    end
   end
 
   # Handle task messages to prevent crashes

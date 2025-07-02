@@ -32,8 +32,8 @@
       <!-- Thumbnail -->
       <div class="flex-shrink-0">
         <div class="relative group">
-          <img
-            src={@source_video.thumbnail}
+    <img
+      src={@source_video.thumbnail}
             alt="Video Thumbnail"
             class="w-80 h-48 rounded-xl object-cover shadow-lg group-hover:shadow-xl transition-shadow duration-300"
           />
@@ -44,7 +44,7 @@
       
 <!-- Video details -->
       <div class="flex-1 min-w-0 space-y-4">
-        <div>
+    <div>
           <h1 class="text-2xl font-bold text-gray-900 mb-2 leading-tight">
             {@source_video.title}
           </h1>
@@ -71,8 +71,8 @@
               </a>
             </div>
           </div>
-        </div>
-      </div>
+    </div>
+  </div>
     </div>
   </.card>
   
@@ -113,9 +113,9 @@
           <span class="text-sm text-gray-900 font-medium">
             {(@source_video.shorts_to_generate > 0 && @source_video.shorts_to_generate) ||
               "Not Set"}
-          </span>
-        </div>
-      </div>
+      </span>
+    </div>
+    </div>
       
 <!-- Right column -->
       <div class="space-y-4">
@@ -126,7 +126,7 @@
             status={humanize_status(@source_video.auto_upload_shorts)}
             variant={if @source_video.auto_upload_shorts, do: "success", else: "default"}
           />
-        </div>
+    </div>
         
 <!-- Downloaded File -->
         <div class="p-4 bg-gray-50 rounded-lg">
@@ -138,9 +138,9 @@
               else
                 "Not downloaded yet"
               end}
-            </span>
-          </div>
-        </div>
+      </span>
+    </div>
+  </div>
         
 <!-- Timestamps -->
         <div class="p-4 bg-gray-50 rounded-lg">

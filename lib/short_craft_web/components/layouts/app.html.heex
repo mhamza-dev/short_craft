@@ -1,64 +1,81 @@
-<header class="bg-white border-b border-gray-200 shadow-sm sticky top-0 z-40">
+<header class="bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm sticky top-0 z-40">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between h-16">
-    <div class="flex items-center gap-4">
-        <a href="/" class="flex items-center gap-3">
-          <div class="w-8 h-8 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="2"
-                d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"
-              >
-              </path>
-            </svg>
+      <div class="flex items-center gap-4">
+        <a href="/" class="flex items-center gap-3 group">
+          <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-200 group-hover:scale-105">
+            <.logo class="w-6 h-6" color="white" />
           </div>
-          <span class="text-xl font-bold text-gray-900">ShortCraft</span>
+          <div class="flex flex-col">
+            <span class="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">
+              ShortCraft
+            </span>
+            <span class="text-xs text-gray-500">YouTube Shorts Generator</span>
+          </div>
         </a>
-        <span class="bg-blue-50 text-blue-700 rounded-full px-2 py-1 text-xs font-medium">
-        v{Application.spec(:phoenix, :vsn)}
+        <span class="bg-gradient-to-r from-blue-50 to-purple-50 text-blue-700 rounded-full px-3 py-1 text-xs font-semibold border border-blue-200">
+          v{Application.spec(:phoenix, :vsn)}
         </span>
       </div>
 
       <div :if={@current_user} class="flex items-center gap-4">
+        <!-- Navigation Links -->
+        <nav class="hidden md:flex items-center gap-1">
+          <.link
+            href={~p"/source_videos"}
+            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all duration-200"
+          >
+            <.icon name="hero-video-camera" class="w-4 h-4" /> Videos
+          </.link>
+          <.link
+            href={~p"/source_videos/new"}
+            class="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 hover:text-purple-600 hover:bg-purple-50 rounded-lg transition-all duration-200"
+          >
+            <.icon name="hero-plus" class="w-4 h-4" /> New Video
+          </.link>
+        </nav>
+        
+<!-- User Menu -->
         <div class="flex items-center gap-3">
-          <.avatar
-            src={@current_user.avatar_url || "https://via.placeholder.com/32"}
-            class="w-8 h-8"
-          />
-          <div class="hidden sm:block">
-            <p class="text-sm font-medium text-gray-900">
-              {@current_user.name || @current_user.email}
-            </p>
-            <p class="text-xs text-gray-500">@{@current_user.email}</p>
+          <div class="flex items-center gap-3 bg-gray-50 rounded-lg px-3 py-2">
+            <.avatar
+              src={@current_user.avatar_url || "https://via.placeholder.com/32"}
+              class="w-8 h-8 ring-2 ring-white"
+            />
+            <div class="hidden sm:block">
+              <p class="text-sm font-medium text-gray-900">
+                {@current_user.name || @current_user.email}
+              </p>
+              <p class="text-xs text-gray-500">@{@current_user.email}</p>
+            </div>
           </div>
-    </div>
 
-        <div class="flex items-center gap-2">
-      <.link
-        href={~p"/users/settings"}
-            class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
-      >
-            <.icon name="hero-cog-6-tooth" class="w-4 h-4" />
-            <span class="hidden sm:inline">Settings</span>
-      </.link>
+          <div class="flex items-center gap-1">
+            <.link
+              href={~p"/users/settings"}
+              class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-all duration-200"
+            >
+              <.icon name="hero-cog-6-tooth" class="w-4 h-4" />
+              <span class="hidden sm:inline">Settings</span>
+            </.link>
 
-      <.link
-        href={~p"/users/log_out"}
-        method="delete"
-            class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-      >
-            <.icon name="hero-arrow-right-on-rectangle" class="w-4 h-4" />
-            <span class="hidden sm:inline">Log out</span>
-      </.link>
+            <.link
+              href={~p"/users/log_out"}
+              method="delete"
+              class="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-gray-700 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all duration-200"
+            >
+              <.icon name="hero-arrow-right-on-rectangle" class="w-4 h-4" />
+              <span class="hidden sm:inline">Log out</span>
+            </.link>
+          </div>
         </div>
       </div>
     </div>
   </div>
 </header>
 
-<main class="min-h-screen bg-gray-50">
+<main class="h-[calc(100vh-65px)] bg-gray-50 overflow-y-auto">
+  <!-- 4rem = 64px (h-16 header height) -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
     <.flash_group flash={@flash} />
     {@inner_content}
