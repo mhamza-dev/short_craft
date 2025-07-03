@@ -1189,4 +1189,53 @@ defmodule ShortCraftWeb.CoreComponents do
     </div>
     """
   end
+
+  @doc """
+  Renders a show more component.
+
+  ## Examples
+
+      <.show_more more_count={5}>
+        <:less>
+          <%= for i <- 1..3 do %>
+            <span>Item <%= i %></span>
+          <% end %>
+        </:less>
+        <:more>
+          <%= for i <- 1..5 do %>
+            <span>Item <%= i %></span>
+          <% end %>
+        </:more>
+      </.show_more>
+  """
+  attr :id, :string, default: nil
+  attr :more_count, :integer, default: nil
+  attr :class, :string, default: nil
+
+  slot :less, required: true
+  slot :more, required: true
+
+  def show_more(assigns) do
+    assigns =
+      assign_new(assigns, :more_label, fn -> "+#{assigns[:more_count] || "more"}" end)
+
+    ~H"""
+    <div phx-hook="ShowMore" id={@id} class={@class}>
+      <span data-showmore-less>
+        {render_slot(@less)}
+      </span>
+      <span data-showmore-more style="display: none;">
+        {render_slot(@more)}
+      </span>
+      <button
+        type="button"
+        data-showmore-toggle
+        data-more-label={@more_label}
+        class="text-xs text-blue-600 font-medium ml-1 focus:outline-none"
+      >
+        {@more_label}
+      </button>
+    </div>
+    """
+  end
 end

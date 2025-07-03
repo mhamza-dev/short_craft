@@ -284,39 +284,32 @@
                 <h4 class="font-semibold text-gray-900 text-sm mb-2 line-clamp-2">
                   {short.title}
                 </h4>
-                
-<!-- Short Description with Show More/Less -->
-                <div x-data="{ expanded: false }" class="mb-3">
-                  <p class="text-xs text-gray-600" x-show="expanded" x-transition>
-                    {short.description}
-                  </p>
-                  <p class="text-xs text-gray-600 line-clamp-3" x-show="!expanded" x-transition>
-                    {short.description}
-                  </p>
-                  <template x-if="short.description && short.description.length > 120">
-                    <button
-                      type="button"
-                      class="text-blue-600 text-xs font-medium mt-1 focus:outline-none"
-                      @click="expanded = !expanded"
-                    >
-                      <span x-show="!expanded">Show more</span>
-                      <span x-show="expanded">Show less</span>
-                    </button>
-                  </template>
-                </div>
+
+                <p class="text-xs text-gray-600">
+                  {short.description}
+                </p>
                 
 <!-- Tags -->
                 <%= if short.tags && length(short.tags) > 0 do %>
-                  <div class="flex flex-wrap gap-1 mb-3">
-                    <%= for tag <- Enum.take(short.tags, 3) do %>
-                      <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
-                        #{tag}
-                      </span>
-                    <% end %>
-                    <%= if length(short.tags) > 3 do %>
-                      <span class="text-xs text-gray-500">+{length(short.tags) - 3} more</span>
-                    <% end %>
-                  </div>
+                  <.show_more
+                    more_label={"+#{length(short.tags) - 3} more"}
+                    class="flex flex-wrap gap-1 mb-3"
+                  >
+                    <:less>
+                      <%= for tag <- Enum.take(short.tags, 3) do %>
+                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                          #{tag}
+                        </span>
+                      <% end %>
+                    </:less>
+                    <:more>
+                      <%= for tag <- short.tags do %>
+                        <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                          #{tag}
+                        </span>
+                      <% end %>
+                    </:more>
+                  </.show_more>
                 <% end %>
                 
 <!-- Spacer to push actions to bottom -->
@@ -337,7 +330,7 @@
                   </.button>
 
                   <a href={"/shorts/#{short.id}/download"} class="inline-flex items-center gap-2">
-                    <.icon name="hero-arrow-down-tray" class="w-4 h-4" /> Download
+                    <.icon name="hero-arrow-down-tray" class="w-4 h-4" />
                   </a>
                 </div>
                 

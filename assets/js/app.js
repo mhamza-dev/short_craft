@@ -94,7 +94,7 @@ function fallbackCopyTextToClipboard(text) {
   document.body.removeChild(textArea);
 }
 
-let Hooks = {};
+let Hooks = window.liveSocket?.hooks || {};
 
 Hooks.AutoHideFlash = {
   mounted() {
@@ -104,4 +104,31 @@ Hooks.AutoHideFlash = {
   },
 };
 
-liveSocket.hooks = Hooks;
+Hooks.ShowMore = {
+  mounted() {
+    this.expanded = false;
+    this.update();
+    this.el
+      .querySelector("[data-showmore-toggle]")
+      .addEventListener("click", () => {
+        this.expanded = !this.expanded;
+        this.update();
+      });
+  },
+  update() {
+    const more = this.el.querySelector("[data-showmore-more]");
+    const less = this.el.querySelector("[data-showmore-less]");
+    const toggle = this.el.querySelector("[data-showmore-toggle]");
+    if (this.expanded) {
+      more.style.display = "";
+      less.style.display = "none";
+      toggle.textContent = "Show less";
+    } else {
+      more.style.display = "none";
+      less.style.display = "";
+      toggle.textContent = toggle.dataset.moreLabel || "Show more";
+    }
+  },
+};
+
+window.liveSocket.hooks = Hooks;
