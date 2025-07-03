@@ -25,7 +25,30 @@ defmodule ShortCraft.Shorts.GeneratedShort do
   @doc false
   def changeset(generated_short, attrs) do
     generated_short
-    |> cast(attrs, [:output_path, :title, :description, :tags, :status, :youtube_id, :uploaded_at, :error, :processing_log, :segment])
-    |> validate_required([:output_path, :title, :description, :tags, :status, :youtube_id, :uploaded_at, :error, :processing_log, :segment])
+    |> cast(attrs, [
+      :output_path,
+      :title,
+      :description,
+      :tags,
+      :status,
+      :youtube_id,
+      :uploaded_at,
+      :error,
+      :processing_log,
+      :segment,
+      :source_video_id,
+      :user_id
+    ])
+    |> validate_required([
+      :output_path,
+      :title,
+      :description,
+      :tags,
+      :status,
+      :youtube_id,
+      :segment,
+      :source_video_id,
+      :user_id
+    ])
   end
 end

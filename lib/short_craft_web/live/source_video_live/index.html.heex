@@ -131,7 +131,7 @@
             variant="danger"
           />
           <:item
-            :if={source_video.status == :downloaded}
+            :if={source_video.status in [:downloaded, :failed]}
             icon="hero-play"
             label="Generate Shorts"
             phx_click="generate_shorts"

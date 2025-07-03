@@ -36,6 +36,8 @@ defmodule ShortCraft.Services.YoutubeDownloader do
 
   require Logger
 
+  import ShortCraftWeb.LiveHelpers, only: [extract_video_id: 1]
+
   alias Phoenix.PubSub
   alias ShortCraft.Shorts
 
@@ -175,6 +177,8 @@ defmodule ShortCraft.Services.YoutubeDownloader do
               message: "Download completed successfully"
             })
 
+            maybe_generate_transcript_async(source_video_id, video_id, url)
+
             {:ok, actual_file_path}
 
           {:error, reason} ->
@@ -272,7 +276,7 @@ defmodule ShortCraft.Services.YoutubeDownloader do
           end)
 
         # Monitor progress while download is running
-        monitor_progress(pid, output_path, user_id, video_id, total_size, source_video_id)
+        monitor_progress(pid, output_path, user_id, video_id, total_size, source_video_id, url)
       end)
 
     # Return task reference for monitoring
@@ -315,9 +319,10 @@ defmodule ShortCraft.Services.YoutubeDownloader do
           pos_integer() | nil,
           String.t(),
           pos_integer() | nil,
+          String.t() | nil,
           String.t() | nil
         ) :: download_result()
-  defp monitor_progress(pid, output_path, user_id, video_id, total_size, source_video_id) do
+  defp monitor_progress(pid, output_path, user_id, video_id, total_size, source_video_id, url) do
     monitor_ref = Process.monitor(pid)
 
     result =
@@ -328,7 +333,8 @@ defmodule ShortCraft.Services.YoutubeDownloader do
         video_id,
         total_size,
         0,
-        source_video_id
+        source_video_id,
+        url
       )
 
     # Clean up monitor
@@ -345,6 +351,7 @@ defmodule ShortCraft.Services.YoutubeDownloader do
           String.t(),
           pos_integer() | nil,
           non_neg_integer(),
+          String.t() | nil,
           String.t() | nil
         ) :: download_result()
   defp monitor_download_loop(
@@ -354,7 +361,8 @@ defmodule ShortCraft.Services.YoutubeDownloader do
          video_id,
          total_size,
          last_progress,
-         source_video_id
+         source_video_id,
+         url
        ) do
     receive do
       {:DOWN, ^monitor_ref, :process, _pid, :normal} ->
@@ -382,6 +390,8 @@ defmodule ShortCraft.Services.YoutubeDownloader do
               progress: 100,
               message: "Download completed successfully"
             })
+
+            maybe_generate_transcript_async(source_video_id, video_id, url)
 
             {:ok, actual_file_path}
 
@@ -429,7 +439,8 @@ defmodule ShortCraft.Services.YoutubeDownloader do
           video_id,
           total_size,
           current_progress,
-          source_video_id
+          source_video_id,
+          url
         )
     end
   end
@@ -476,52 +487,6 @@ defmodule ShortCraft.Services.YoutubeDownloader do
 
       custom_path ->
         custom_path
-    end
-  end
-
-  @doc """
-  Extracts the video ID from a YouTube URL.
-
-  Supports various YouTube URL formats including standard watch URLs,
-  short URLs, and embed URLs.
-
-  ## Parameters
-
-  - `url` - The YouTube URL to extract the video ID from
-
-  ## Returns
-
-  - `String.t()` - The extracted video ID
-
-  ## Examples
-
-      iex> extract_video_id("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
-      "dQw4w9WgXcQ"
-      iex> extract_video_id("https://youtu.be/dQw4w9WgXcQ")
-      "dQw4w9WgXcQ"
-  """
-  @spec extract_video_id(String.t()) :: String.t()
-  def extract_video_id(url) do
-    uri = URI.parse(url)
-
-    cond do
-      # Standard YouTube URL: https://www.youtube.com/watch?v=VIDEO_ID
-      uri.host in ["www.youtube.com", "youtube.com"] && uri.path == "/watch" ->
-        uri.query
-        |> URI.decode_query()
-        |> Map.get("v")
-
-      # Short YouTube URL: https://youtu.be/VIDEO_ID
-      uri.host == "youtu.be" ->
-        uri.path |> String.trim_leading("/")
-
-      # YouTube embed URL: https://www.youtube.com/embed/VIDEO_ID
-      uri.host in ["www.youtube.com", "youtube.com"] && String.starts_with?(uri.path, "/embed/") ->
-        uri.path |> String.trim_leading("/embed/")
-
-      true ->
-        # Fallback: try to extract from path
-        uri.path |> String.split("/") |> List.last()
     end
   end
 
@@ -823,5 +788,64 @@ defmodule ShortCraft.Services.YoutubeDownloader do
       {:error, reason} ->
         {:error, reason}
     end
+  end
+
+  defp maybe_generate_transcript_async(source_video_id, video_id, url)
+       when is_binary(source_video_id) and is_binary(video_id) and is_binary(url) do
+    ytdlp_path = System.get_env("YTDLP_PATH") || "yt-dlp"
+
+    Task.start(fn ->
+      try do
+        srt_file = "#{video_id}.en.srt"
+
+        cmd = [
+          "--write-auto-sub",
+          "--sub-lang",
+          "en",
+          "--skip-download",
+          "--convert-subs",
+          "srt",
+          "--output",
+          "#{video_id}.%(ext)s",
+          url
+        ]
+
+        case System.cmd(ytdlp_path, cmd, stderr_to_stdout: true) do
+          {_output, 0} ->
+            case File.read(srt_file) do
+              {:ok, srt_content} ->
+                transcript =
+                  srt_content
+                  |> String.split("\n\n")
+                  |> Enum.map(fn block ->
+                    block
+                    |> String.split("\n")
+                    |> Enum.drop(2)
+                    |> Enum.join(" ")
+                  end)
+                  |> Enum.join(" ")
+                  |> String.replace(~r/\s+/, " ")
+                  |> String.trim()
+
+                File.rm(srt_file)
+
+                source_video = Shorts.get_source_video!(source_video_id)
+
+                Shorts.update_source_video(source_video, %{
+                  transcript: transcript
+                })
+
+              {:error, reason} ->
+                Logger.error("Could not read SRT file for transcript: #{inspect(reason)}")
+            end
+
+          {output, code} ->
+            Logger.error("yt-dlp failed for transcript (exit code #{code}): #{output}")
+        end
+      rescue
+        e ->
+          Logger.error("[Transcript] Unexpected error: #{inspect(e)}")
+      end
+    end)
   end
 end

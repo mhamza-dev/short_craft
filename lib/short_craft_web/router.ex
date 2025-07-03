@@ -87,6 +87,8 @@ defmodule ShortCraftWeb.Router do
       on_mount: [{ShortCraftWeb.UserAuth, :mount_current_user}] do
       live "/users/confirm/:token", UserConfirmationLive, :edit
       live "/users/confirm", UserConfirmationInstructionsLive, :new
+
+      get "/shorts/:id/download", ShortController, :download
     end
   end
 

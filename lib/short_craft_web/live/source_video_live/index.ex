@@ -157,7 +157,7 @@ defmodule ShortCraftWeb.SourceVideoLive.Index do
   # Handle source video updates from PubSub (shorts generation progress)
   @impl true
   def handle_info({:source_video_updated, updated_video}, socket) do
-    Logger.info("Source video updated: #{inspect(updated_video)}")
+    Logger.info("Source video updated: #{inspect(updated_video.id)}")
 
     # Only update if this video belongs to the current user
     if updated_video.user_id == socket.assigns.current_user.id do
@@ -245,6 +245,6 @@ defmodule ShortCraftWeb.SourceVideoLive.Index do
 
   # Helper function to extract video ID from source video URL
   defp extract_video_id_from_source_video(source_video) do
-    YoutubeDownloader.extract_video_id(source_video.url)
+    extract_video_id(source_video.url)
   end
 end

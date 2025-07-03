@@ -690,28 +690,31 @@ defmodule ShortCraftWeb.CoreComponents do
     ~H"""
     <div class="flex items-center gap-2 w-full">
       <div class={[
-        "flex-1 rounded-full transition-all duration-300",
+        "flex-1 rounded-full transition-all duration-300 overflow-hidden shadow-sm",
         @size == "sm" && "h-1.5",
         @size == "md" && "h-2.5",
         @size == "lg" && "h-3",
-        "bg-gray-200"
+        "bg-gray-100"
       ]}>
         <div
           class={[
-            "rounded-full transition-all duration-300",
+            "rounded-full transition-all duration-500 ease-out h-full relative",
             @size == "sm" && "h-1.5",
             @size == "md" && "h-2.5",
             @size == "lg" && "h-3",
-            @variant == "primary" && "bg-gradient-to-r from-blue-500 to-blue-600",
-            @variant == "success" && "bg-gradient-to-r from-green-500 to-green-600",
-            @variant == "warning" && "bg-gradient-to-r from-yellow-500 to-yellow-600",
-            @variant == "danger" && "bg-gradient-to-r from-red-500 to-red-600"
+            @variant == "primary" && "bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500",
+            @variant == "success" && "bg-gradient-to-r from-emerald-400 via-teal-500 to-cyan-500",
+            @variant == "warning" && "bg-gradient-to-r from-orange-400 via-amber-500 to-yellow-500",
+            @variant == "danger" && "bg-gradient-to-r from-rose-500 via-red-500 to-pink-500"
           ]}
           style={"width: #{@progress}%"}
         >
+          <!-- Shimmer effect -->
+          <div class="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-pulse">
+          </div>
         </div>
       </div>
-      <div :if={@show_label} class="text-xs font-medium text-gray-600 min-w-[2.5rem] text-right">
+      <div :if={@show_label} class="text-xs font-semibold text-gray-700 min-w-[2.5rem] text-right">
         {@progress}%
       </div>
     </div>
@@ -1137,18 +1140,20 @@ defmodule ShortCraftWeb.CoreComponents do
 
   def row_actions(assigns) do
     ~H"""
-    <div class="relative inline-block text-left">
+    <div class="relative inline-block text-left" x-data="{ open: false }">
       <button
         type="button"
-        phx-click={JS.toggle(to: "#dropdown-#{@id}")}
+        @click="open = !open"
         class="p-2 rounded-full hover:bg-gray-100 focus:outline-none transition-colors"
       >
         <.icon name="hero-ellipsis-vertical" class="w-5 h-5" />
       </button>
       <div
-        id={"dropdown-#{@id}"}
-        phx-click-away={JS.hide(to: "#dropdown-#{@id}")}
-        class="hidden absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+        x-show="open"
+        @click.away="open = false"
+        x-transition
+        class="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+        style="display: none;"
       >
         <div class="py-1">
           <%= for item <- @item do %>
@@ -1168,6 +1173,7 @@ defmodule ShortCraftWeb.CoreComponents do
                 type="button"
                 phx-click={item.phx_click}
                 phx-value-id={item.phx_value_id}
+                @click="open = false"
                 class={[
                   "flex w-full items-center gap-2 px-4 py-2 text-sm hover:bg-gray-100 text-left",
                   Map.get(item, :variant) == "danger" && "text-red-600"

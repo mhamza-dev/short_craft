@@ -225,4 +225,74 @@ defmodule ShortCraftWeb.LiveHelpers do
   def get_stats_card_icon_color("warning"), do: "text-yellow-500"
   def get_stats_card_icon_color("danger"), do: "text-red-500"
   def get_stats_card_icon_color("info"), do: "text-blue-500"
+
+  @doc """
+  Extracts the video ID from a YouTube URL.
+
+  Supports various YouTube URL formats including standard watch URLs,
+  short URLs, and embed URLs.
+
+  ## Parameters
+
+  - `url` - The YouTube URL to extract the video ID from
+
+  ## Returns
+
+  - `String.t()` - The extracted video ID
+
+  ## Examples
+
+      iex> extract_video_id("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+      "dQw4w9WgXcQ"
+      iex> extract_video_id("https://youtu.be/dQw4w9WgXcQ")
+      "dQw4w9WgXcQ"
+  """
+  @spec extract_video_id(String.t()) :: String.t()
+  def extract_video_id(url) do
+    uri = URI.parse(url)
+
+    cond do
+      # Standard YouTube URL: https://www.youtube.com/watch?v=VIDEO_ID
+      uri.host in ["www.youtube.com", "youtube.com"] && uri.path == "/watch" ->
+        uri.query
+        |> URI.decode_query()
+        |> Map.get("v")
+
+      # Short YouTube URL: https://youtu.be/VIDEO_ID
+      uri.host == "youtu.be" ->
+        uri.path |> String.trim_leading("/")
+
+      # YouTube embed URL: https://www.youtube.com/embed/VIDEO_ID
+      uri.host in ["www.youtube.com", "youtube.com"] && String.starts_with?(uri.path, "/embed/") ->
+        uri.path |> String.trim_leading("/embed/")
+
+      true ->
+        # Fallback: try to extract from path
+        uri.path |> String.split("/") |> List.last()
+    end
+  end
+
+  @doc """
+  Returns the variant for a short status badge.
+
+  ## Examples
+
+      iex> get_short_status_variant(:uploaded)
+      "success"
+      iex> get_short_status_variant(:generated)
+      "primary"
+      iex> get_short_status_variant(:failed)
+      "danger"
+      iex> get_short_status_variant(:error)
+      "danger"
+  """
+  @spec get_short_status_variant(atom()) :: String.t()
+  def get_short_status_variant(status) do
+    case status do
+      s when s in ["uploaded", :uploaded] -> "success"
+      s when s in ["generated", :generated] -> "primary"
+      s when s in ["failed", :failed, "error", :error] -> "danger"
+      _ -> "default"
+    end
+  end
 end

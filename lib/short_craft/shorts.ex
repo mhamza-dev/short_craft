@@ -141,7 +141,7 @@ defmodule ShortCraft.Shorts do
       ** (Ecto.NoResultsError)
 
   """
-  def get_source_video!(id), do: Repo.get!(SourceVideo, id)
+  def get_source_video!(id), do: Repo.get!(SourceVideo, id) |> Repo.preload([:user])
 
   @doc """
   Creates a source_video.

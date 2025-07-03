@@ -6,156 +6,384 @@
       </.button>
     </:actions>
   </.page_header>
-  
-<!-- Video Info Card -->
-  <.card>
-    <:header>
-      <div class="flex justify-between items-center">
-        <h2 class="text-xl font-semibold text-gray-900">Video Information</h2>
-        
+
+  <div class="space-y-4">
+    <!-- Video Info Card -->
+    <.card>
+      <:header>
+        <div class="flex justify-between items-center">
+          <h2 class="text-xl font-semibold text-gray-900">Video Information</h2>
+          
 <!-- Action buttons -->
-        <div class="flex justify-end">
-          <%= if @source_video.status == :downloaded do %>
+          <div class="flex justify-end">
+            <%= if @source_video.status in [:downloaded, :failed] do %>
+              <.button
+                phx-click="generate_shorts"
+                phx-value-id={@source_video.id}
+                class="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+              >
+                <.icon name="hero-play" class="w-5 h-5 mr-2" /> Generate Shorts
+              </.button>
+            <% end %>
+          </div>
+        </div>
+      </:header>
+
+      <div class="flex flex-col lg:flex-row gap-6">
+        <!-- Thumbnail -->
+        <div class="flex-shrink-0">
+          <div class="relative group">
+            <img
+              src={@source_video.thumbnail}
+              alt="Video Thumbnail"
+              class="w-80 h-48 rounded-xl object-cover shadow-lg group-hover:shadow-xl transition-shadow duration-300"
+            />
+            <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-xl transition-colors duration-300">
+            </div>
+          </div>
+        </div>
+        
+<!-- Video details -->
+        <div class="flex-1 min-w-0 space-y-4">
+          <div>
+            <h1 class="text-2xl font-bold text-gray-900 mb-2 leading-tight">
+              {@source_video.title}
+            </h1>
+
+            <div class="space-y-2">
+              <div class="flex items-center text-gray-600">
+                <.icon name="hero-user-circle" class="w-4 h-4 mr-2 text-red-500" />
+                <span class="font-medium">{@source_video.channel_title}</span>
+              </div>
+
+              <div class="flex items-center text-gray-600">
+                <.icon name="hero-clock" class="w-4 h-4 mr-2 text-blue-500" />
+                <span>{format_duration(@source_video.duration)}</span>
+              </div>
+
+              <div class="flex items-center text-gray-600">
+                <.icon name="hero-link" class="w-4 h-4 mr-2 text-green-500" />
+                <a
+                  href={@source_video.url}
+                  class="text-blue-600 hover:text-blue-800 underline break-all"
+                  target="_blank"
+                >
+                  View on YouTube
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </.card>
+    
+<!-- Status and Progress Card -->
+    <.card>
+      <:header>
+        <h2 class="text-lg font-semibold text-gray-900">Status & Progress</h2>
+      </:header>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Left column -->
+        <div class="space-y-4">
+          <!-- Status -->
+          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <span class="text-sm font-semibold text-gray-700">Status</span>
+            <.status_badge
+              status={humanize_status(@source_video.status)}
+              variant={get_status_variant(@source_video.status)}
+            />
+          </div>
+          
+<!-- Progress -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-sm font-semibold text-gray-700">Progress</span>
+              <span class="text-sm font-bold text-blue-600">{@source_video.progress}%</span>
+            </div>
+            <.progress_bar
+              progress={@source_video.progress}
+              variant={get_progress_variant(@source_video.progress)}
+              size="lg"
+            />
+          </div>
+          
+<!-- Shorts to Generate -->
+          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <span class="text-sm font-semibold text-gray-700">Shorts to Generate</span>
+            <span class="text-sm text-gray-900 font-medium">
+              {(@source_video.shorts_to_generate > 0 && @source_video.shorts_to_generate) ||
+                "Not Set"}
+            </span>
+          </div>
+        </div>
+        
+<!-- Right column -->
+        <div class="space-y-4">
+          <!-- Auto Upload -->
+          <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+            <span class="text-sm font-semibold text-gray-700">Auto Upload Shorts</span>
+            <.status_badge
+              status={humanize_status(@source_video.auto_upload_shorts)}
+              variant={if @source_video.auto_upload_shorts, do: "success", else: "default"}
+            />
+          </div>
+          
+<!-- Downloaded File -->
+          <div class="p-4 bg-gray-50 rounded-lg">
+            <div class="flex items-start justify-between">
+              <span class="text-sm font-semibold text-gray-700">Downloaded File</span>
+              <span class="text-xs text-gray-600 break-all max-w-48 text-right">
+                {if @source_video.downloaded_file_path do
+                  @source_video.downloaded_file_path
+                else
+                  "Not downloaded yet"
+                end}
+              </span>
+            </div>
+          </div>
+          
+<!-- Timestamps -->
+          <div class="p-4 bg-gray-50 rounded-lg">
+            <div class="space-y-2">
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-gray-500">Created</span>
+                <span class="text-gray-900">{format_datetime(@source_video.inserted_at)}</span>
+              </div>
+              <div class="flex items-center justify-between text-xs">
+                <span class="text-gray-500">Updated</span>
+                <span class="text-gray-900">{format_datetime(@source_video.updated_at)}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </.card>
+    
+<!-- Transcript Card -->
+    <.card>
+      <:header>
+        <div class="flex justify-between items-center">
+          <h2 class="text-lg font-semibold text-gray-900">Video Transcript</h2>
+          <%= if @source_video.transcript do %>
             <.button
-              phx-click="generate_shorts"
-              phx-value-id={@source_video.id}
-              class="inline-flex items-center justify-center px-8 py-3 bg-gradient-to-r from-green-500 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-600 hover:to-emerald-700 transition-all duration-200 shadow-lg hover:shadow-xl"
+              phx-click="copy_transcript"
+              phx-value-transcript={@source_video.transcript}
+              variant="secondary"
+              size="sm"
+              class="inline-flex items-center gap-2"
             >
-              <.icon name="hero-play" class="w-5 h-5 mr-2" /> Generate Shorts
+              <.icon name="hero-clipboard-document" class="w-4 h-4" /> Copy Transcript
             </.button>
           <% end %>
         </div>
-      </div>
-    </:header>
+      </:header>
 
-    <div class="flex flex-col lg:flex-row gap-6">
-      <!-- Thumbnail -->
-      <div class="flex-shrink-0">
-        <div class="relative group">
-    <img
-      src={@source_video.thumbnail}
-            alt="Video Thumbnail"
-            class="w-80 h-48 rounded-xl object-cover shadow-lg group-hover:shadow-xl transition-shadow duration-300"
-          />
-          <div class="absolute inset-0 bg-black/0 group-hover:bg-black/10 rounded-xl transition-colors duration-300">
-          </div>
-        </div>
-      </div>
-      
-<!-- Video details -->
-      <div class="flex-1 min-w-0 space-y-4">
-    <div>
-          <h1 class="text-2xl font-bold text-gray-900 mb-2 leading-tight">
-            {@source_video.title}
-          </h1>
-
-          <div class="space-y-2">
-            <div class="flex items-center text-gray-600">
-              <.icon name="hero-user-circle" class="w-4 h-4 mr-2 text-red-500" />
-              <span class="font-medium">{@source_video.channel_title}</span>
-            </div>
-
-            <div class="flex items-center text-gray-600">
-              <.icon name="hero-clock" class="w-4 h-4 mr-2 text-blue-500" />
-              <span>{format_duration(@source_video.duration)}</span>
-            </div>
-
-            <div class="flex items-center text-gray-600">
-              <.icon name="hero-link" class="w-4 h-4 mr-2 text-green-500" />
-              <a
-                href={@source_video.url}
-                class="text-blue-600 hover:text-blue-800 underline break-all"
-                target="_blank"
-              >
-                View on YouTube
-              </a>
-            </div>
-          </div>
-    </div>
-  </div>
-    </div>
-  </.card>
-  
-<!-- Status and Progress Card -->
-  <.card>
-    <:header>
-      <h2 class="text-lg font-semibold text-gray-900">Status & Progress</h2>
-    </:header>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <!-- Left column -->
       <div class="space-y-4">
-        <!-- Status -->
-        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-          <span class="text-sm font-semibold text-gray-700">Status</span>
-          <.status_badge
-            status={humanize_status(@source_video.status)}
-            variant={get_status_variant(@source_video.status)}
-          />
-        </div>
-        
-<!-- Progress -->
-        <div class="space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-sm font-semibold text-gray-700">Progress</span>
-            <span class="text-sm font-bold text-blue-600">{@source_video.progress}%</span>
-          </div>
-          <.progress_bar
-            progress={@source_video.progress}
-            variant={get_progress_variant(@source_video.progress)}
-            size="lg"
-          />
-        </div>
-        
-<!-- Shorts to Generate -->
-        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-          <span class="text-sm font-semibold text-gray-700">Shorts to Generate</span>
-          <span class="text-sm text-gray-900 font-medium">
-            {(@source_video.shorts_to_generate > 0 && @source_video.shorts_to_generate) ||
-              "Not Set"}
-      </span>
-    </div>
-    </div>
-      
-<!-- Right column -->
-      <div class="space-y-4">
-        <!-- Auto Upload -->
-        <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
-          <span class="text-sm font-semibold text-gray-700">Auto Upload Shorts</span>
-          <.status_badge
-            status={humanize_status(@source_video.auto_upload_shorts)}
-            variant={if @source_video.auto_upload_shorts, do: "success", else: "default"}
-          />
-    </div>
-        
-<!-- Downloaded File -->
-        <div class="p-4 bg-gray-50 rounded-lg">
-          <div class="flex items-start justify-between">
-            <span class="text-sm font-semibold text-gray-700">Downloaded File</span>
-            <span class="text-xs text-gray-600 break-all max-w-48 text-right">
-              {if @source_video.downloaded_file_path do
-                @source_video.downloaded_file_path
-              else
-                "Not downloaded yet"
-              end}
-      </span>
-    </div>
-  </div>
-        
-<!-- Timestamps -->
-        <div class="p-4 bg-gray-50 rounded-lg">
-          <div class="space-y-2">
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-500">Created</span>
-              <span class="text-gray-900">{format_datetime(@source_video.inserted_at)}</span>
+        <%= if @source_video.transcript do %>
+          <div class="relative">
+            <div class="bg-gray-50 rounded-lg p-4 max-h-96 overflow-y-auto">
+              <pre class="text-sm text-gray-800 whitespace-pre-wrap font-sans leading-relaxed"><%= @source_video.transcript %></pre>
             </div>
-            <div class="flex items-center justify-between text-xs">
-              <span class="text-gray-500">Updated</span>
-              <span class="text-gray-900">{format_datetime(@source_video.updated_at)}</span>
+            <div class="mt-2 text-xs text-gray-500 flex items-center gap-2">
+              <.icon name="hero-information-circle" class="w-4 h-4" />
+              <span>Transcript generated from video content</span>
             </div>
           </div>
-        </div>
+        <% else %>
+          <div class="text-center py-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+              <.icon name="hero-document-text" class="w-8 h-8 text-gray-400" />
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No Transcript Available</h3>
+            <p class="text-gray-600 max-w-md mx-auto">
+              The transcript for this video hasn't been generated yet. It will be automatically created when the video is processed.
+            </p>
+          </div>
+        <% end %>
       </div>
-    </div>
-  </.card>
+    </.card>
+    
+<!-- Generated Shorts Card -->
+    <.card>
+      <:header>
+        <div class="flex justify-between items-center">
+          <h2 class="text-lg font-semibold text-gray-900">Generated Shorts</h2>
+          <div class="flex items-center gap-2">
+            <div class="text-xs text-amber-600 bg-amber-50 px-2 py-1 rounded-full border border-amber-200">
+              <.icon name="hero-clock" class="w-3 h-3 inline mr-1" /> Auto-delete in 24h
+            </div>
+          </div>
+        </div>
+      </:header>
+
+      <div class="space-y-4">
+        <!-- Warning Note -->
+        <div class="bg-amber-50 border border-amber-200 rounded-lg p-4">
+          <div class="flex items-start gap-3">
+            <.icon
+              name="hero-exclamation-triangle"
+              class="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0"
+            />
+            <div class="text-sm text-amber-800">
+              <p class="font-medium mb-1">Important Note</p>
+              <p>
+                Generated shorts will be automatically deleted after 24 hours if no action is taken. To keep your shorts permanently, upload them to YouTube or download them to your device.
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <%= if Enum.empty?(@source_video.generated_shorts) do %>
+          <!-- Empty State -->
+          <div class="text-center py-8">
+            <div class="inline-flex items-center justify-center w-16 h-16 bg-gray-100 rounded-full mb-4">
+              <.icon name="hero-video-camera" class="w-8 h-8 text-gray-400" />
+            </div>
+            <h3 class="text-lg font-medium text-gray-900 mb-2">No Shorts Generated Yet</h3>
+            <p class="text-gray-600 max-w-md mx-auto">
+              Generate shorts from this video to see them here. Each short will be optimized for YouTube Shorts format.
+            </p>
+          </div>
+        <% else %>
+          <!-- Shorts Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <%= for short <- @source_video.generated_shorts do %>
+              <div class="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow duration-200 flex flex-col h-full">
+                <!-- Short Header -->
+                <div class="flex items-start justify-between mb-3">
+                  <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
+                      <span class="text-white text-xs font-bold">{short.segment}</span>
+                    </div>
+                    <div>
+                      <span class="text-xs font-medium text-gray-500">
+                        Short #{short.segment}
+                      </span>
+                      <.status_badge
+                        status={String.upcase(short.status)}
+                        variant={get_short_status_variant(short.status)}
+                        size="sm"
+                      />
+                    </div>
+                  </div>
+                </div>
+                
+<!-- Video Preview -->
+                <div class="mb-3">
+                  <video
+                    src={"/storage/shorts/#{Path.basename(short.output_path)}"}
+                    controls
+                    class="w-full h-48 rounded-lg bg-black object-contain border border-gray-100"
+                  >
+                    Your browser does not support the video tag.
+                  </video>
+                </div>
+                
+<!-- Short Title -->
+                <h4 class="font-semibold text-gray-900 text-sm mb-2 line-clamp-2">
+                  {short.title}
+                </h4>
+                
+<!-- Short Description with Show More/Less -->
+                <div x-data="{ expanded: false }" class="mb-3">
+                  <p class="text-xs text-gray-600" x-show="expanded" x-transition>
+                    {short.description}
+                  </p>
+                  <p class="text-xs text-gray-600 line-clamp-3" x-show="!expanded" x-transition>
+                    {short.description}
+                  </p>
+                  <template x-if="short.description && short.description.length > 120">
+                    <button
+                      type="button"
+                      class="text-blue-600 text-xs font-medium mt-1 focus:outline-none"
+                      @click="expanded = !expanded"
+                    >
+                      <span x-show="!expanded">Show more</span>
+                      <span x-show="expanded">Show less</span>
+                    </button>
+                  </template>
+                </div>
+                
+<!-- Tags -->
+                <%= if short.tags && length(short.tags) > 0 do %>
+                  <div class="flex flex-wrap gap-1 mb-3">
+                    <%= for tag <- Enum.take(short.tags, 3) do %>
+                      <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
+                        #{tag}
+                      </span>
+                    <% end %>
+                    <%= if length(short.tags) > 3 do %>
+                      <span class="text-xs text-gray-500">+{length(short.tags) - 3} more</span>
+                    <% end %>
+                  </div>
+                <% end %>
+                
+<!-- Spacer to push actions to bottom -->
+                <div class="flex-1"></div>
+                
+<!-- Actions -->
+                <div class="flex items-center gap-2 pt-3 border-t border-gray-100 mt-3">
+                  <.button
+                    phx-click="upload_to_youtube"
+                    phx-value-short-id={short.id}
+                    variant="primary"
+                    size="sm"
+                    class="flex-1"
+                    disabled={short.status == "uploaded"}
+                  >
+                    <.icon name="hero-arrow-up-tray" class="w-4 h-4 mr-1" />
+                    {if short.status == "uploaded", do: "Uploaded", else: "Upload"}
+                  </.button>
+
+                  <a href={"/shorts/#{short.id}/download"} class="inline-flex items-center gap-2">
+                    <.icon name="hero-arrow-down-tray" class="w-4 h-4" /> Download
+                  </a>
+                </div>
+                
+<!-- Error Message -->
+                <%= if short.error do %>
+                  <div class="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700">
+                    <div class="flex items-center gap-1">
+                      <.icon name="hero-exclamation-circle" class="w-3 h-3" />
+                      <span class="font-medium">Error:</span>
+                    </div>
+                    <p class="mt-1">{short.error}</p>
+                  </div>
+                <% end %>
+              </div>
+            <% end %>
+          </div>
+          
+<!-- Summary Stats -->
+          <div class="mt-6 grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div class="bg-gray-50 rounded-lg p-3 text-center">
+              <div class="text-2xl font-bold text-gray-900">
+                {length(@source_video.generated_shorts)}
+              </div>
+              <div class="text-xs text-gray-600">Total Shorts</div>
+            </div>
+            <div class="bg-green-50 rounded-lg p-3 text-center">
+              <div class="text-2xl font-bold text-green-600">
+                {Enum.count(@source_video.generated_shorts, &(&1.status == "generated"))}
+              </div>
+              <div class="text-xs text-green-600">Ready to Upload</div>
+            </div>
+            <div class="bg-blue-50 rounded-lg p-3 text-center">
+              <div class="text-2xl font-bold text-blue-600">
+                {Enum.count(@source_video.generated_shorts, &(&1.status == "uploaded"))}
+              </div>
+              <div class="text-xs text-blue-600">Uploaded</div>
+            </div>
+            <div class="bg-red-50 rounded-lg p-3 text-center">
+              <div class="text-2xl font-bold text-red-600">
+                {Enum.count(@source_video.generated_shorts, & &1.error)}
+              </div>
+              <div class="text-xs text-red-600">With Errors</div>
+            </div>
+          </div>
+        <% end %>
+      </div>
+    </.card>
+  </div>
 </div>

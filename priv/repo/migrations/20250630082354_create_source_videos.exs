@@ -15,6 +15,7 @@ defmodule ShortCraft.Repo.Migrations.CreateSourceVideos do
       add :short_duration, :integer, default: 15
       add :progress, :integer, default: 0
       add :downloaded_file_path, :text
+      add :transcript, :text
       add :user_id, references(:users, on_delete: :delete_all, type: :binary_id)
 
       timestamps(type: :utc_datetime)
