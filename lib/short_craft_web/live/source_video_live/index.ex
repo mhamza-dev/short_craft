@@ -13,7 +13,7 @@ defmodule ShortCraftWeb.SourceVideoLive.Index do
     source_videos =
       Shorts.list_source_videos(
         user_id: socket.assigns.current_user.id,
-        preload: [:user]
+        preload: [:user, :generated_shorts]
       )
 
     # Subscribe to download progress updates for this user
@@ -165,7 +165,7 @@ defmodule ShortCraftWeb.SourceVideoLive.Index do
         update(socket, :source_videos, fn source_videos ->
           Enum.map(source_videos, fn source_video ->
             if source_video.id == updated_video.id do
-              updated_video
+              preload(updated_video, [:user, :generated_shorts])
             else
               source_video
             end

@@ -121,7 +121,7 @@ config :ueberauth, Ueberauth.Strategy.Google.OAuth,
   client_id: System.get_env("GOOGLE_CLIENT_ID"),
   client_secret: System.get_env("GOOGLE_CLIENT_SECRET"),
   redirect_uri: System.get_env("GOOGLE_REDIRECT_URI"),
-  default_scope: "email profile"
+  default_scope: "email profile https://www.googleapis.com/auth/youtube.readonly"
 
 config :ueberauth, Ueberauth.Strategy.GitHub.OAuth,
   client_id: System.get_env("GITHUB_CLIENT_ID"),

@@ -237,7 +237,8 @@ defmodule ShortCraftWeb.CoreComponents do
 
   attr :variant, :string,
     default: "primary",
-    values: ~w(primary secondary danger link gradient success warning info outline ghost)
+    values:
+      ~w(primary secondary danger link gradient success warning info outline ghost disabled gradient-outline)
 
   attr :size, :string, default: "md", values: ~w(sm md lg xl)
   attr :rest, :global, include: ~w(disabled form name value)
@@ -254,29 +255,33 @@ defmodule ShortCraftWeb.CoreComponents do
           "focus:outline-none focus:ring-2 focus:ring-offset-2",
           "disabled:opacity-50 disabled:cursor-not-allowed",
           # Size variants
-          @size == "sm" && "px-3 py-1.5 text-xs rounded-md",
-          @size == "md" && "px-4 py-2 text-sm rounded-lg",
-          @size == "lg" && "px-6 py-3 text-base rounded-xl",
+          @size == "sm" && "px-3 py-1.5 text-xs rounded-sm",
+          @size == "md" && "px-4 py-2 text-sm rounded-md",
+          @size == "lg" && "px-6 py-3 text-base rounded-lg",
           @size == "xl" && "px-8 py-4 text-lg rounded-xl",
           # Color variants
           @variant == "primary" &&
-            "text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500 shadow-sm hover:shadow-md",
+            "text-white bg-blue-600 hover:bg-blue-700 focus:ring-blue-500",
           @variant == "secondary" &&
             "text-gray-700 bg-gray-100 hover:bg-gray-200 focus:ring-gray-500",
           @variant == "danger" &&
-            "text-white bg-red-600 hover:bg-red-700 focus:ring-red-500 shadow-sm hover:shadow-md",
+            "text-white bg-red-600 hover:bg-red-700 focus:ring-red-500",
           @variant == "link" && "p-0 text-blue-600 hover:text-blue-700 underline",
           @variant == "gradient" &&
-            "text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:ring-blue-500 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5",
+            "text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:ring-blue-500",
           @variant == "success" &&
-            "text-white bg-green-600 hover:bg-green-700 focus:ring-green-500 shadow-sm hover:shadow-md",
+            "text-white bg-green-600 hover:bg-green-700 focus:ring-green-500",
           @variant == "warning" &&
-            "text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500 shadow-sm hover:shadow-md",
+            "text-white bg-yellow-600 hover:bg-yellow-700 focus:ring-yellow-500",
           @variant == "info" &&
-            "text-white bg-cyan-600 hover:bg-cyan-700 focus:ring-cyan-500 shadow-sm hover:shadow-md",
+            "text-white bg-cyan-600 hover:bg-cyan-700 focus:ring-cyan-500",
           @variant == "outline" &&
             "text-blue-600 bg-transparent border-2 border-blue-600 hover:bg-blue-50 focus:ring-blue-500",
           @variant == "ghost" && "text-gray-700 bg-transparent hover:bg-gray-100 focus:ring-gray-500",
+          @variant == "gradient-outline" &&
+            "text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 focus:ring-blue-500",
+          @variant == "disabled" &&
+            "text-gray-500 bg-gray-200 cursor-not-allowed",
           @class
         ]
       }
@@ -429,8 +434,8 @@ defmodule ShortCraftWeb.CoreComponents do
         id={@id}
         value={Phoenix.HTML.Form.normalize_value(@type, @value)}
         class={[
-          "mt-2 block w-full rounded-lg px-4 py-3 text-gray-900 transition-all duration-200",
-          "border-2 focus:outline-none focus:ring-2 focus:ring-offset-2 sm:text-sm",
+          "mt-2 block w-full rounded-md px-3 py-2 text-gray-900 transition-all duration-200",
+          "border-1 focus:outline-none focus:ring-1 focus:ring-offset-1 sm:text-sm",
           @errors == [] && "border-gray-300 focus:border-blue-500 focus:ring-blue-500/20",
           @errors != [] && "border-red-400 focus:border-red-500 focus:ring-red-500/20",
           @rest[:disabled] && "bg-gray-100 text-gray-500 cursor-not-allowed"
@@ -554,11 +559,10 @@ defmodule ShortCraftWeb.CoreComponents do
           <tr
             :for={{row, idx} <- Enum.with_index(@rows)}
             id={@row_id && @row_id.(row)}
-            class="group hover:bg-zinc-50"
+            class="hover:bg-zinc-50"
           >
             <td class="align-top" style="width: 1%; white-space: nowrap;">
               <div class="block py-4 pr-6">
-                <span class="absolute -inset-y-px right-0 -left-4 group-hover:bg-zinc-50 sm:rounded-l-xl" />
                 <span class={["relative", idx == 0 && "font-semibold text-zinc-900"]}>
                   {idx + 1}
                 </span>
@@ -772,7 +776,7 @@ defmodule ShortCraftWeb.CoreComponents do
   def status_badge(assigns) do
     ~H"""
     <span class={[
-      "inline-flex items-center rounded-full font-medium",
+      "inline-flex items-center rounded-md font-medium",
       @size == "sm" && "px-2 py-0.5 text-xs",
       @size == "md" && "px-2.5 py-0.5 text-sm",
       @size == "lg" && "px-3 py-1 text-sm",
@@ -807,7 +811,7 @@ defmodule ShortCraftWeb.CoreComponents do
   def card(assigns) do
     ~H"""
     <div class={[
-      "bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden",
+      "bg-white rounded-md shadow-sm border border-gray-200 overflow-hidden",
       @padding == "none" && "",
       @padding == "sm" && "p-4",
       @padding == "md" && "p-6",
@@ -878,7 +882,7 @@ defmodule ShortCraftWeb.CoreComponents do
   def stats_card(assigns) do
     ~H"""
     <div class={[
-      "rounded-xl shadow-sm border p-6",
+      "rounded-md shadow-sm border p-6",
       get_stats_card_variant_classes(@variant),
       @class
     ]}>

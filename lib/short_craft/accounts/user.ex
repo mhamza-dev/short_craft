@@ -21,6 +21,7 @@ defmodule ShortCraft.Accounts.User do
     field :metadata, :map
 
     has_many :source_videos, ShortCraft.Shorts.SourceVideo
+    has_many :youtube_channels, ShortCraft.Accounts.YoutubeChannel
 
     timestamps(type: :utc_datetime)
   end

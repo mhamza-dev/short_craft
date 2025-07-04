@@ -21,7 +21,7 @@ defmodule ShortCraft.Services.OAuthService do
   def initiate_oauth(provider) when is_binary(provider) do
     with :ok <- validate_provider(provider),
          {:ok, config} <- get_provider_config(provider),
-         {:ok, auth_url} <- build_auth_url(config) do
+         {:ok, auth_url} <- build_auth_url(config) |> dbg() do
       Logger.info("OAuth initiation started", provider: provider)
       {:ok, auth_url}
     else
@@ -67,7 +67,7 @@ defmodule ShortCraft.Services.OAuthService do
   def refresh_token(provider, refresh_token)
       when is_binary(provider) and is_binary(refresh_token) do
     with :ok <- validate_provider(provider),
-         {:ok, config} <- get_provider_config(provider),
+         {:ok, config} <- get_provider_config(provider) |> dbg(),
          {:ok, token_data} <- exchange_refresh_token(provider, refresh_token, config) do
       Logger.info("Token refreshed successfully", provider: provider)
       {:ok, token_data}
@@ -88,6 +88,18 @@ defmodule ShortCraft.Services.OAuthService do
   end
 
   def supported_provider?(_), do: false
+
+  def get_expires_at(token_data) do
+    case token_data["expires_in"] do
+      expires_in when is_integer(expires_in) ->
+        DateTime.utc_now()
+        |> DateTime.add(expires_in, :second)
+        |> DateTime.truncate(:second)
+
+      _ ->
+        nil
+    end
+  end
 
   # ============================================================================
   # PRIVATE FUNCTIONS - VALIDATION
@@ -149,7 +161,8 @@ defmodule ShortCraft.Services.OAuthService do
       auth_url: "https://accounts.google.com/o/oauth2/v2/auth",
       token_url: "https://oauth2.googleapis.com/token",
       user_info_url: "https://www.googleapis.com/oauth2/v2/userinfo",
-      access_type: "offline"
+      access_type: "offline",
+      prompt: "consent"
     }
   end
 
@@ -198,6 +211,8 @@ defmodule ShortCraft.Services.OAuthService do
   end
 
   defp build_auth_url(config) do
+    dbg(config)
+
     params = %{
       "client_id" => config.client_id,
       "redirect_uri" => config.redirect_uri,
@@ -205,7 +220,7 @@ defmodule ShortCraft.Services.OAuthService do
       "scope" => config.default_scope
     }
 
-    params = maybe_add_access_type(params, config)
+    params = params |> maybe_add_access_type(config) |> maybe_add_prompt(config) |> dbg()
 
     query_string = URI.encode_query(params)
     auth_url = "#{config.auth_url}?#{query_string}"
@@ -218,6 +233,12 @@ defmodule ShortCraft.Services.OAuthService do
   end
 
   defp maybe_add_access_type(params, _), do: params
+
+  defp maybe_add_prompt(params, %{prompt: prompt}) do
+    Map.put(params, "prompt", prompt)
+  end
+
+  defp maybe_add_prompt(params, _), do: params
 
   defp exchange_code_for_token(provider, code, config) do
     body_params = %{
@@ -253,6 +274,7 @@ defmodule ShortCraft.Services.OAuthService do
   end
 
   defp exchange_refresh_token(provider, refresh_token, config) do
+    # Build the body params without scope - let Google use the original scopes
     body_params = %{
       "refresh_token" => refresh_token,
       "client_id" => config.client_id,
@@ -260,10 +282,13 @@ defmodule ShortCraft.Services.OAuthService do
       "grant_type" => "refresh_token"
     }
 
-    headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
-    headers = maybe_add_provider_headers(headers, config)
+    body = URI.encode_query(body_params)
+    dbg(body)
 
-    case HTTPoison.post(config.token_url, URI.encode_query(body_params), headers) do
+    headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
+    headers = maybe_add_provider_headers(headers, config) |> dbg()
+
+    case HTTPoison.post(config.token_url, body, headers) |> dbg() do
       {:ok, %{status_code: 200, body: response_body}} ->
         case Jason.decode(response_body) do
           {:ok, token_data} -> {:ok, token_data}
@@ -328,6 +353,8 @@ defmodule ShortCraft.Services.OAuthService do
   # ============================================================================
 
   defp create_or_update_user(provider, user_info, token_data) do
+    dbg(token_data)
+
     user_params =
       %{
         provider: provider,
@@ -346,7 +373,7 @@ defmodule ShortCraft.Services.OAuthService do
       }
       |> IO.inspect(label: "User params before insert")
 
-    case Accounts.get_or_create_oauth2_user(user_params) do
+    case Accounts.create_or_update_oauth2_user(user_params) do
       {:ok, user} ->
         {:ok, user}
 
@@ -376,18 +403,6 @@ defmodule ShortCraft.Services.OAuthService do
   end
 
   defp get_avatar_url(_, _), do: nil
-
-  defp get_expires_at(token_data) do
-    case token_data["expires_in"] do
-      expires_in when is_integer(expires_in) ->
-        DateTime.utc_now()
-        |> DateTime.add(expires_in, :second)
-        |> DateTime.truncate(:second)
-
-      _ ->
-        nil
-    end
-  end
 
   # ============================================================================
   # PRIVATE FUNCTIONS - UTILITIES

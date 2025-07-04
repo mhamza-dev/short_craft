@@ -7,6 +7,7 @@ defmodule ShortCraft.Accounts do
   alias ShortCraft.Repo
 
   alias ShortCraft.Accounts.{User, UserToken, UserNotifier}
+  alias ShortCraft.Services.OAuthService
 
   ## Database getters
 
@@ -113,6 +114,12 @@ defmodule ShortCraft.Accounts do
     %User{}
     |> User.oauth2_registration_changeset(attrs)
     |> Repo.insert()
+  end
+
+  def update_oauth2_user(user, attrs) do
+    user
+    |> User.oauth2_registration_changeset(attrs)
+    |> Repo.update()
   end
 
   @doc """
@@ -389,14 +396,123 @@ defmodule ShortCraft.Accounts do
 
   ## Examples
 
-      iex> get_or_create_oauth2_user(%{provider: "google", provider_id: "123", email: "user@example.com"})
+      iex> create_or_update_oauth2_user(%{provider: "google", provider_id: "123", email: "user@example.com"})
       {:ok, %User{}}
 
   """
-  def get_or_create_oauth2_user(attrs) do
-    case get_user_by_oauth2(attrs.provider, attrs.provider_id) do
+  def create_or_update_oauth2_user(attrs) do
+    case get_user_by_oauth2(attrs.provider, attrs.provider_id) |> dbg() do
       nil -> register_oauth2_user(attrs)
-      user -> {:ok, user}
+      user -> update_oauth2_user(user, attrs)
     end
+  end
+
+  alias ShortCraft.Accounts.YoutubeChannel
+
+  @doc """
+  Returns the list of youtube_channels.
+
+  ## Examples
+
+      iex> list_youtube_channels()
+      [%YoutubeChannel{}, ...]
+
+  """
+  def list_youtube_channels do
+    Repo.all(YoutubeChannel)
+  end
+
+  @doc """
+  Gets a single youtube_channel.
+
+  Raises `Ecto.NoResultsError` if the Youtube channel does not exist.
+
+  ## Examples
+
+      iex> get_youtube_channel!(123)
+      %YoutubeChannel{}
+
+      iex> get_youtube_channel!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_youtube_channel!(id), do: Repo.get!(YoutubeChannel, id)
+
+  @doc """
+  Creates a youtube_channel.
+
+  ## Examples
+
+      iex> create_youtube_channel(%{field: value})
+      {:ok, %YoutubeChannel{}}
+
+      iex> create_youtube_channel(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_youtube_channel(attrs \\ %{}) do
+    %YoutubeChannel{}
+    |> YoutubeChannel.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Updates a youtube_channel.
+
+  ## Examples
+
+      iex> update_youtube_channel(youtube_channel, %{field: new_value})
+      {:ok, %YoutubeChannel{}}
+
+      iex> update_youtube_channel(youtube_channel, %{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def update_youtube_channel(%YoutubeChannel{} = youtube_channel, attrs) do
+    youtube_channel
+    |> YoutubeChannel.changeset(attrs)
+    |> Repo.update()
+  end
+
+  @doc """
+  Deletes a youtube_channel.
+
+  ## Examples
+
+      iex> delete_youtube_channel(youtube_channel)
+      {:ok, %YoutubeChannel{}}
+
+      iex> delete_youtube_channel(youtube_channel)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_youtube_channel(%YoutubeChannel{} = youtube_channel) do
+    Repo.delete(youtube_channel)
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking youtube_channel changes.
+
+  ## Examples
+
+      iex> change_youtube_channel(youtube_channel)
+      %Ecto.Changeset{data: %YoutubeChannel{}}
+
+  """
+  def change_youtube_channel(%YoutubeChannel{} = youtube_channel, attrs \\ %{}) do
+    YoutubeChannel.changeset(youtube_channel, attrs)
+  end
+
+  @doc """
+  Updates a user's OAuth tokens.
+  """
+  def update_user_tokens(%User{} = user, token_data) do
+    user
+    |> User.oauth2_registration_changeset(%{
+      access_token: token_data["access_token"],
+      refresh_token: token_data["refresh_token"] || user.refresh_token,
+      expires_at: OAuthService.get_expires_at(token_data)
+    })
+    |> Repo.update()
   end
 end

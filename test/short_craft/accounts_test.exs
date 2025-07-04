@@ -505,4 +505,72 @@ defmodule ShortCraft.AccountsTest do
       refute inspect(%User{password: "123456"}) =~ "password: \"123456\""
     end
   end
+
+  describe "youtube_channels" do
+    alias ShortCraft.Accounts.YoutubeChannel
+
+    import ShortCraft.AccountsFixtures
+
+    @invalid_attrs %{metadata: nil, channel_id: nil, channel_title: nil, channel_url: nil, access_token: nil, refresh_token: nil, expires_at: nil, is_connected: nil}
+
+    test "list_youtube_channels/0 returns all youtube_channels" do
+      youtube_channel = youtube_channel_fixture()
+      assert Accounts.list_youtube_channels() == [youtube_channel]
+    end
+
+    test "get_youtube_channel!/1 returns the youtube_channel with given id" do
+      youtube_channel = youtube_channel_fixture()
+      assert Accounts.get_youtube_channel!(youtube_channel.id) == youtube_channel
+    end
+
+    test "create_youtube_channel/1 with valid data creates a youtube_channel" do
+      valid_attrs = %{metadata: %{}, channel_id: "some channel_id", channel_title: "some channel_title", channel_url: "some channel_url", access_token: "some access_token", refresh_token: "some refresh_token", expires_at: ~U[2025-07-02 14:16:00Z], is_connected: true}
+
+      assert {:ok, %YoutubeChannel{} = youtube_channel} = Accounts.create_youtube_channel(valid_attrs)
+      assert youtube_channel.metadata == %{}
+      assert youtube_channel.channel_id == "some channel_id"
+      assert youtube_channel.channel_title == "some channel_title"
+      assert youtube_channel.channel_url == "some channel_url"
+      assert youtube_channel.access_token == "some access_token"
+      assert youtube_channel.refresh_token == "some refresh_token"
+      assert youtube_channel.expires_at == ~U[2025-07-02 14:16:00Z]
+      assert youtube_channel.is_connected == true
+    end
+
+    test "create_youtube_channel/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Accounts.create_youtube_channel(@invalid_attrs)
+    end
+
+    test "update_youtube_channel/2 with valid data updates the youtube_channel" do
+      youtube_channel = youtube_channel_fixture()
+      update_attrs = %{metadata: %{}, channel_id: "some updated channel_id", channel_title: "some updated channel_title", channel_url: "some updated channel_url", access_token: "some updated access_token", refresh_token: "some updated refresh_token", expires_at: ~U[2025-07-03 14:16:00Z], is_connected: false}
+
+      assert {:ok, %YoutubeChannel{} = youtube_channel} = Accounts.update_youtube_channel(youtube_channel, update_attrs)
+      assert youtube_channel.metadata == %{}
+      assert youtube_channel.channel_id == "some updated channel_id"
+      assert youtube_channel.channel_title == "some updated channel_title"
+      assert youtube_channel.channel_url == "some updated channel_url"
+      assert youtube_channel.access_token == "some updated access_token"
+      assert youtube_channel.refresh_token == "some updated refresh_token"
+      assert youtube_channel.expires_at == ~U[2025-07-03 14:16:00Z]
+      assert youtube_channel.is_connected == false
+    end
+
+    test "update_youtube_channel/2 with invalid data returns error changeset" do
+      youtube_channel = youtube_channel_fixture()
+      assert {:error, %Ecto.Changeset{}} = Accounts.update_youtube_channel(youtube_channel, @invalid_attrs)
+      assert youtube_channel == Accounts.get_youtube_channel!(youtube_channel.id)
+    end
+
+    test "delete_youtube_channel/1 deletes the youtube_channel" do
+      youtube_channel = youtube_channel_fixture()
+      assert {:ok, %YoutubeChannel{}} = Accounts.delete_youtube_channel(youtube_channel)
+      assert_raise Ecto.NoResultsError, fn -> Accounts.get_youtube_channel!(youtube_channel.id) end
+    end
+
+    test "change_youtube_channel/1 returns a youtube_channel changeset" do
+      youtube_channel = youtube_channel_fixture()
+      assert %Ecto.Changeset{} = Accounts.change_youtube_channel(youtube_channel)
+    end
+  end
 end

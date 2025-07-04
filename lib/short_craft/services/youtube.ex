@@ -28,6 +28,44 @@ defmodule ShortCraft.Services.Youtube do
     end
   end
 
+  def fetch_youtube_channels(access_token) do
+    # First try to get channels where user is the owner
+    url = "https://www.googleapis.com/youtube/v3/channels?part=snippet&mine=true"
+    headers = [{"Authorization", "Bearer #{access_token}"}]
+
+    case HTTPoison.get(url, headers) do
+      {:ok, %{status_code: 200, body: body}} ->
+        case Jason.decode(body) do
+          {:ok, %{"items" => items}} when items != [] ->
+            {:ok, items}
+
+          _ ->
+            # If no owned channels, try to get channels where user has access
+            fetch_accessible_channels(access_token)
+        end
+
+      _ ->
+        {:error, :fetch_failed}
+    end
+  end
+
+  defp fetch_accessible_channels(access_token) do
+    # Try to get channels where user has access (not just ownership)
+    url = "https://www.googleapis.com/youtube/v3/channels?part=snippet&managedByMe=true"
+    headers = [{"Authorization", "Bearer #{access_token}"}]
+
+    case HTTPoison.get(url, headers) do
+      {:ok, %{status_code: 200, body: body}} ->
+        case Jason.decode(body) do
+          {:ok, %{"items" => items}} -> {:ok, items}
+          _ -> {:error, :no_channels}
+        end
+
+      _ ->
+        {:error, :fetch_failed}
+    end
+  end
+
   defp extract_video_id(url) do
     # Improved regex to support both youtube.com and youtu.be URLs
     regex =

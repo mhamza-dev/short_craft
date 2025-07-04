@@ -28,4 +28,25 @@ defmodule ShortCraft.AccountsFixtures do
     [_, token | _] = String.split(captured_email.text_body, "[TOKEN]")
     token
   end
+
+  @doc """
+  Generate a youtube_channel.
+  """
+  def youtube_channel_fixture(attrs \\ %{}) do
+    {:ok, youtube_channel} =
+      attrs
+      |> Enum.into(%{
+        access_token: "some access_token",
+        channel_id: "some channel_id",
+        channel_title: "some channel_title",
+        channel_url: "some channel_url",
+        expires_at: ~U[2025-07-02 14:16:00Z],
+        is_connected: true,
+        metadata: %{},
+        refresh_token: "some refresh_token"
+      })
+      |> ShortCraft.Accounts.create_youtube_channel()
+
+    youtube_channel
+  end
 end

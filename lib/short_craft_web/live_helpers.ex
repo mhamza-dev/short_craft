@@ -155,6 +155,7 @@ defmodule ShortCraftWeb.LiveHelpers do
   defp colors_by_status(:shorts_processing), do: "bg-orange-100 text-orange-800"
   defp colors_by_status(:waiting_review), do: "bg-purple-100 text-purple-800"
   defp colors_by_status(:cancelled), do: "bg-gray-300 text-gray-900"
+  defp colors_by_status(:connected), do: "bg-green-100 text-green-800"
 
   defp colors_by_status(status) when status in [:shorts_published, true],
     do: "bg-green-100 text-green-800"
@@ -175,6 +176,7 @@ defmodule ShortCraftWeb.LiveHelpers do
       :waiting_review -> "info"
       :shorts_publishing -> "warning"
       :shorts_published -> "success"
+      :connected -> "success"
       :failed -> "danger"
       :cancelled -> "default"
       :source_deleted -> "danger"
