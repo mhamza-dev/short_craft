@@ -16,6 +16,7 @@ defmodule ShortCraftWeb.CoreComponents do
   """
   use Phoenix.Component
   use Gettext, backend: ShortCraftWeb.Gettext
+  use ShortCraftWeb, :verified_routes
 
   import ShortCraftWeb.LiveHelpers
 
@@ -1029,30 +1030,34 @@ defmodule ShortCraftWeb.CoreComponents do
   def social_link(assigns) do
     ~H"""
     <.link
-      href={@href}
+      navigate={@href}
       class={[
-        "flex flex-col items-center justify-center border border-gray-300 rounded-lg hover:bg-gray-50 transition-all duration-200",
-        @size == "sm" && "p-2",
-        @size == "md" && "p-3",
-        @size == "lg" && "p-4",
+        "border border-gray-300 rounded-md hover:bg-gray-50 transition-all duration-200 flex flex-col items-center justify-center h-full",
+        @size == "sm" && "px-2 pt-4 pb-2",
+        @size == "md" && "px-3 pt-6 pb-4",
+        @size == "lg" && "px-4 pt-8 pb-6",
         @class
       ]}
     >
-      <i class={[
-        "fa-brands fa-#{@provider} mb-1",
-        @size == "sm" && "fa-sm",
-        @size == "md" && "fa-lg",
-        @size == "lg" && "fa-xl",
-        get_social_icon_color(@provider)
-      ]}>
-      </i>
-      <span class={[
-        "text-gray-600",
-        @size == "sm" && "text-xs",
-        @size == "md" && "text-xs",
-        @size == "lg" && "text-sm"
-      ]}>
-        {@label || String.capitalize(@provider)}
+      <span class="flex flex-col items-center justify-center gap-2 h-full">
+        <.awesome_icon class={
+          [
+            "fa-brands fa-#{@provider}",
+            @size == "sm" && "fa-sm",
+            @size == "md" && "fa-lg",
+            @size == "lg" && "fa-xl",
+            get_social_icon_color(@provider)
+          ]
+          |> Enum.join(" ")
+        } />
+        <span class={[
+          "text-gray-600",
+          @size == "sm" && "text-xs",
+          @size == "md" && "text-xs",
+          @size == "lg" && "text-sm"
+        ]}>
+          {@label || String.capitalize(@provider)}
+        </span>
       </span>
     </.link>
     """
@@ -1102,7 +1107,7 @@ defmodule ShortCraftWeb.CoreComponents do
   def social_links_grid(assigns) do
     ~H"""
     <div class={[
-      "grid gap-3",
+      "grid gap-3 items-center justify-center",
       @columns == 2 && "grid-cols-2",
       @columns == 3 && "grid-cols-3",
       @columns == 4 && "grid-cols-4",
@@ -1156,7 +1161,7 @@ defmodule ShortCraftWeb.CoreComponents do
         x-show="open"
         @click.away="open = false"
         x-transition
-        class="absolute right-0 z-10 mt-2 w-40 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
+        class="absolute right-0 z-10 mt-2 w-60 origin-top-right rounded-md bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
         style="display: none;"
       >
         <div class="py-1">
@@ -1240,6 +1245,305 @@ defmodule ShortCraftWeb.CoreComponents do
         {@more_label}
       </button>
     </div>
+    """
+  end
+
+  # Pricing Card Component
+  @doc """
+  Renders a pricing card.
+  """
+  attr :title, :string, required: true
+  attr :price, :string, required: true
+  attr :features, :list, required: true
+  attr :cta, :string, required: true
+  attr :cta_link, :string, required: true
+  attr :highlight, :boolean, default: false
+
+  def pricing_card(assigns) do
+    ~H"""
+    <div class={"bg-white rounded-2xl p-6 shadow-lg border #{if @highlight, do: "border-2 border-blue-600 scale-105", else: "border-gray-100"} flex flex-col items-center"}>
+      <div class={"text-2xl font-bold #{if @highlight, do: "text-purple-600", else: "text-blue-600"} mb-2"}>
+        {@title}
+      </div>
+      <div class="text-3xl font-bold mb-4">{@price}</div>
+      <ul class="text-gray-600 mb-6 space-y-2 text-left">
+        <%= for feature <- @features do %>
+          <li>✔️ {feature}</li>
+        <% end %>
+      </ul>
+      <.link
+        href={@cta_link}
+        class={"px-6 py-2 rounded-xl font-semibold shadow transition #{if @highlight, do: "bg-purple-600 text-white hover:bg-purple-700", else: "bg-blue-600 text-white hover:bg-blue-700"}"}
+      >
+        {@cta}
+      </.link>
+    </div>
+    """
+  end
+
+  # Contact Form Component
+  @doc """
+  Renders a contact form.
+  """
+  def contact_form(assigns) do
+    ~H"""
+    <form method="post" action="mailto:support@shortcraft.app" class="space-y-4 max-w-md mx-auto">
+      <input
+        type="text"
+        name="name"
+        placeholder="Your Name"
+        class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-200"
+        required
+      />
+      <input
+        type="email"
+        name="email"
+        placeholder="Your Email"
+        class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-200"
+        required
+      />
+      <textarea
+        name="message"
+        placeholder="Your Message"
+        class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-200"
+        rows="4"
+        required
+      ></textarea>
+      <button
+        type="submit"
+        class="w-full px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold shadow hover:bg-blue-700 transition"
+      >
+        Send Message
+      </button>
+    </form>
+    """
+  end
+
+  # Navigation Bar Component
+  @doc """
+  Renders the main navigation bar.
+  """
+  attr :show, :boolean, default: true
+
+  def nav_bar(assigns) do
+    ~H"""
+    <nav :if={@show}>
+      <div class="flex gap-6 items-center">
+        <.link navigate={~p"/"} class="text-gray-700 hover:text-blue-600 font-medium">Home</.link>
+        <.link navigate={~p"/pricing"} class="text-gray-700 hover:text-blue-600 font-medium">
+          Pricing
+        </.link>
+        <.link navigate={~p"/contact"} class="text-gray-700 hover:text-blue-600 font-medium">
+          Contact
+        </.link>
+        <.link
+          navigate={~p"/users/register"}
+          class="ml-4 px-5 py-2 bg-blue-600 text-white rounded-md font-semibold shadow hover:bg-blue-700 transition"
+        >
+          Register
+        </.link>
+        <.link
+          navigate={~p"/users/log_in"}
+          class="ml-2 px-5 py-2 bg-white text-blue-600 border border-blue-600 rounded-md font-semibold shadow hover:bg-blue-50 transition"
+        >
+          Login
+        </.link>
+      </div>
+    </nav>
+    """
+  end
+
+  @doc """
+  Renders a footer component with navigation and company branding.
+  """
+  attr :class, :string, default: nil
+  slot :inner_block, required: false
+
+  def footer(assigns) do
+    ~H"""
+    <footer class={[
+      "bg-gradient-to-r from-blue-50 to-purple-50 border-t border-gray-100",
+      @class
+    ]}>
+      <!-- Main Footer Content -->
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <!-- Company Info -->
+          <div class="lg:col-span-2">
+            <div class="flex items-center gap-2 mb-4">
+              <.logo class="w-8 h-8" color="blue" />
+              <span class="text-xl font-bold text-gray-900">ShortCraft</span>
+            </div>
+            <p class="text-gray-600 mb-6 max-w-md">
+              Transform your YouTube content into viral shorts with AI-powered editing.
+              A product by BHsquareTechnologies - empowering creators worldwide.
+            </p>
+            <div class="flex gap-4">
+              <a
+                href="https://twitter.com/shortcraft"
+                target="_blank"
+                class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center hover:bg-blue-200 transition"
+              >
+                <.icon name="hero-twitter" class="w-5 h-5 text-blue-600" />
+              </a>
+              <a
+                href="https://github.com/yourusername/short_craft"
+                target="_blank"
+                class="w-10 h-10 bg-gray-100 rounded-full flex items-center justify-center hover:bg-gray-200 transition"
+              >
+                <.icon name="hero-mark-github" class="w-5 h-5 text-gray-700" />
+              </a>
+              <a
+                href="https://linkedin.com/company/bhsquaretechnologies"
+                target="_blank"
+                class="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center hover:bg-blue-200 transition"
+              >
+                <.icon name="hero-linkedin" class="w-5 h-5 text-blue-600" />
+              </a>
+              <a
+                href="https://youtube.com/@shortcraft"
+                target="_blank"
+                class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center hover:bg-red-200 transition"
+              >
+                <.icon name="hero-play" class="w-5 h-5 text-red-600" />
+              </a>
+            </div>
+          </div>
+          
+    <!-- Product Links -->
+          <div>
+            <h3 class="font-semibold text-gray-900 mb-4">Product</h3>
+            <ul class="space-y-3">
+              <li>
+                <.link navigate={~p"/"} class="text-gray-600 hover:text-blue-600 transition">
+                  Home
+                </.link>
+              </li>
+              <li>
+                <.link navigate={~p"/pricing"} class="text-gray-600 hover:text-blue-600 transition">
+                  Pricing
+                </.link>
+              </li>
+              <li>
+                <.link
+                  navigate={~p"/source_videos"}
+                  class="text-gray-600 hover:text-blue-600 transition"
+                >
+                  My Videos
+                </.link>
+              </li>
+              <li>
+                <.link
+                  navigate={~p"/users/register"}
+                  class="text-gray-600 hover:text-blue-600 transition"
+                >
+                  Sign Up
+                </.link>
+              </li>
+              <li>
+                <.link
+                  navigate={~p"/users/log_in"}
+                  class="text-gray-600 hover:text-blue-600 transition"
+                >
+                  Login
+                </.link>
+              </li>
+            </ul>
+          </div>
+          
+    <!-- Company & Support -->
+          <div>
+            <h3 class="font-semibold text-gray-900 mb-4">Company & Support</h3>
+            <ul class="space-y-3">
+              <li>
+                <.link navigate={~p"/contact"} class="text-gray-600 hover:text-blue-600 transition">
+                  Contact Us
+                </.link>
+              </li>
+              <li>
+                <a
+                  href="mailto:support@shortcraft.app"
+                  class="text-gray-600 hover:text-blue-600 transition"
+                >
+                  Support
+                </a>
+              </li>
+              <li>
+                <a href="/docs" class="text-gray-600 hover:text-blue-600 transition">Documentation</a>
+              </li>
+              <li>
+                <a href="/api" class="text-gray-600 hover:text-blue-600 transition">API</a>
+              </li>
+              <li>
+                <a href="/status" class="text-gray-600 hover:text-blue-600 transition">Status</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+    <!-- Newsletter Signup -->
+        <div class="mt-12 pt-8 border-t border-gray-200">
+          <div class="max-w-md">
+            <h3 class="font-semibold text-gray-900 mb-2">Stay Updated</h3>
+            <p class="text-gray-600 text-sm mb-4">
+              Get the latest updates and tips for creating viral shorts.
+            </p>
+            <form class="flex gap-2">
+              <input
+                type="email"
+                placeholder="Enter your email"
+                class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+              <button
+                type="submit"
+                class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+              >
+                Subscribe
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+      
+    <!-- Bottom Footer -->
+      <div class="border-t border-gray-200 bg-white/50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+          <div class="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex flex-col md:flex-row items-center gap-4 text-gray-400 text-sm">
+              <span>
+                A product by <span class="font-semibold text-blue-700">BHsquareTechnologies</span>
+              </span>
+              <span class="hidden md:inline">•</span>
+              <a
+                href="mailto:bhsquaretechnologies@gmail.com"
+                class="hover:text-blue-600 transition underline"
+              >
+                bhsquaretechnologies@gmail.com
+              </a>
+            </div>
+            <div class="flex items-center gap-6 text-gray-400 text-sm">
+              <a href="/privacy" class="hover:text-blue-600 transition">Privacy Policy</a>
+              <a href="/terms" class="hover:text-blue-600 transition">Terms of Service</a>
+              <span>&copy; 2025 All rights reserved</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </footer>
+    """
+  end
+
+  @doc """
+  Renders an awesome icon.
+  ## Examples
+
+      <.awesome_icon class="fa-brands fa-x-twitter w-5 h-5 text-blue-600" />
+  """
+  attr :class, :string, required: true
+
+  def awesome_icon(assigns) do
+    ~H"""
+    <i class={assigns[:class]}></i>
     """
   end
 end

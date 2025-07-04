@@ -1,5 +1,37 @@
 <.flash_group flash={@flash} />
 
+<!-- Navigation Bar -->
+<nav class="w-full bg-white shadow-sm py-4 px-8 flex justify-between items-center sticky top-0 z-50">
+  <div class="flex items-center gap-4">
+    <.logo class="w-8 h-8" color="blue" />
+    <span class="font-bold text-xl text-gray-800">ShortCraft</span>
+  </div>
+  <div class="flex gap-6 items-center">
+    <.link href={~p"/"} class="text-gray-700 hover:text-blue-600 font-medium">Home</.link>
+    <.link href={~p"/pricing"} class="text-gray-700 hover:text-blue-600 font-medium">
+      Pricing
+    </.link>
+    <.link href={~p"/contact"} class="text-gray-700 hover:text-blue-600 font-medium">
+      Contact
+    </.link>
+    <.link href={~p"/source_videos"} class="text-gray-700 hover:text-blue-600 font-medium">
+      My Videos
+    </.link>
+    <.link
+      href={~p"/users/register"}
+      class="ml-4 px-5 py-2 bg-blue-600 text-white rounded-xl font-semibold shadow hover:bg-blue-700 transition"
+    >
+      Register
+    </.link>
+    <.link
+      href={~p"/users/log_in"}
+      class="ml-2 px-5 py-2 bg-white text-blue-600 border border-blue-600 rounded-xl font-semibold shadow hover:bg-blue-50 transition"
+    >
+      Login
+    </.link>
+  </div>
+</nav>
+
 <!-- Hero Section -->
 <div class="relative overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50">
   <!-- Background Pattern -->
@@ -150,119 +182,133 @@
           Bulk operations and detailed analytics.
         </p>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- Stats Cards Showcase -->
-<div class="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
-  <div class="mx-auto max-w-6xl">
-    <div class="text-center mb-12">
-      <h2 class="text-3xl font-bold text-gray-900 mb-4">
-        Beautiful Dashboard Components
-      </h2>
-      <p class="text-lg text-gray-600 max-w-2xl mx-auto">
-        Our stats cards come in multiple variants to match your data and design needs.
-      </p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
-      <.stats_card title="Total Users" value="1,234" icon="hero-users" variant="default" />
-      <.stats_card
-        title="Active Sessions"
-        value="567"
-        icon="hero-signal"
-        variant="success"
-        trend="+12%"
-        trend_direction="up"
-      />
-      <.stats_card
-        title="Pending Tasks"
-        value="89"
-        icon="hero-clock"
-        variant="warning"
-        trend="+5%"
-        trend_direction="up"
-      />
-      <.stats_card
-        title="System Health"
-        value="98%"
-        icon="hero-heart"
-        variant="info"
-        trend="+2%"
-        trend_direction="up"
-      />
-      <.stats_card
-        title="Error Rate"
-        value="0.2%"
-        icon="hero-exclamation-triangle"
-        variant="danger"
-        trend="-15%"
-        trend_direction="down"
-      />
-    </div>
-  </div>
-</div>
-
-<!-- How It Works Section -->
-<div class="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
-  <div class="mx-auto max-w-4xl">
-    <div class="text-center mb-12">
-      <h2 class="text-3xl font-bold text-gray-900 mb-4">How it works</h2>
-      <p class="text-lg text-gray-600">
-        Get started in just three simple steps
-      </p>
-    </div>
-
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-      <!-- Step 1 -->
-      <div class="text-center">
-        <div class="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-xl">
-          1
+      <!-- New Feature: Secure OAuth Login & Channel Management -->
+      <div class="bg-white rounded-2xl p-6 shadow-lg hover:shadow-xl transition-shadow duration-300 border border-gray-100">
+        <div class="w-12 h-12 bg-blue-100 rounded-xl flex items-center justify-center mb-4">
+          <.icon name="hero-lock-closed" class="w-6 h-6 text-blue-600" />
         </div>
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">Add YouTube URL</h3>
+        <h3 class="text-xl font-semibold text-gray-900 mb-2">Secure OAuth Login</h3>
         <p class="text-gray-600">
-          Paste any YouTube video URL and let ShortCraft extract the video information automatically.
-        </p>
-          </div>
-      
-<!-- Step 2 -->
-      <div class="text-center">
-        <div class="w-16 h-16 bg-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-xl">
-          2
-          </div>
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">Configure Settings</h3>
-        <p class="text-gray-600">
-          Set your preferred short duration, number of shorts to generate, and upload preferences.
-        </p>
-          </div>
-      
-<!-- Step 3 -->
-      <div class="text-center">
-        <div class="w-16 h-16 bg-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-white font-bold text-xl">
-          3
-        </div>
-        <h3 class="text-xl font-semibold text-gray-900 mb-2">Generate & Upload</h3>
-        <p class="text-gray-600">
-          Watch as ShortCraft automatically downloads, processes, and uploads your shorts to YouTube.
+          Sign up or log in securely with Google. Manage your YouTube channels and connect them with a single click.
         </p>
       </div>
     </div>
   </div>
 </div>
 
-<!-- CTA Section -->
-<div class="py-16 px-4 sm:px-6 lg:px-8">
-  <div class="mx-auto max-w-2xl text-center">
-    <h2 class="text-3xl font-bold text-gray-900 mb-4">Ready to create viral shorts?</h2>
-    <p class="text-lg text-gray-600 mb-8">
-      Join thousands of creators who are already using ShortCraft to maximize their content reach.
-    </p>
-    <.link
-      href={~p"/source_videos/new"}
-      class="inline-flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white font-semibold rounded-xl hover:from-blue-700 hover:to-purple-700 transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-    >
-      <.icon name="hero-rocket-launch" class="w-5 h-5 mr-2" /> Get Started Now
-    </.link>
+<!-- Pricing Section -->
+<div
+  class="py-16 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-blue-50 via-white to-purple-50"
+  id="pricing"
+>
+  <div class="mx-auto max-w-4xl text-center">
+    <h2 class="text-3xl font-bold text-gray-900 mb-4">Pricing</h2>
+    <p class="text-lg text-gray-600 mb-8">Simple, transparent pricing for every creator.</p>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 flex flex-col items-center">
+        <div class="text-2xl font-bold text-blue-600 mb-2">Free</div>
+        <div class="text-3xl font-bold mb-4">$0</div>
+        <ul class="text-gray-600 mb-6 space-y-2 text-left">
+          <li>✔️ 10 shorts/month</li>
+          <li>✔️ Basic editing tools</li>
+          <li>✔️ Community support</li>
+        </ul>
+        <.link
+          href={~p"/users/register"}
+          class="px-6 py-2 bg-blue-600 text-white rounded-xl font-semibold shadow hover:bg-blue-700 transition"
+        >
+          Get Started
+        </.link>
+      </div>
+      <div class="bg-white rounded-2xl p-6 shadow-lg border-2 border-blue-600 flex flex-col items-center scale-105">
+        <div class="text-2xl font-bold text-purple-600 mb-2">Pro</div>
+        <div class="text-3xl font-bold mb-4">
+          $19<span class="text-base font-normal">/mo</span>
+        </div>
+        <ul class="text-gray-600 mb-6 space-y-2 text-left">
+          <li>✔️ Unlimited shorts</li>
+          <li>✔️ Advanced editing tools</li>
+          <li>✔️ Priority support</li>
+          <li>✔️ Direct YouTube upload</li>
+        </ul>
+        <.link
+          href={~p"/users/register"}
+          class="px-6 py-2 bg-purple-600 text-white rounded-xl font-semibold shadow hover:bg-purple-700 transition"
+        >
+          Start Pro
+        </.link>
+      </div>
+      <div class="bg-white rounded-2xl p-6 shadow-lg border border-gray-100 flex flex-col items-center">
+        <div class="text-2xl font-bold text-green-600 mb-2">Enterprise</div>
+        <div class="text-3xl font-bold mb-4">Custom</div>
+        <ul class="text-gray-600 mb-6 space-y-2 text-left">
+          <li>✔️ Bulk processing</li>
+          <li>✔️ Dedicated support</li>
+          <li>✔️ Custom integrations</li>
+        </ul>
+        <.link
+          href={~p"/contact"}
+          class="px-6 py-2 bg-green-600 text-white rounded-xl font-semibold shadow hover:bg-green-700 transition"
+        >
+          Contact Us
+        </.link>
+      </div>
+    </div>
   </div>
 </div>
+
+<!-- Contact Section -->
+<div class="py-16 px-4 sm:px-6 lg:px-8 bg-white" id="contact">
+  <div class="mx-auto max-w-2xl text-center">
+    <h2 class="text-3xl font-bold text-gray-900 mb-4">Contact Us</h2>
+    <p class="text-lg text-gray-600 mb-8">
+      Have questions or need support? Reach out to our team.
+    </p>
+    <form method="post" action="mailto:support@shortcraft.app" class="space-y-4 max-w-md mx-auto">
+      <input
+        type="text"
+        name="name"
+        placeholder="Your Name"
+        class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-200"
+        required
+      />
+      <input
+        type="email"
+        name="email"
+        placeholder="Your Email"
+        class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-200"
+        required
+      />
+      <textarea
+        name="message"
+        placeholder="Your Message"
+        class="w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-blue-200"
+        rows="4"
+        required
+      ></textarea>
+      <button
+        type="submit"
+        class="w-full px-6 py-3 bg-blue-600 text-white rounded-xl font-semibold shadow hover:bg-blue-700 transition"
+      >
+        Send Message
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="py-8 px-4 bg-gradient-to-r from-blue-50 to-purple-50 border-t border-gray-100 mt-12">
+  <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+    <div class="flex items-center gap-2">
+      <.logo class="w-6 h-6" color="blue" />
+      <span class="font-semibold text-gray-700">ShortCraft</span>
+    </div>
+    <div class="flex gap-6 text-gray-600 text-sm">
+      <.link href={~p"/"}>Home</.link>
+      <.link href={~p"/pricing"}>Pricing</.link>
+      <.link href={~p"/contact"}>Contact</.link>
+      <.link href={~p"/source_videos"}>My Videos</.link>
+    </div>
+    <div class="text-gray-400 text-xs">&copy; 2025 ShortCraft. All rights reserved.</div>
+  </div>
+</footer>

@@ -17,6 +17,7 @@
           v{Application.spec(:phoenix, :vsn)}
         </span>
       </div>
+      <.nav_bar show={!@current_user} />
 
       <div :if={@current_user} class="flex items-center gap-4">
         <!-- Navigation Links -->

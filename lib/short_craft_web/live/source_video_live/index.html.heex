@@ -53,7 +53,12 @@
       <h2 class="text-lg font-semibold text-gray-900">Video List</h2>
     </:header>
 
-    <.table id="source_video" rows={@source_videos} class="min-h-[450px]">
+    <.table
+      id="source_video"
+      rows={@source_videos}
+      class="min-h-[450px]"
+      row_click={fn source_video -> JS.navigate(~p"/source_videos/#{source_video.id}/show") end}
+    >
       <:col :let={source_video} label="Video">
         <div class="flex items-center gap-3">
           <img
@@ -113,11 +118,6 @@
 
       <:action :let={source_video}>
         <.row_actions id={source_video.id}>
-          <:item
-            icon="hero-eye"
-            label="View"
-            navigate={~p"/source_videos/#{source_video.id}/show"}
-          />
           <:item
             icon="hero-pencil-square"
             label="Edit"

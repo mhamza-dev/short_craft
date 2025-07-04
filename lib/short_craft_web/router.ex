@@ -17,10 +17,13 @@ defmodule ShortCraftWeb.Router do
     plug :accepts, ["json"]
   end
 
+  # Main site pages as LiveViews
   scope "/", ShortCraftWeb do
     pipe_through :browser
 
-    get "/", PageController, :home
+    live "/", HomeLive, :index
+    live "/pricing", PricingLive, :index
+    live "/contact", ContactLive, :index
   end
 
   # Other scopes may use custom stacks.
