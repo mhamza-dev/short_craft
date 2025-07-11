@@ -25,7 +25,7 @@ defmodule ShortCraftWeb.UserRegistrationLive do
             to your account now.
           </p>
         </div>
-
+        
     <!-- Registration Form -->
         <div class="bg-white rounded-2xl shadow-xl border border-gray-100 p-8">
           <.simple_form
@@ -48,6 +48,7 @@ defmodule ShortCraftWeb.UserRegistrationLive do
               </div>
             </.error>
 
+            <.input field={@form[:name]} type="text" label="Name" required />
             <.input field={@form[:email]} type="email" label="Email address" required />
             <.input field={@form[:password]} type="password" label="Password" required />
 

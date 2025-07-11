@@ -3,3 +3,76 @@
 @import "tailwindcss/utilities";
 
 /* This file is for your main application CSS */
+
+/* Overlay Animations */
+@keyframes fadein {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+.animate-fadein {
+  animation: fadein 0.7s ease;
+}
+
+@keyframes slidein {
+  from {
+    transform: translateX(-40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+.animate-slidein {
+  animation: slidein 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes zoomin {
+  from {
+    transform: scale(0.7);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+.animate-zoomin {
+  animation: zoomin 0.7s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.overlay-anim-loop.animate-fadein {
+  animation-iteration-count: infinite;
+}
+.overlay-anim-loop.animate-slidein {
+  animation-iteration-count: infinite;
+}
+.overlay-anim-loop.animate-zoomin {
+  animation-iteration-count: infinite;
+}
+
+.animate-play-btn:active {
+  transform: scale(0.95);
+  background: #6366f1;
+}
+
+/* Modern color input styling */
+input[type="color"] {
+  border: 2px solid #6366f1;
+  border-radius: 0.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+  box-shadow: 0 2px 8px 0 rgba(99, 102, 241, 0.08);
+  transition: border 0.2s;
+}
+input[type="color"]:focus {
+  outline: none;
+  border: 2px solid #a21caf;
+}

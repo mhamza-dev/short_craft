@@ -5,16 +5,13 @@ defmodule ShortCraft.Shorts.GeneratedShort do
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
   schema "generated_shorts" do
-    field :error, :string
     field :status, :string
     field :description, :string
     field :title, :string
-    field :segment, :integer
     field :output_path, :string
     field :tags, {:array, :string}
     field :youtube_id, :string
     field :uploaded_at, :utc_datetime
-    field :processing_log, {:array, :map}
 
     belongs_to :source_video, ShortCraft.Shorts.SourceVideo, foreign_key: :source_video_id
     belongs_to :user, ShortCraft.Accounts.User, foreign_key: :user_id
@@ -33,9 +30,6 @@ defmodule ShortCraft.Shorts.GeneratedShort do
       :status,
       :youtube_id,
       :uploaded_at,
-      :error,
-      :processing_log,
-      :segment,
       :source_video_id,
       :user_id
     ])
@@ -46,7 +40,6 @@ defmodule ShortCraft.Shorts.GeneratedShort do
       :tags,
       :status,
       :youtube_id,
-      :segment,
       :source_video_id,
       :user_id
     ])

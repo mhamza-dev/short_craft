@@ -401,7 +401,7 @@ defmodule ShortCraft.Accounts do
 
   """
   def create_or_update_oauth2_user(attrs) do
-    case get_user_by_oauth2(attrs.provider, attrs.provider_id) |> dbg() do
+    case get_user_by_oauth2(attrs.provider, attrs.provider_id) do
       nil -> register_oauth2_user(attrs)
       user -> update_oauth2_user(user, attrs)
     end

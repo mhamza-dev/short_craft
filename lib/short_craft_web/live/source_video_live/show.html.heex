@@ -291,10 +291,7 @@
                 
 <!-- Tags -->
                 <%= if short.tags && length(short.tags) > 0 do %>
-                  <.show_more
-                    more_label={"+#{length(short.tags) - 3} more"}
-                    class="flex flex-wrap gap-1 mb-3"
-                  >
+                  <.show_more more_count={length(short.tags)} class="flex flex-wrap gap-1 mb-3">
                     <:less>
                       <%= for tag <- Enum.take(short.tags, 3) do %>
                         <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">
@@ -317,6 +314,12 @@
                 
 <!-- Actions -->
                 <div class="flex items-center gap-2 pt-3 border-t border-gray-100 mt-3">
+                  <.link
+                    navigate={~p"/source_videos/#{@source_video.id}/shorts/#{short.id}/edit"}
+                    class="inline-flex items-center gap-2"
+                  >
+                    <.icon name="hero-pencil-square" class="w-4 h-4" />
+                  </.link>
                   <.button
                     phx-click="upload_to_youtube"
                     phx-value-short-id={short.id}
@@ -328,7 +331,6 @@
                     <.icon name="hero-arrow-up-tray" class="w-4 h-4 mr-1" />
                     {if short.status == "uploaded", do: "Uploaded", else: "Upload"}
                   </.button>
-
                   <a href={"/shorts/#{short.id}/download"} class="inline-flex items-center gap-2">
                     <.icon name="hero-arrow-down-tray" class="w-4 h-4" />
                   </a>

@@ -25,7 +25,22 @@ defmodule ShortCraftWeb.SourceVideoLive.Show do
         {:noreply, put_flash(socket, :info, "Shorts generation started!")}
 
       {:error, reason} ->
-        {:noreply, put_flash(socket, :error, "Failed to generate shorts: #{reason}")}
+        error_message =
+          case reason do
+            :transcript_not_available ->
+              "Transcript not available yet. Please wait a moment and try again."
+
+            {msg, _details} ->
+              "Failed to generate shorts: #{msg}"
+
+            reason when is_binary(reason) ->
+              "Failed to generate shorts: #{reason}"
+
+            _ ->
+              "Failed to generate shorts: #{inspect(reason)}"
+          end
+
+        {:noreply, put_flash(socket, :error, error_message)}
     end
   end
 

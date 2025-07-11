@@ -35,7 +35,9 @@ config :short_craft, ShortCraft.Mailer, adapter: Swoosh.Adapters.Local
 config :short_craft,
   openrouter_api_key: System.get_env("OPENROUTER_API_KEY"),
   youtube_api_key: System.get_env("YOUTUBE_API_KEY"),
-  gemini_api_key: System.get_env("GEMINI_API_KEY")
+  gemini_api_key: System.get_env("GEMINI_API_KEY"),
+  openai_api_key: System.get_env("OPENAI_API_KEY"),
+  deepseek_api_key: System.get_env("DEEPSEEK_API_KEY")
 
 # Configure esbuild (the version is required)
 config :esbuild,

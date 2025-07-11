@@ -628,6 +628,33 @@ defmodule ShortCraftWeb.CoreComponents do
   end
 
   @doc """
+  Renders a simple list.
+
+  ## Examples
+
+      <.simple_list>
+        <:item title="Title">
+          <.input field={@field} />
+        </:item>
+        <:item title="Views">
+          <.input field={@field} />
+        </:item>
+      </.simple_list>
+  """
+  attr :class, :string, default: nil
+  slot :item, required: true
+
+  def simple_list(assigns) do
+    ~H"""
+    <div class={[@class]}>
+      <dl :for={item <- @item} :if={@item != []} class="divide-y divide-zinc-100">
+        {render_slot(item)}
+      </dl>
+    </div>
+    """
+  end
+
+  @doc """
   Renders a back navigation link.
 
   ## Examples
@@ -1544,6 +1571,395 @@ defmodule ShortCraftWeb.CoreComponents do
   def awesome_icon(assigns) do
     ~H"""
     <i class={assigns[:class]}></i>
+    """
+  end
+
+  @doc """
+  Renders a video editor sidebar tab with modern styling.
+  """
+  attr :active, :boolean, default: false
+  attr :icon, :string, default: nil
+  attr :rest, :global
+  slot :inner_block, required: true
+
+  def editor_tab(assigns) do
+    ~H"""
+    <button
+      class={[
+        "w-full flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-all duration-200",
+        "hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50",
+        @active && "bg-gradient-to-r from-blue-100 to-purple-100 text-blue-700 shadow-sm",
+        !@active && "text-gray-600 hover:text-gray-900"
+      ]}
+      {@rest}
+    >
+      <.icon :if={@icon} name={@icon} class="w-5 h-5" />
+      {render_slot(@inner_block)}
+    </button>
+    """
+  end
+
+  @doc """
+  Renders a video editor panel with gradient styling.
+  """
+  attr :title, :string, default: nil
+  attr :class, :string, default: nil
+  attr :rest, :global
+  slot :inner_block, required: true
+
+  def editor_panel(assigns) do
+    ~H"""
+    <div
+      class={[
+        "bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden",
+        @class
+      ]}
+      {@rest}
+    >
+      <div
+        :if={@title}
+        class="px-4 py-3 bg-gradient-to-r from-blue-50 to-purple-50 border-b border-gray-100"
+      >
+        <h3 class="font-semibold text-gray-900">{@title}</h3>
+      </div>
+      <div class="p-4">
+        {render_slot(@inner_block)}
+      </div>
+    </div>
+    """
+  end
+
+  @doc """
+  Renders a video editor control with modern styling.
+  """
+  attr :label, :string, required: true
+  attr :type, :string, default: "text"
+  attr :value, :any, default: nil
+  attr :min, :integer, default: nil
+  attr :max, :integer, default: nil
+  attr :step, :integer, default: nil
+  attr :options, :list, default: []
+  attr :class, :string, default: nil
+  attr :rest, :global
+  slot :inner_block, required: false
+
+  def editor_control(assigns) do
+    ~H"""
+    <div class={["space-y-2", @class]}>
+      <label class="block text-sm font-medium text-gray-700">{@label}</label>
+      <%= case @type do %>
+        <% "range" -> %>
+          <div class="space-y-1">
+            <input
+              type="range"
+              min={@min}
+              max={@max}
+              step={@step}
+              value={@value}
+              class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer slider"
+              {@rest}
+            />
+            <div class="flex justify-between text-xs text-gray-500">
+              <span>{@min}</span>
+              <span class="font-medium">{@value}</span>
+              <span>{@max}</span>
+            </div>
+          </div>
+        <% "select" -> %>
+          <select
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+            {@rest}
+          >
+            <%= for {value, label} <- @options do %>
+              <option value={value} selected={@value == value}>{label}</option>
+            <% end %>
+          </select>
+        <% "color" -> %>
+          <div class="flex items-center gap-2">
+            <input
+              type="color"
+              value={@value}
+              class="w-12 h-10 border border-gray-300 rounded-lg cursor-pointer"
+              {@rest}
+            />
+            <span class="text-sm text-gray-600">{@value}</span>
+          </div>
+        <% _ -> %>
+          <input
+            type={@type}
+            value={@value}
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm"
+            {@rest}
+          />
+      <% end %>
+      {render_slot(@inner_block)}
+    </div>
+    """
+  end
+
+  @doc """
+  Renders a video editor button with gradient styling.
+  """
+  attr :variant, :string, default: "primary", values: ~w(primary secondary danger success)
+  attr :size, :string, default: "md", values: ~w(sm md lg)
+  attr :class, :string, default: nil
+  attr :rest, :global
+  slot :inner_block, required: true
+
+  def editor_button(assigns) do
+    ~H"""
+    <button
+      class={
+        [
+          "font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2",
+          # Size variants
+          @size == "sm" && "px-3 py-1.5 text-xs",
+          @size == "md" && "px-4 py-2 text-sm",
+          @size == "lg" && "px-6 py-3 text-base",
+          # Color variants
+          @variant == "primary" &&
+            "bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:from-blue-700 hover:to-purple-700 focus:ring-blue-500 shadow-sm",
+          @variant == "secondary" &&
+            "bg-gray-100 text-gray-700 hover:bg-gray-200 focus:ring-gray-500",
+          @variant == "danger" && "bg-red-100 text-red-700 hover:bg-red-200 focus:ring-red-500",
+          @variant == "success" &&
+            "bg-green-100 text-green-700 hover:bg-green-200 focus:ring-green-500",
+          @class
+        ]
+      }
+      {@rest}
+    >
+      {render_slot(@inner_block)}
+    </button>
+    """
+  end
+
+  @doc """
+  Renders a video editor card for overlays and elements.
+  """
+  attr :selected, :boolean, default: false
+  attr :class, :string, default: nil
+  attr :rest, :global
+  slot :inner_block, required: true
+
+  def editor_card(assigns) do
+    ~H"""
+    <div
+      class={[
+        "border rounded-xl p-3 transition-all duration-200 cursor-pointer",
+        "hover:shadow-md hover:border-blue-200",
+        @selected &&
+          "ring-2 ring-blue-500 bg-gradient-to-r from-blue-50 to-purple-50 border-blue-300",
+        !@selected && "border-gray-200 hover:bg-gray-50",
+        @class
+      ]}
+      {@rest}
+    >
+      {render_slot(@inner_block)}
+    </div>
+    """
+  end
+
+  @doc """
+  Renders a video editor timeline with modern styling like Canva.
+  """
+  attr :current_time, :integer, default: 0
+  attr :duration, :integer, default: 60
+  attr :overlays, :list, default: []
+  attr :timeline_zoom, :float, default: 1.0
+  attr :class, :string, default: nil
+  attr :rest, :global
+  slot :inner_block, required: false
+
+  def editor_timeline(assigns) do
+    px_per_second = 20 * (assigns[:timeline_zoom] || 1.0)
+    timeline_width = (assigns[:duration] || 60) * px_per_second
+    assigns = assign(assigns, :px_per_second, px_per_second)
+    assigns = assign(assigns, :timeline_width, timeline_width)
+
+    ~H"""
+    <div
+      class={["bg-white rounded-xl border border-gray-200 p-4", @class]}
+      {@rest}
+      id={"timeline-component-#{@overlays[:id]}"}
+      phx-hook="TimelineOverlayDrag"
+    >
+      <!-- Timeline Header -->
+
+      <div class="flex items-center justify-center gap-4">
+        <h3 class="font-semibold text-gray-900">Timeline</h3>
+        <div class="flex items-center gap-2 text-sm text-gray-600">
+          <span>Duration: {@duration}s</span>
+          <span>•</span>
+          <span>Current: {@current_time}s</span>
+        </div>
+      </div>
+      <div class="flex items-center justify-between mb-4">
+        <div class="flex items-center gap-2">
+          <button class="p-2 rounded-lg hover:bg-gray-100 transition" title="Play/Pause">
+            <.icon name="hero-play" class="w-4 h-4 text-gray-600" />
+          </button>
+          <button class="p-2 rounded-lg hover:bg-gray-100 transition" title="Stop">
+            <.icon name="hero-stop" class="w-4 h-4 text-gray-600" />
+          </button>
+          <button class="p-2 rounded-lg hover:bg-gray-100 transition" title="Previous Frame">
+            <.icon name="hero-backward" class="w-4 h-4 text-gray-600" />
+          </button>
+          <button class="p-2 rounded-lg hover:bg-gray-100 transition" title="Next Frame">
+            <.icon name="hero-forward" class="w-4 h-4 text-gray-600" />
+          </button>
+        </div>
+        <div class="flex items-center gap-2">
+          <button
+            class="p-2 rounded-lg hover:bg-gray-100 transition"
+            title="Zoom Out"
+            phx-click="timeline_zoom"
+            phx-value-factor={Float.to_string((@timeline_zoom || 1.0) / 2)}
+          >
+            <.icon name="hero-magnifying-glass-minus" class="w-4 h-4 text-gray-600" />
+          </button>
+          <button
+            class="p-2 rounded-lg hover:bg-gray-100 transition"
+            title="Zoom In"
+            phx-click="timeline_zoom"
+            phx-value-factor={Float.to_string((@timeline_zoom || 1.0) * 2)}
+          >
+            <.icon name="hero-magnifying-glass-plus" class="w-4 h-4 text-gray-600" />
+          </button>
+        </div>
+      </div>
+      
+    <!-- Timeline Scrollable Area -->
+      <div class="w-full overflow-x-auto">
+        <div style={"width: #{@timeline_width}px; min-width: 100%;"} data-timeline="true">
+          <!-- Timeline Ruler -->
+          <div class="relative mb-0" style="width: 100%;">
+            <div
+              class="h-6 bg-gray-50 rounded-sm border border-gray-200 relative overflow-hidden"
+              style="width: 100%;"
+            >
+              <!-- Time markers (ticks) -->
+              <div
+                class="absolute inset-0 flex items-center px-2"
+                style="width: 100%; min-width: 100%;"
+              >
+                <%= for i <- 0..@duration do %>
+                  <div style={"position: absolute; left: #{i * @px_per_second}px; width: 1px;"}>
+                    <%= if rem(i, 5) == 0 do %>
+                      <div class="w-px h-3 bg-gray-300"></div>
+                    <% else %>
+                      <div class="w-px h-2 bg-gray-200"></div>
+                    <% end %>
+                  </div>
+                <% end %>
+              </div>
+              <!-- Playhead -->
+              <div
+                class="absolute top-0 bottom-0 w-0.5 bg-red-500 z-10 transition-all duration-100"
+                style={"left: #{(@current_time * @px_per_second)}px"}
+              >
+                <div class="absolute -top-1 -left-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-sm">
+                </div>
+              </div>
+            </div>
+            <!-- Time labels row -->
+            <div class="relative h-5" style="width: 100%;">
+              <%= for i <- 0..div(@duration, 5) do %>
+                <% time = i * 5 %>
+                <%= if time <= @duration do %>
+                  <span
+                    class="absolute text-xs text-gray-500 select-none"
+                    style={"left: #{time * @px_per_second - 8}px; top: 0; min-width: 16px; text-align: center;"}
+                  >
+                    {time}
+                  </span>
+                <% end %>
+              <% end %>
+            </div>
+          </div>
+          
+    <!-- Timeline Tracks -->
+          <div class="space-y-2" style="width: 100%;">
+            <!-- Video Track -->
+            <div class="flex items-center gap-3">
+              <div class="w-16 text-xs font-medium text-gray-600">Video</div>
+              <div
+                class="h-12 bg-gray-100 rounded-lg border border-gray-200 relative overflow-hidden"
+                style="width: 100%;"
+              >
+                <div class="w-full h-full bg-gradient-to-r from-blue-500 to-purple-500 opacity-80 rounded-lg">
+                </div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <span class="text-xs text-white font-medium">Main Video</span>
+                </div>
+              </div>
+            </div>
+            
+    <!-- Audio Track -->
+            <div class="flex items-center gap-3">
+              <div class="w-16 text-xs font-medium text-gray-600">Audio</div>
+              <div
+                class="h-12 bg-gray-100 rounded-lg border border-gray-200 relative overflow-hidden"
+                style="width: 100%;"
+              >
+                <div class="w-full h-full bg-gradient-to-r from-green-500 to-emerald-500 opacity-80 rounded-lg">
+                </div>
+                <div class="absolute inset-0 flex items-center justify-center">
+                  <span class="text-xs text-white font-medium">Background Music</span>
+                </div>
+              </div>
+            </div>
+            
+    <!-- Overlays Track -->
+            <div class="flex items-center gap-3">
+              <div class="w-16 text-xs font-medium text-gray-600">Overlays</div>
+              <div
+                class="h-12 bg-gray-100 rounded-lg border border-gray-200 relative overflow-hidden"
+                style="width: 100%;"
+              >
+                <%= for overlay <- @overlays do %>
+                  <% start = max(0, overlay["start"] || 0) %>
+                  <% duration = overlay["duration"] || 2 %>
+                  <% end_time = min(start + duration, @duration) %>
+                  <% width = max(0, end_time - start) * @px_per_second %>
+                  <%= if start < @duration and width > 0 do %>
+                    <div
+                      class="absolute h-8 bg-yellow-400 rounded border border-yellow-600 opacity-90 hover:opacity-100 transition cursor-grab active:cursor-grabbing"
+                      style={"left: #{start * @px_per_second}px; width: #{width}px; top: 2px;"}
+                      title={"#{overlay["type"]}: #{overlay["text"] || overlay["shape"] || "Overlay"}"}
+                      data-timeline-overlay="true"
+                      data-overlay-id={overlay["id"]}
+                      data-start={start}
+                      data-duration={duration}
+                    >
+                      <div class="px-2 py-1 text-xs font-medium text-yellow-900 truncate">
+                        {overlay["type"]}: {overlay["text"] || overlay["shape"] || "Overlay"}
+                      </div>
+                    </div>
+                  <% end %>
+                <% end %>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+    <!-- Timeline Controls -->
+      <div class="flex items-center justify-center mt-4 pt-4 border-t border-gray-200">
+        <div class="flex items-center gap-2 text-sm text-gray-600">
+          <span>FPS: 30</span>
+          <span>•</span>
+          <span>Resolution: 1080p</span>
+        </div>
+      </div>
+      
+    <!-- Additional Controls -->
+      <%= if @inner_block do %>
+        <div class="mt-4">
+          {render_slot(@inner_block)}
+        </div>
+      <% end %>
+    </div>
     """
   end
 end

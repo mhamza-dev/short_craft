@@ -1,0 +1,825 @@
+<div
+  class="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col"
+  id="editor-container"
+  phx-hook="DragToTimeline"
+>
+  <!-- Top Bar -->
+  <div class="flex items-center justify-between px-6 py-4 bg-white/80 backdrop-blur-sm border-b border-gray-100 shadow-sm">
+    <div class="flex items-center gap-4">
+      <div class="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+        <.logo class="w-6 h-6" color="white" />
+      </div>
+      <div>
+        <h1 class="font-bold text-xl text-gray-900">ShortCraft Editor</h1>
+        <p class="text-sm text-gray-600">Transform your video into viral shorts</p>
+      </div>
+      <%= if @saved do %>
+        <div class="ml-6 flex items-center gap-2 text-sm text-green-600">
+          <.icon name="hero-check-circle" class="w-4 h-4" />
+          <span>All changes saved</span>
+        </div>
+      <% else %>
+        <div class="ml-6 flex items-center gap-2 text-sm text-yellow-600">
+          <.icon name="hero-exclamation-triangle" class="w-4 h-4" />
+          <span>Unsaved changes</span>
+        </div>
+      <% end %>
+    </div>
+    <div class="flex items-center gap-3">
+      <.editor_button phx-click="save" variant="primary" size="md" class="flex items-center gap-2">
+        <.icon :if={@saving} name="hero-arrow-path" class="w-4 h-4 animate-spin" />
+        <.icon :if={!@saving} name="hero-cloud-arrow-up" class="w-4 h-4" />
+        {if @saving, do: "Saving...", else: "Save"}
+      </.editor_button>
+      <.editor_button variant="secondary" size="md" class="flex items-center gap-2">
+        <.icon name="hero-share" class="w-4 h-4" /> Share
+      </.editor_button>
+    </div>
+  </div>
+
+  <div class="flex flex-1 overflow-hidden">
+    <!-- Sidebar -->
+    <aside class="w-72 bg-gradient-to-br from-white via-blue-50 to-purple-50 border-r border-gray-100 flex flex-col py-6 px-4 gap-2 shadow-md">
+      <!-- Search Bar -->
+      <div class="mb-4">
+        <input
+          type="text"
+          placeholder="Search Resources"
+          class="w-full px-3 py-2 rounded-md border border-gray-200 focus:ring-2 focus:ring-blue-400 focus:outline-none text-sm"
+        />
+      </div>
+      <!-- Action Button -->
+      <button class="w-full py-2 mb-4 rounded-md bg-gradient-to-r from-purple-500 to-blue-500 text-white font-semibold text-sm shadow hover:from-purple-600 hover:to-blue-600 transition">
+        Record Yourself
+      </button>
+      <!-- Sidebar Tabs -->
+      <nav class="flex flex-col gap-1 mb-6">
+        <button
+          class={"flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition " <>
+            if @sidebar_tab == "Templates", do: "bg-blue-100 text-blue-700", else: "hover:bg-blue-100 text-gray-700"}
+          phx-click="sidebar_tab"
+          phx-value-tab="Templates"
+        >
+          <.icon name="hero-squares-2x2" class="w-5 h-5 text-blue-500" /> Templates
+        </button>
+        <button
+          class={"flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition " <>
+            if @sidebar_tab == "Elements", do: "bg-blue-100 text-blue-700", else: "hover:bg-blue-100 text-gray-700"}
+          phx-click="sidebar_tab"
+          phx-value-tab="Elements"
+        >
+          <.icon name="hero-puzzle-piece" class="w-5 h-5 text-purple-500" /> Elements
+        </button>
+        <button
+          class={"flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition " <>
+            if @sidebar_tab == "Uploads", do: "bg-blue-100 text-blue-700", else: "hover:bg-blue-100 text-gray-700"}
+          phx-click="sidebar_tab"
+          phx-value-tab="Uploads"
+        >
+          <.icon name="hero-arrow-up-tray" class="w-5 h-5 text-green-500" /> Uploads
+        </button>
+        <button
+          class={"flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition " <>
+            if @sidebar_tab == "Text", do: "bg-blue-100 text-blue-700", else: "hover:bg-blue-100 text-gray-700"}
+          phx-click="sidebar_tab"
+          phx-value-tab="Text"
+        >
+          <.icon name="hero-document-text" class="w-5 h-5 text-pink-500" /> Text
+        </button>
+        <button
+          class={"flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition " <>
+            if @sidebar_tab == "Videos", do: "bg-blue-100 text-blue-700", else: "hover:bg-blue-100 text-gray-700"}
+          phx-click="sidebar_tab"
+          phx-value-tab="Videos"
+        >
+          <.icon name="hero-video-camera" class="w-5 h-5 text-indigo-500" /> Videos
+        </button>
+        <button
+          class={"flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition " <>
+            if @sidebar_tab == "Charts", do: "bg-blue-100 text-blue-700", else: "hover:bg-blue-100 text-gray-700"}
+          phx-click="sidebar_tab"
+          phx-value-tab="Charts"
+        >
+          <.icon name="hero-chart-bar" class="w-5 h-5 text-yellow-500" /> Charts
+        </button>
+        <button
+          class={"flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition " <>
+            if @sidebar_tab == "More", do: "bg-blue-100 text-blue-700", else: "hover:bg-blue-100 text-gray-700"}
+          phx-click="sidebar_tab"
+          phx-value-tab="More"
+        >
+          <.icon name="hero-ellipsis-horizontal" class="w-5 h-5 text-gray-400" /> More
+        </button>
+      </nav>
+      <!-- Sidebar Tab Content -->
+      <div class="flex-1 overflow-y-auto space-y-6 px-1">
+        <%= case @sidebar_tab do %>
+          <% "Templates" -> %>
+            <!-- Asset Sections (Aerial Shots, Nature, Business, Beach) -->
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-gray-600">Aerial Shots</span>
+                <a href="#" class="text-xs text-blue-500 hover:underline">See all</a>
+              </div>
+              <div class="flex gap-2 overflow-x-auto pb-2">
+                <div class="relative w-28 h-16 rounded-md overflow-hidden bg-gray-200">
+                  <img
+                    src="/images/aerial1.jpg"
+                    alt="Aerial 1"
+                    class="object-cover w-full h-full"
+                  />
+                  <span class="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                    22.0s
+                  </span>
+                </div>
+                <div class="relative w-28 h-16 rounded-md overflow-hidden bg-gray-200">
+                  <img
+                    src="/images/aerial2.jpg"
+                    alt="Aerial 2"
+                    class="object-cover w-full h-full"
+                  />
+                  <span class="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                    24.0s
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-gray-600">Nature</span>
+                <a href="#" class="text-xs text-blue-500 hover:underline">See all</a>
+              </div>
+              <div class="flex gap-2 overflow-x-auto pb-2">
+                <div class="relative w-28 h-16 rounded-md overflow-hidden bg-gray-200">
+                  <img
+                    src="/images/nature1.jpg"
+                    alt="Nature 1"
+                    class="object-cover w-full h-full"
+                  />
+                  <span class="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                    13.0s
+                  </span>
+                </div>
+                <div class="relative w-28 h-16 rounded-md overflow-hidden bg-gray-200">
+                  <img
+                    src="/images/nature2.jpg"
+                    alt="Nature 2"
+                    class="object-cover w-full h-full"
+                  />
+                  <span class="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                    16.0s
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-gray-600">Business</span>
+                <a href="#" class="text-xs text-blue-500 hover:underline">See all</a>
+              </div>
+              <div class="flex gap-2 overflow-x-auto pb-2">
+                <div class="relative w-28 h-16 rounded-md overflow-hidden bg-gray-200">
+                  <img
+                    src="/images/business1.jpg"
+                    alt="Business 1"
+                    class="object-cover w-full h-full"
+                  />
+                  <span class="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                    20.0s
+                  </span>
+                </div>
+                <div class="relative w-28 h-16 rounded-md overflow-hidden bg-gray-200">
+                  <img
+                    src="/images/business2.jpg"
+                    alt="Business 2"
+                    class="object-cover w-full h-full"
+                  />
+                  <span class="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                    9.0s
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-xs font-semibold text-gray-600">Beach</span>
+                <a href="#" class="text-xs text-blue-500 hover:underline">See all</a>
+              </div>
+              <div class="flex gap-2 overflow-x-auto pb-2">
+                <div class="relative w-28 h-16 rounded-md overflow-hidden bg-gray-200">
+                  <img src="/images/beach1.jpg" alt="Beach 1" class="object-cover w-full h-full" />
+                  <span class="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                    15.0s
+                  </span>
+                </div>
+                <div class="relative w-28 h-16 rounded-md overflow-hidden bg-gray-200">
+                  <img src="/images/beach2.jpg" alt="Beach 2" class="object-cover w-full h-full" />
+                  <span class="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                    38.0s
+                  </span>
+                </div>
+              </div>
+            </div>
+          <% "Elements" -> %>
+            <div>
+              <div class="text-xs font-semibold text-gray-600 mb-2">Shapes & Elements</div>
+              <div class="grid grid-cols-4 gap-4">
+                <button
+                  draggable="true"
+                  data-draggable="true"
+                  data-type="shape"
+                  data-subtype="circle"
+                  phx-click="add_element"
+                  phx-value-type="circle"
+                  class="bg-white rounded-md shadow p-2 flex items-center justify-center hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing"
+                >
+                  <svg width="32" height="32">
+                    <circle cx="16" cy="16" r="12" fill="#6366f1" />
+                  </svg>
+                </button>
+                <button
+                  draggable="true"
+                  data-draggable="true"
+                  data-type="shape"
+                  data-subtype="square"
+                  phx-click="add_element"
+                  phx-value-type="square"
+                  class="bg-white rounded-md shadow p-2 flex items-center justify-center hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing"
+                >
+                  <svg width="32" height="32">
+                    <rect x="6" y="6" width="20" height="20" fill="#a21caf" />
+                  </svg>
+                </button>
+                <button
+                  draggable="true"
+                  data-draggable="true"
+                  data-type="shape"
+                  data-subtype="triangle"
+                  phx-click="add_element"
+                  phx-value-type="triangle"
+                  class="bg-white rounded-md shadow p-2 flex items-center justify-center hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing"
+                >
+                  <svg width="32" height="32">
+                    <polygon points="16,6 28,26 4,26" fill="#f59e42" />
+                  </svg>
+                </button>
+                <button
+                  draggable="true"
+                  data-draggable="true"
+                  data-type="shape"
+                  data-subtype="star"
+                  phx-click="add_element"
+                  phx-value-type="star"
+                  class="bg-white rounded-md shadow p-2 flex items-center justify-center hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing"
+                >
+                  <svg width="32" height="32">
+                    <polygon
+                      points="16,4 20,14 31,14 22,20 25,30 16,24 7,30 10,20 1,14 12,14"
+                      fill="#fbbf24"
+                    />
+                  </svg>
+                </button>
+                <button
+                  draggable="true"
+                  data-draggable="true"
+                  data-type="shape"
+                  data-subtype="arrow"
+                  phx-click="add_element"
+                  phx-value-type="arrow"
+                  class="bg-white rounded-md shadow p-2 flex items-center justify-center hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing"
+                >
+                  <svg width="32" height="32">
+                    <line x1="4" y1="16" x2="28" y2="16" stroke="#10b981" stroke-width="4" /><polygon
+                      points="28,16 22,10 22,22"
+                      fill="#10b981"
+                    />
+                  </svg>
+                </button>
+                <button
+                  draggable="true"
+                  data-draggable="true"
+                  data-type="shape"
+                  data-subtype="line"
+                  phx-click="add_element"
+                  phx-value-type="line"
+                  class="bg-white rounded-md shadow p-2 flex items-center justify-center hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing"
+                >
+                  <svg width="32" height="32">
+                    <line x1="6" y1="26" x2="26" y2="6" stroke="#64748b" stroke-width="4" />
+                  </svg>
+                </button>
+                <button
+                  draggable="true"
+                  data-draggable="true"
+                  data-type="shape"
+                  data-subtype="heart"
+                  phx-click="add_element"
+                  phx-value-type="heart"
+                  class="bg-white rounded-md shadow p-2 flex items-center justify-center hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing"
+                >
+                  <svg width="32" height="32">
+                    <path
+                      d="M16 29s-13-8.35-13-15.5S8.5 2 16 9.5 29 5.5 29 13.5 16 29 16 29z"
+                      fill="#ef4444"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          <% "Uploads" -> %>
+            <div>
+              <div class="text-xs font-semibold text-gray-600 mb-2">Upload Images/Videos</div>
+              <label class="block w-full cursor-pointer bg-gradient-to-r from-blue-500 to-purple-500 text-white text-center py-2 rounded-md mb-4 hover:from-blue-600 hover:to-purple-600 transition">
+                <input type="file" class="hidden" phx-change="upload_file" multiple />
+                + Upload Files
+              </label>
+              <div class="grid grid-cols-3 gap-2">
+                <div class="aspect-square bg-gray-100 rounded-md flex items-center justify-center overflow-hidden">
+                  <img src="/images/aerial1.jpg" class="object-cover w-full h-full" />
+                </div>
+                <div class="aspect-square bg-gray-100 rounded-md flex items-center justify-center overflow-hidden">
+                  <img src="/images/nature1.jpg" class="object-cover w-full h-full" />
+                </div>
+                <div class="aspect-square bg-gray-100 rounded-md flex items-center justify-center overflow-hidden">
+                  <img src="/images/business1.jpg" class="object-cover w-full h-full" />
+                </div>
+              </div>
+            </div>
+          <% "Text" -> %>
+            <div>
+              <div class="text-xs font-semibold text-gray-600 mb-2">Text Styles</div>
+              <div class="flex flex-col gap-2">
+                <button
+                  draggable="true"
+                  data-draggable="true"
+                  data-type="text"
+                  data-style="heading"
+                  data-text="Heading"
+                  phx-click="add_text_style"
+                  phx-value-style="heading"
+                  class="bg-white rounded-md shadow px-4 py-2 text-lg font-bold text-gray-900 hover:ring-2 ring-blue-400 text-left cursor-grab active:cursor-grabbing"
+                >
+                  Heading
+                </button>
+                <button
+                  draggable="true"
+                  data-draggable="true"
+                  data-type="text"
+                  data-style="subtitle"
+                  data-text="Subtitle"
+                  phx-click="add_text_style"
+                  phx-value-style="subtitle"
+                  class="bg-white rounded-md shadow px-4 py-2 text-base font-semibold text-gray-700 hover:ring-2 ring-purple-400 text-left cursor-grab active:cursor-grabbing"
+                >
+                  Subtitle
+                </button>
+                <button
+                  draggable="true"
+                  data-draggable="true"
+                  data-type="text"
+                  data-style="quote"
+                  data-text="Quote"
+                  phx-click="add_text_style"
+                  phx-value-style="quote"
+                  class="bg-white rounded-md shadow px-4 py-2 italic text-gray-600 hover:ring-2 ring-pink-400 text-left cursor-grab active:cursor-grabbing"
+                >
+                  "Quote"
+                </button>
+              </div>
+            </div>
+          <% "Videos" -> %>
+            <div>
+              <div class="text-xs font-semibold text-gray-600 mb-2">Video Assets</div>
+              <div class="flex flex-col gap-2">
+                <button
+                  draggable="true"
+                  data-draggable="true"
+                  data-type="video"
+                  data-src="/storage/videos/z1qG80Jkzi8_e1fa6449-a2de-4a53-ab17-040ce3767837_1751619131.webm"
+                  phx-click="add_video_asset"
+                  phx-value-src="/storage/videos/z1qG80Jkzi8_e1fa6449-a2de-4a53-ab17-040ce3767837_1751619131.webm"
+                  class="bg-white rounded-md shadow flex items-center gap-3 px-3 py-2 hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing"
+                >
+                  <.icon name="hero-video-camera" class="w-5 h-5 text-indigo-500" />
+                  <span class="truncate">React Native Short</span>
+                </button>
+                <button
+                  draggable="true"
+                  data-draggable="true"
+                  data-type="video"
+                  data-src="/storage/videos/0TI6ceqKxpQ_e1fa6449-a2de-4a53-ab17-040ce3767837_1751899067.webm"
+                  phx-click="add_video_asset"
+                  phx-value-src="/storage/videos/0TI6ceqKxpQ_e1fa6449-a2de-4a53-ab17-040ce3767837_1751899067.webm"
+                  class="bg-white rounded-md shadow flex items-center gap-3 px-3 py-2 hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing"
+                >
+                  <.icon name="hero-video-camera" class="w-5 h-5 text-indigo-500" />
+                  <span class="truncate">Sample Video 2</span>
+                </button>
+              </div>
+            </div>
+          <% "Charts" -> %>
+            <div>
+              <div class="text-xs font-semibold text-gray-600 mb-2">Charts</div>
+              <div class="grid grid-cols-3 gap-4">
+                <button
+                  draggable="true"
+                  data-draggable="true"
+                  data-type="chart"
+                  data-subtype="bar"
+                  phx-click="add_chart"
+                  phx-value-type="bar"
+                  class="bg-white rounded-md shadow p-2 flex items-center justify-center hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing"
+                >
+                  <svg width="32" height="32">
+                    <rect x="6" y="16" width="4" height="10" fill="#6366f1" /><rect
+                      x="14"
+                      y="10"
+                      width="4"
+                      height="16"
+                      fill="#a21caf"
+                    /><rect x="22" y="6" width="4" height="20" fill="#f59e42" />
+                  </svg>
+                </button>
+                <button
+                  draggable="true"
+                  data-draggable="true"
+                  data-type="chart"
+                  data-subtype="pie"
+                  phx-click="add_chart"
+                  phx-value-type="pie"
+                  class="bg-white rounded-md shadow p-2 flex items-center justify-center hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing"
+                >
+                  <svg width="32" height="32">
+                    <circle cx="16" cy="16" r="12" fill="#fbbf24" /><path
+                      d="M16 16 L28 16 A12 12 0 0 0 16 4 Z"
+                      fill="#6366f1"
+                    />
+                  </svg>
+                </button>
+                <button
+                  draggable="true"
+                  data-draggable="true"
+                  data-type="chart"
+                  data-subtype="line"
+                  phx-click="add_chart"
+                  phx-value-type="line"
+                  class="bg-white rounded-md shadow p-2 flex items-center justify-center hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing"
+                >
+                  <svg width="32" height="32">
+                    <polyline
+                      points="4,28 10,18 16,22 22,10 28,14"
+                      fill="none"
+                      stroke="#10b981"
+                      stroke-width="3"
+                    />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          <% "More" -> %>
+            <div class="text-center text-gray-400 text-sm py-8">More features coming soon!</div>
+          <% _ -> %>
+            <div class="text-center text-gray-400 text-sm py-8">Select a panel</div>
+        <% end %>
+      </div>
+    </aside>
+    
+<!-- Main Canvas Area -->
+    <main class="flex-1 flex flex-col items-center justify-center py-8 px-6 overflow-auto">
+      <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 p-8 flex flex-col items-center w-full max-w-3xl">
+        <div
+          class="relative w-full bg-gradient-to-br from-gray-900 to-black rounded-xl flex items-center justify-center overflow-hidden"
+          data-video-container="true"
+          style={"aspect-ratio: #{get_video_aspect_ratio(@short)};"}
+        >
+          <video
+            src={@preview_url}
+            controls={false}
+            class="w-full h-full object-contain rounded-md"
+          />
+          
+<!-- Overlays -->
+          <%= for overlay <- @overlays do %>
+            <%= case overlay["type"] do %>
+              <% "shape" -> %>
+                <div
+                  style={"position:absolute; left:#{overlay["x"]}px; top:#{overlay["y"]}px; width:#{overlay["width"]}px; height:#{overlay["height"]}px; pointer-events:auto;"}
+                  class={"border-2 transition-all duration-200 " <> if @selected_overlay_id == overlay["id"], do: "border-blue-500 shadow-lg", else: "border-transparent hover:border-blue-300"}
+                  phx-click="select_canvas_overlay"
+                  phx-value-id={overlay["id"]}
+                  phx-capture-click
+                  phx-stop-propagation
+                  phx-hook="OverlayCombined"
+                  data-id={overlay["id"]}
+                  id={"overlay-#{overlay["id"]}"}
+                >
+                  <%= case overlay["shape"] do %>
+                    <% "circle" -> %>
+                      <svg width={overlay["width"]} height={overlay["height"]}>
+                        <circle
+                          cx={overlay["width"] / 2}
+                          cy={overlay["height"] / 2}
+                          r={min(overlay["width"], overlay["height"]) / 2 - 4}
+                          fill={overlay["color"]}
+                        />
+                      </svg>
+                    <% "square" -> %>
+                      <svg width={overlay["width"]} height={overlay["height"]}>
+                        <rect
+                          x="4"
+                          y="4"
+                          width={overlay["width"] - 8}
+                          height={overlay["height"] - 8}
+                          fill={overlay["color"]}
+                        />
+                      </svg>
+                    <% "triangle" -> %>
+                      <svg width={overlay["width"]} height={overlay["height"]}>
+                        <polygon
+                          points={"#{overlay["width"]/2},4 #{overlay["width"]-4},#{overlay["height"]-4} 4,#{overlay["height"]-4}"}
+                          fill={overlay["color"]}
+                        />
+                      </svg>
+                    <% "star" -> %>
+                      <svg width={overlay["width"]} height={overlay["height"]}>
+                        <polygon
+                          points="16,4 20,14 31,14 22,20 25,30 16,24 7,30 10,20 1,14 12,14"
+                          fill={overlay["color"]}
+                        />
+                      </svg>
+                    <% "arrow" -> %>
+                      <svg width={overlay["width"]} height={overlay["height"]}>
+                        <line
+                          x1="4"
+                          y1={overlay["height"] / 2}
+                          x2={overlay["width"] - 4}
+                          y2={overlay["height"] / 2}
+                          stroke={overlay["color"]}
+                          stroke-width="4"
+                        /><polygon
+                          points={"#{overlay["width"]-4},#{overlay["height"]/2} #{overlay["width"]-16},#{overlay["height"]/2-8} #{overlay["width"]-16},#{overlay["height"]/2+8}"}
+                          fill={overlay["color"]}
+                        />
+                      </svg>
+                    <% "line" -> %>
+                      <svg width={overlay["width"]} height={overlay["height"]}>
+                        <line
+                          x1="8"
+                          y1={overlay["height"] - 8}
+                          x2={overlay["width"] - 8}
+                          y2="8"
+                          stroke={overlay["color"]}
+                          stroke-width="4"
+                        />
+                      </svg>
+                    <% "heart" -> %>
+                      <svg width={overlay["width"]} height={overlay["height"]}>
+                        <path
+                          d="M16 29s-13-8.35-13-15.5S8.5 2 16 9.5 29 5.5 29 13.5 16 29 16 29z"
+                          fill={overlay["color"]}
+                        />
+                      </svg>
+                    <% _ -> %>
+                      <div>?</div>
+                  <% end %>
+                  <%= if @selected_overlay_id == overlay["id"] do %>
+                    <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-blue-500 rounded-full cursor-nwse-resize border-2 border-white shadow-sm">
+                    </div>
+                  <% end %>
+                </div>
+              <% "text" -> %>
+                <div
+                  style={"position:absolute; left:#{overlay["x"]}px; top:#{overlay["y"]}px; color:#{overlay["color"]}; font-family:#{get_font_family(overlay["font"])}; font-size:#{overlay["font_size"]}px; font-weight:bold; pointer-events:auto; min-width:20px; min-height:20px;"}
+                  class={"border-2 transition-all duration-200 " <> if @selected_overlay_id == overlay["id"], do: "border-blue-500 shadow-lg", else: "border-transparent hover:border-blue-300"}
+                  phx-click="select_canvas_overlay"
+                  phx-value-id={overlay["id"]}
+                  phx-capture-click
+                  phx-stop-propagation
+                  phx-hook="OverlayCombined"
+                  data-id={overlay["id"]}
+                  id={"overlay-#{overlay["id"]}"}
+                >
+                  {overlay["text"]}
+                  <%= if @selected_overlay_id == overlay["id"] do %>
+                    <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-blue-500 rounded-full cursor-nwse-resize border-2 border-white shadow-sm">
+                    </div>
+                  <% end %>
+                </div>
+              <% "image" -> %>
+                <div
+                  style={"position:absolute; left:#{overlay["x"]}px; top:#{overlay["y"]}px; width:#{overlay["width"]}px; height:#{overlay["height"]}px; pointer-events:auto;"}
+                  class={"border-2 transition-all duration-200 " <> if @selected_overlay_id == overlay["id"], do: "border-blue-500 shadow-lg", else: "border-transparent hover:border-blue-300"}
+                  phx-click="select_canvas_overlay"
+                  phx-value-id={overlay["id"]}
+                  phx-capture-click
+                  phx-stop-propagation
+                  phx-hook="OverlayCombined"
+                  data-id={overlay["id"]}
+                  id={"overlay-#{overlay["id"]}"}
+                >
+                  <img
+                    src={overlay["src"]}
+                    style="width:100%; height:100%; object-fit:cover; border-radius:8px;"
+                  />
+                  <%= if @selected_overlay_id == overlay["id"] do %>
+                    <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-blue-500 rounded-full cursor-nwse-resize border-2 border-white shadow-sm">
+                    </div>
+                  <% end %>
+                </div>
+              <% "video" -> %>
+                <div
+                  style={"position:absolute; left:#{overlay["x"]}px; top:#{overlay["y"]}px; width:#{overlay["width"]}px; height:#{overlay["height"]}px; pointer-events:auto;"}
+                  class={"border-2 transition-all duration-200 " <> if @selected_overlay_id == overlay["id"], do: "border-blue-500 shadow-lg", else: "border-transparent hover:border-blue-300"}
+                  phx-click="select_canvas_overlay"
+                  phx-value-id={overlay["id"]}
+                  phx-capture-click
+                  phx-stop-propagation
+                  phx-hook="OverlayCombined"
+                  data-id={overlay["id"]}
+                  id={"overlay-#{overlay["id"]}"}
+                >
+                  <video
+                    src={overlay["src"]}
+                    style="width:100%; height:100%; border-radius:8px;"
+                    controls={false}
+                  />
+                  <%= if @selected_overlay_id == overlay["id"] do %>
+                    <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-blue-500 rounded-full cursor-nwse-resize border-2 border-white shadow-sm">
+                    </div>
+                  <% end %>
+                </div>
+              <% "chart" -> %>
+                <div
+                  style={"position:absolute; left:#{overlay["x"]}px; top:#{overlay["y"]}px; width:#{overlay["width"]}px; height:#{overlay["height"]}px; pointer-events:auto;"}
+                  class={"border-2 transition-all duration-200 " <> if @selected_overlay_id == overlay["id"], do: "border-blue-500 shadow-lg", else: "border-transparent hover:border-blue-300"}
+                  phx-click="select_canvas_overlay"
+                  phx-value-id={overlay["id"]}
+                  phx-capture-click
+                  phx-stop-propagation
+                  phx-hook="OverlayCombined"
+                  data-id={overlay["id"]}
+                  id={"overlay-#{overlay["id"]}"}
+                >
+                  <svg width={overlay["width"]} height={overlay["height"]}>
+                    <rect x="6" y="16" width="4" height="10" fill="#6366f1" />
+                    <rect x="14" y="10" width="4" height="16" fill="#a21caf" />
+                    <rect x="22" y="6" width="4" height="20" fill="#f59e42" />
+                  </svg>
+                  <%= if @selected_overlay_id == overlay["id"] do %>
+                    <div class="absolute -bottom-1 -right-1 w-3 h-3 bg-blue-500 rounded-full cursor-nwse-resize border-2 border-white shadow-sm">
+                    </div>
+                  <% end %>
+                </div>
+              <% _ -> %>
+                <div>?</div>
+            <% end %>
+          <% end %>
+        </div>
+        
+<!-- Timeline -->
+        <div class="mt-6 w-full">
+          <.editor_timeline
+            current_time={0}
+            duration={60}
+            overlays={@overlays}
+            timeline_zoom={@timeline_zoom}
+          />
+        </div>
+      </div>
+    </main>
+    
+<!-- Properties Panel -->
+    <aside class="w-80 bg-white/80 backdrop-blur-sm border-l border-gray-100 flex flex-col py-6 px-4 gap-4">
+      <%= if @selected_overlay_id do %>
+        <.editor_panel title="Overlay Properties">
+          <% selected_overlay = Enum.find(@overlays, &(&1["id"] == @selected_overlay_id)) %>
+          <%= if selected_overlay do %>
+            <%= if @selected_overlay_changeset do %>
+              <.simple_form
+                :let={f}
+                for={@selected_overlay_changeset}
+                phx-change="update_overlay_props"
+                class="space-y-2"
+              >
+                <%= if selected_overlay["type"] == "text" do %>
+                  <.input field={f[:text]} label="Text" />
+                  <.input field={f[:color]} type="color" label="Color" />
+                  <.input field={f[:font_size]} type="number" min="8" max="120" label="Font Size" />
+                  <.input
+                    field={f[:font]}
+                    type="select"
+                    label="Font"
+                    options={[{"Sans", "sans"}, {"Serif", "serif"}, {"Monospace", "mono"}]}
+                  />
+                <% end %>
+                <%= if selected_overlay["type"] == "shape" do %>
+                  <.input
+                    field={f[:shape]}
+                    type="select"
+                    label="Shape"
+                    options={[
+                      {"Circle", "circle"},
+                      {"Square", "square"},
+                      {"Triangle", "triangle"},
+                      {"Star", "star"},
+                      {"Arrow", "arrow"},
+                      {"Line", "line"},
+                      {"Heart", "heart"}
+                    ]}
+                  />
+                  <.input field={f[:color]} type="color" label="Color" />
+                <% end %>
+                <%= if selected_overlay["type"] == "image" do %>
+                  <.input field={f[:src]} label="Image URL" />
+                <% end %>
+                <%= if selected_overlay["type"] == "video" do %>
+                  <.input field={f[:src]} label="Video URL" />
+                <% end %>
+                <%= if selected_overlay["type"] == "chart" do %>
+                  <.input
+                    field={f[:chart_type]}
+                    type="select"
+                    label="Chart Type"
+                    options={[{"Bar", "bar"}, {"Pie", "pie"}, {"Line", "line"}]}
+                  />
+                <% end %>
+                <.input field={f[:x]} type="number" min="0" max="1000" label="X" />
+                <.input field={f[:y]} type="number" min="0" max="1000" label="Y" />
+                <.input field={f[:width]} type="number" min="0" max="1000" label="Width" />
+                <.input field={f[:height]} type="number" min="0" max="1000" label="Height" />
+              </.simple_form>
+            <% end %>
+          <% else %>
+            <div class="text-center py-4 text-gray-400 text-sm">
+              Overlay not found
+            </div>
+          <% end %>
+        </.editor_panel>
+      <% else %>
+        <.editor_panel title="Properties">
+          <div class="text-center py-8 text-gray-400">
+            Select an overlay to edit its properties
+          </div>
+        </.editor_panel>
+      <% end %>
+    </aside>
+  </div>
+</div>
+
+<%= if @show_context_menu and @context_menu_overlay_id == @selected_overlay_id do %>
+  <div
+    id="context-menu"
+    phx-click="hide_context_menu"
+    style={"position: fixed; left: #{@context_menu_x}px; top: #{@context_menu_y}px; z-index: 1000;"}
+    class="bg-white rounded-md shadow-lg border border-gray-200 p-1 min-w-[180px]"
+  >
+    <.simple_list>
+      <:item>
+        <div
+          phx-click="bring_forward"
+          phx-value-id={@selected_overlay_id}
+          class="flex items-center gap-2 px-4 py-2 text-gray-800 hover:bg-gray-100 cursor-pointer rounded transition"
+        >
+          <.icon name="hero-arrow-right" class="w-4 h-4" /> Bring Forward
+        </div>
+      </:item>
+      <:item>
+        <div
+          phx-click="send_backward"
+          phx-value-id={@selected_overlay_id}
+          class="flex items-center gap-2 px-4 py-2 text-gray-800 hover:bg-gray-100 cursor-pointer rounded transition"
+        >
+          <.icon name="hero-arrow-left" class="w-4 h-4" /> Send Backward
+        </div>
+      </:item>
+      <:item>
+        <div
+          phx-click="bring_to_front"
+          phx-value-id={@selected_overlay_id}
+          class="flex items-center gap-2 px-4 py-2 text-gray-800 hover:bg-gray-100 cursor-pointer rounded transition"
+        >
+          <.icon name="hero-arrow-right-on-rectangle" class="w-4 h-4" /> Bring to Front
+        </div>
+      </:item>
+      <:item>
+        <div
+          phx-click="send_to_back"
+          phx-value-id={@selected_overlay_id}
+          class="flex items-center gap-2 px-4 py-2 text-gray-800 hover:bg-gray-100 cursor-pointer rounded transition"
+        >
+          <.icon name="hero-arrow-left-on-rectangle" class="w-4 h-4" /> Send to Back
+        </div>
+      </:item>
+      <:item>
+        <div
+          phx-click="delete_overlay"
+          phx-value-id={@selected_overlay_id}
+          class="flex items-center gap-2 px-4 py-2 text-red-600 hover:bg-red-50 cursor-pointer rounded transition"
+        >
+          <.icon name="hero-trash" class="w-4 h-4" /> Delete
+        </div>
+      </:item>
+    </.simple_list>
+  </div>
+  <div phx-click="hide_context_menu" style="position:fixed;inset:0;z-index:999;"></div>
+<% end %>

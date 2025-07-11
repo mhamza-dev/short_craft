@@ -11,9 +11,6 @@ defmodule ShortCraft.Repo.Migrations.CreateGeneratedShorts do
       add :status, :string
       add :youtube_id, :string
       add :uploaded_at, :utc_datetime
-      add :error, :text
-      add :processing_log, {:array, :map}
-      add :segment, :integer
       add :source_video_id, references(:source_videos, on_delete: :delete_all, type: :binary_id)
       add :user_id, references(:users, on_delete: :delete_all, type: :binary_id)
 

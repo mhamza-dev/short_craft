@@ -77,6 +77,7 @@ defmodule ShortCraftWeb.Router do
         live "/new", SourceVideoLive.Index, :new
         live "/:id/edit", SourceVideoLive.Index, :edit
         live "/:id/show", SourceVideoLive.Show, :show
+        live "/:id/shorts/:short_id/edit", ShortsLive.Index, :index
       end
     end
   end

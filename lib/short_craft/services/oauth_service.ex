@@ -21,7 +21,7 @@ defmodule ShortCraft.Services.OAuthService do
   def initiate_oauth(provider) when is_binary(provider) do
     with :ok <- validate_provider(provider),
          {:ok, config} <- get_provider_config(provider),
-         {:ok, auth_url} <- build_auth_url(config) |> dbg() do
+         {:ok, auth_url} <- build_auth_url(config) do
       Logger.info("OAuth initiation started", provider: provider)
       {:ok, auth_url}
     else
@@ -67,7 +67,7 @@ defmodule ShortCraft.Services.OAuthService do
   def refresh_token(provider, refresh_token)
       when is_binary(provider) and is_binary(refresh_token) do
     with :ok <- validate_provider(provider),
-         {:ok, config} <- get_provider_config(provider) |> dbg(),
+         {:ok, config} <- get_provider_config(provider),
          {:ok, token_data} <- exchange_refresh_token(provider, refresh_token, config) do
       Logger.info("Token refreshed successfully", provider: provider)
       {:ok, token_data}
@@ -211,8 +211,6 @@ defmodule ShortCraft.Services.OAuthService do
   end
 
   defp build_auth_url(config) do
-    dbg(config)
-
     params = %{
       "client_id" => config.client_id,
       "redirect_uri" => config.redirect_uri,
@@ -220,7 +218,7 @@ defmodule ShortCraft.Services.OAuthService do
       "scope" => config.default_scope
     }
 
-    params = params |> maybe_add_access_type(config) |> maybe_add_prompt(config) |> dbg()
+    params = params |> maybe_add_access_type(config) |> maybe_add_prompt(config)
 
     query_string = URI.encode_query(params)
     auth_url = "#{config.auth_url}?#{query_string}"
@@ -283,12 +281,10 @@ defmodule ShortCraft.Services.OAuthService do
     }
 
     body = URI.encode_query(body_params)
-    dbg(body)
-
     headers = [{"Content-Type", "application/x-www-form-urlencoded"}]
-    headers = maybe_add_provider_headers(headers, config) |> dbg()
+    headers = maybe_add_provider_headers(headers, config)
 
-    case HTTPoison.post(config.token_url, body, headers) |> dbg() do
+    case HTTPoison.post(config.token_url, body, headers) do
       {:ok, %{status_code: 200, body: response_body}} ->
         case Jason.decode(response_body) do
           {:ok, token_data} -> {:ok, token_data}
@@ -353,8 +349,6 @@ defmodule ShortCraft.Services.OAuthService do
   # ============================================================================
 
   defp create_or_update_user(provider, user_info, token_data) do
-    dbg(token_data)
-
     user_params =
       %{
         provider: provider,

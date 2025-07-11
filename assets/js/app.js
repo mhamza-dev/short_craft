@@ -21,6 +21,17 @@ import "phoenix_html";
 import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
+import OverlayCombined from "./hooks/OverlayCombined";
+import ShowMore from "./hooks/ShowMore";
+import DragToTimeline from "./hooks/DragToTimeline";
+import TimelineOverlayDrag from "./hooks/TimelineOverlayDrag";
+
+let Hooks = {
+  OverlayCombined,
+  ShowMore,
+  DragToTimeline,
+  TimelineOverlayDrag,
+};
 
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")
@@ -28,6 +39,7 @@ let csrfToken = document
 let liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 2500,
   params: { _csrf_token: csrfToken },
+  hooks: Hooks,
 });
 
 // Show progress bar on live navigation and form submits
@@ -65,6 +77,11 @@ window.addEventListener("phx:copy-to-clipboard", (event) => {
   }
 });
 
+// Debug overlay state
+window.addEventListener("debug_overlay", (event) => {
+  console.log("🔍 Debug Overlay State:", event.detail);
+});
+
 // Fallback copy function for older browsers
 function fallbackCopyTextToClipboard(text) {
   const textArea = document.createElement("textarea");
@@ -93,42 +110,3 @@ function fallbackCopyTextToClipboard(text) {
 
   document.body.removeChild(textArea);
 }
-
-let Hooks = window.liveSocket?.hooks || {};
-
-Hooks.AutoHideFlash = {
-  mounted() {
-    setTimeout(() => {
-      this.el.classList.add("opacity-0", "pointer-events-none");
-    }, 3500); // 3.5 seconds
-  },
-};
-
-Hooks.ShowMore = {
-  mounted() {
-    this.expanded = false;
-    this.update();
-    this.el
-      .querySelector("[data-showmore-toggle]")
-      .addEventListener("click", () => {
-        this.expanded = !this.expanded;
-        this.update();
-      });
-  },
-  update() {
-    const more = this.el.querySelector("[data-showmore-more]");
-    const less = this.el.querySelector("[data-showmore-less]");
-    const toggle = this.el.querySelector("[data-showmore-toggle]");
-    if (this.expanded) {
-      more.style.display = "";
-      less.style.display = "none";
-      toggle.textContent = "Show less";
-    } else {
-      more.style.display = "none";
-      less.style.display = "";
-      toggle.textContent = toggle.dataset.moreLabel || "Show more";
-    }
-  },
-};
-
-window.liveSocket.hooks = Hooks;

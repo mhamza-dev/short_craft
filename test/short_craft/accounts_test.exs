@@ -63,7 +63,7 @@ defmodule ShortCraft.AccountsTest do
 
       assert %{
                email: ["must have the @ sign and no spaces"],
-               password: ["should be at least 12 character(s)"]
+               password: ["should be at least 8 character(s)"]
              } = errors_on(changeset)
     end
 
@@ -267,7 +267,7 @@ defmodule ShortCraft.AccountsTest do
         })
 
       assert %{
-               password: ["should be at least 12 character(s)"],
+               password: ["should be at least 8 character(s)"],
                password_confirmation: ["does not match password"]
              } = errors_on(changeset)
     end
@@ -476,7 +476,7 @@ defmodule ShortCraft.AccountsTest do
         })
 
       assert %{
-               password: ["should be at least 12 character(s)"],
+               password: ["should be at least 8 character(s)"],
                password_confirmation: ["does not match password"]
              } = errors_on(changeset)
     end
@@ -511,7 +511,16 @@ defmodule ShortCraft.AccountsTest do
 
     import ShortCraft.AccountsFixtures
 
-    @invalid_attrs %{metadata: nil, channel_id: nil, channel_title: nil, channel_url: nil, access_token: nil, refresh_token: nil, expires_at: nil, is_connected: nil}
+    @invalid_attrs %{
+      metadata: nil,
+      channel_id: nil,
+      channel_title: nil,
+      channel_url: nil,
+      access_token: nil,
+      refresh_token: nil,
+      expires_at: nil,
+      is_connected: nil
+    }
 
     test "list_youtube_channels/0 returns all youtube_channels" do
       youtube_channel = youtube_channel_fixture()
@@ -524,9 +533,20 @@ defmodule ShortCraft.AccountsTest do
     end
 
     test "create_youtube_channel/1 with valid data creates a youtube_channel" do
-      valid_attrs = %{metadata: %{}, channel_id: "some channel_id", channel_title: "some channel_title", channel_url: "some channel_url", access_token: "some access_token", refresh_token: "some refresh_token", expires_at: ~U[2025-07-02 14:16:00Z], is_connected: true}
+      valid_attrs = %{
+        metadata: %{},
+        channel_id: "some channel_id",
+        channel_title: "some channel_title",
+        channel_url: "some channel_url",
+        access_token: "some access_token",
+        refresh_token: "some refresh_token",
+        expires_at: ~U[2025-07-02 14:16:00Z],
+        is_connected: true
+      }
 
-      assert {:ok, %YoutubeChannel{} = youtube_channel} = Accounts.create_youtube_channel(valid_attrs)
+      assert {:ok, %YoutubeChannel{} = youtube_channel} =
+               Accounts.create_youtube_channel(valid_attrs)
+
       assert youtube_channel.metadata == %{}
       assert youtube_channel.channel_id == "some channel_id"
       assert youtube_channel.channel_title == "some channel_title"
@@ -543,9 +563,21 @@ defmodule ShortCraft.AccountsTest do
 
     test "update_youtube_channel/2 with valid data updates the youtube_channel" do
       youtube_channel = youtube_channel_fixture()
-      update_attrs = %{metadata: %{}, channel_id: "some updated channel_id", channel_title: "some updated channel_title", channel_url: "some updated channel_url", access_token: "some updated access_token", refresh_token: "some updated refresh_token", expires_at: ~U[2025-07-03 14:16:00Z], is_connected: false}
 
-      assert {:ok, %YoutubeChannel{} = youtube_channel} = Accounts.update_youtube_channel(youtube_channel, update_attrs)
+      update_attrs = %{
+        metadata: %{},
+        channel_id: "some updated channel_id",
+        channel_title: "some updated channel_title",
+        channel_url: "some updated channel_url",
+        access_token: "some updated access_token",
+        refresh_token: "some updated refresh_token",
+        expires_at: ~U[2025-07-03 14:16:00Z],
+        is_connected: false
+      }
+
+      assert {:ok, %YoutubeChannel{} = youtube_channel} =
+               Accounts.update_youtube_channel(youtube_channel, update_attrs)
+
       assert youtube_channel.metadata == %{}
       assert youtube_channel.channel_id == "some updated channel_id"
       assert youtube_channel.channel_title == "some updated channel_title"
@@ -558,14 +590,20 @@ defmodule ShortCraft.AccountsTest do
 
     test "update_youtube_channel/2 with invalid data returns error changeset" do
       youtube_channel = youtube_channel_fixture()
-      assert {:error, %Ecto.Changeset{}} = Accounts.update_youtube_channel(youtube_channel, @invalid_attrs)
+
+      assert {:error, %Ecto.Changeset{}} =
+               Accounts.update_youtube_channel(youtube_channel, @invalid_attrs)
+
       assert youtube_channel == Accounts.get_youtube_channel!(youtube_channel.id)
     end
 
     test "delete_youtube_channel/1 deletes the youtube_channel" do
       youtube_channel = youtube_channel_fixture()
       assert {:ok, %YoutubeChannel{}} = Accounts.delete_youtube_channel(youtube_channel)
-      assert_raise Ecto.NoResultsError, fn -> Accounts.get_youtube_channel!(youtube_channel.id) end
+
+      assert_raise Ecto.NoResultsError, fn ->
+        Accounts.get_youtube_channel!(youtube_channel.id)
+      end
     end
 
     test "change_youtube_channel/1 returns a youtube_channel changeset" do
