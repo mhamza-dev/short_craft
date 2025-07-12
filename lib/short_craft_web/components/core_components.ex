@@ -1436,7 +1436,7 @@ defmodule ShortCraftWeb.CoreComponents do
               </a>
             </div>
           </div>
-          
+
     <!-- Product Links -->
           <div>
             <h3 class="font-semibold text-gray-900 mb-4">Product</h3>
@@ -1477,7 +1477,7 @@ defmodule ShortCraftWeb.CoreComponents do
               </li>
             </ul>
           </div>
-          
+
     <!-- Company & Support -->
           <div>
             <h3 class="font-semibold text-gray-900 mb-4">Company & Support</h3>
@@ -1507,7 +1507,7 @@ defmodule ShortCraftWeb.CoreComponents do
             </ul>
           </div>
         </div>
-        
+
     <!-- Newsletter Signup -->
         <div class="mt-12 pt-8 border-t border-gray-200">
           <div class="max-w-md">
@@ -1531,7 +1531,7 @@ defmodule ShortCraftWeb.CoreComponents do
           </div>
         </div>
       </div>
-      
+
     <!-- Bottom Footer -->
       <div class="border-t border-gray-200 bg-white/50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -1828,7 +1828,7 @@ defmodule ShortCraftWeb.CoreComponents do
           </button>
         </div>
       </div>
-      
+
     <!-- Timeline Scrollable Area -->
       <div class="w-full overflow-x-auto">
         <div style={"width: #{@timeline_width}px; min-width: 100%;"} data-timeline="true">
@@ -1877,7 +1877,7 @@ defmodule ShortCraftWeb.CoreComponents do
               <% end %>
             </div>
           </div>
-          
+
     <!-- Timeline Tracks -->
           <div class="space-y-2" style="width: 100%;">
             <!-- Video Track -->
@@ -1894,7 +1894,7 @@ defmodule ShortCraftWeb.CoreComponents do
                 </div>
               </div>
             </div>
-            
+
     <!-- Audio Track -->
             <div class="flex items-center gap-3">
               <div class="w-16 text-xs font-medium text-gray-600">Audio</div>
@@ -1909,7 +1909,7 @@ defmodule ShortCraftWeb.CoreComponents do
                 </div>
               </div>
             </div>
-            
+
     <!-- Overlays Track -->
             <div class="flex items-center gap-3">
               <div class="w-16 text-xs font-medium text-gray-600">Overlays</div>
@@ -1943,7 +1943,7 @@ defmodule ShortCraftWeb.CoreComponents do
           </div>
         </div>
       </div>
-      
+
     <!-- Timeline Controls -->
       <div class="flex items-center justify-center mt-4 pt-4 border-t border-gray-200">
         <div class="flex items-center gap-2 text-sm text-gray-600">
@@ -1952,7 +1952,7 @@ defmodule ShortCraftWeb.CoreComponents do
           <span>Resolution: 1080p</span>
         </div>
       </div>
-      
+
     <!-- Additional Controls -->
       <%= if @inner_block do %>
         <div class="mt-4">

@@ -253,15 +253,9 @@
                 <!-- Short Header -->
                 <div class="flex items-start justify-between mb-3">
                   <div class="flex items-center gap-2">
-                    <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center">
-                      <span class="text-white text-xs font-bold">{short.segment}</span>
-                    </div>
                     <div>
-                      <span class="text-xs font-medium text-gray-500">
-                        Short #{short.segment}
-                      </span>
                       <.status_badge
-                        status={String.upcase(short.status)}
+                        status={humanize_status(short.status)}
                         variant={get_short_status_variant(short.status)}
                         size="sm"
                       />
@@ -335,17 +329,6 @@
                     <.icon name="hero-arrow-down-tray" class="w-4 h-4" />
                   </a>
                 </div>
-                
-<!-- Error Message -->
-                <%= if short.error do %>
-                  <div class="mt-2 p-2 bg-red-50 border border-red-200 rounded text-xs text-red-700">
-                    <div class="flex items-center gap-1">
-                      <.icon name="hero-exclamation-circle" class="w-3 h-3" />
-                      <span class="font-medium">Error:</span>
-                    </div>
-                    <p class="mt-1">{short.error}</p>
-                  </div>
-                <% end %>
               </div>
             <% end %>
           </div>
@@ -362,7 +345,7 @@
               <div class="text-2xl font-bold text-green-600">
                 {Enum.count(@source_video.generated_shorts, &(&1.status == "generated"))}
               </div>
-              <div class="text-xs text-green-600">Ready to Upload</div>
+              <div class="text-xs text-green-600">Generated</div>
             </div>
             <div class="bg-blue-50 rounded-lg p-3 text-center">
               <div class="text-2xl font-bold text-blue-600">
@@ -372,9 +355,9 @@
             </div>
             <div class="bg-red-50 rounded-lg p-3 text-center">
               <div class="text-2xl font-bold text-red-600">
-                {Enum.count(@source_video.generated_shorts, & &1.error)}
+                {Enum.count(@source_video.generated_shorts, &(&1.status == "failed"))}
               </div>
-              <div class="text-xs text-red-600">With Errors</div>
+              <div class="text-xs text-red-600">Failed</div>
             </div>
           </div>
         <% end %>

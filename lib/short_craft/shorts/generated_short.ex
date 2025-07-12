@@ -4,8 +4,9 @@ defmodule ShortCraft.Shorts.GeneratedShort do
 
   @primary_key {:id, :binary_id, autogenerate: true}
   @foreign_key_type :binary_id
+  @status_values [:generated, :uploaded, :failed]
   schema "generated_shorts" do
-    field :status, :string
+    field :status, Ecto.Enum, values: @status_values
     field :description, :string
     field :title, :string
     field :output_path, :string

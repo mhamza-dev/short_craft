@@ -98,9 +98,10 @@ defmodule ShortCraftWeb.LiveHelpers do
   def humanize_status(true), do: "Yes"
   def humanize_status(false), do: "No"
 
-  def humanize_status(status) do
+  def humanize_status(status) when is_atom(status), do: humanize_status(Atom.to_string(status))
+
+  def humanize_status(status) when is_binary(status) do
     status
-    |> Atom.to_string()
     |> String.replace("_", " ")
     |> String.capitalize()
   end
@@ -292,7 +293,7 @@ defmodule ShortCraftWeb.LiveHelpers do
   def get_short_status_variant(status) do
     case status do
       s when s in ["uploaded", :uploaded] -> "success"
-      s when s in ["generated", :generated] -> "primary"
+      s when s in ["generated", :generated] -> "info"
       s when s in ["failed", :failed, "error", :error] -> "danger"
       _ -> "default"
     end

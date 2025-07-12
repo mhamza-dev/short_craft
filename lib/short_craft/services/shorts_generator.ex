@@ -207,9 +207,9 @@ defmodule ShortCraft.Services.ShortsGenerator do
     Shorts.create_generated_short(%{
       source_video_id: sv.id,
       user_id: sv.user_id,
-      title: ai_cont[:title],
-      description: ai_cont[:description],
-      tags: ai_cont[:tags],
+      title: ai_cont["title"],
+      description: ai_cont["description"],
+      tags: ai_cont["tags"],
       output_path: output_path,
       status: "generated",
       youtube_id: youtube_id

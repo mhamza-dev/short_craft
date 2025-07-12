@@ -680,12 +680,13 @@ defmodule ShortCraftWeb.ShortsLive.Index do
         updated_overlay = overlay_struct_to_map(updated_struct)
 
         # Preserve the current position and size (don't let form override dragged position)
-        updated_overlay = Map.merge(updated_overlay, %{
-          "x" => current_x,
-          "y" => current_y,
-          "width" => current_width,
-          "height" => current_height
-        })
+        updated_overlay =
+          Map.merge(updated_overlay, %{
+            "x" => current_x,
+            "y" => current_y,
+            "width" => current_width,
+            "height" => current_height
+          })
 
         overlays = List.replace_at(overlays, idx, updated_overlay)
         {:noreply, assign(socket, overlays: overlays, selected_overlay_changeset: changeset)}
@@ -695,6 +696,23 @@ defmodule ShortCraftWeb.ShortsLive.Index do
     else
       {:noreply, assign(socket, selected_overlay_id: nil, selected_overlay_changeset: nil)}
     end
+  end
+
+  def handle_event("show_context_menu", %{"id" => id, "x" => x, "y" => y}, socket) do
+    overlay_id = if is_binary(id), do: String.to_integer(id), else: id
+
+    {:noreply,
+     assign(socket,
+       show_context_menu: true,
+       context_menu_x: x,
+       context_menu_y: y,
+       context_menu_overlay_id: overlay_id,
+       selected_overlay_id: overlay_id
+     )}
+  end
+
+  def handle_event("hide_context_menu", _params, socket) do
+    {:noreply, assign(socket, show_context_menu: false)}
   end
 
   @impl true
@@ -827,21 +845,7 @@ defmodule ShortCraftWeb.ShortsLive.Index do
   defp default_shape_color("heart"), do: "#ef4444"
   defp default_shape_color(_), do: "#6366f1"
 
-  defp get_video_aspect_ratio(short) do
-    # For now, use common video aspect ratios based on the video type
-    # In a real implementation, you'd extract this from video metadata
-
-    # Check if it's a short (vertical video) or regular video
-    # Most shorts are 9:16, regular videos are 16:9
-    case short do
-      %{segment: segment} when is_integer(segment) and segment > 0 ->
-        # This is likely a short, use 9:16 aspect ratio
-        "9 / 16"
-      _ ->
-        # Default to 16:9 for regular videos
-        "16 / 9"
-    end
-  end
+  defp get_video_aspect_ratio(_short), do: "9 / 16"
 
   def get_font_family("sans"),
     do:
@@ -868,22 +872,5 @@ defmodule ShortCraftWeb.ShortsLive.Index do
     else
       assign(socket, selected_overlay_changeset: nil)
     end
-  end
-
-  def handle_event("show_context_menu", %{"id" => id, "x" => x, "y" => y}, socket) do
-    overlay_id = if is_binary(id), do: String.to_integer(id), else: id
-
-    {:noreply,
-     assign(socket,
-       show_context_menu: true,
-       context_menu_x: x,
-       context_menu_y: y,
-       context_menu_overlay_id: overlay_id,
-       selected_overlay_id: overlay_id
-     )}
-  end
-
-  def handle_event("hide_context_menu", _params, socket) do
-    {:noreply, assign(socket, show_context_menu: false)}
   end
 end
