@@ -53,13 +53,6 @@ defmodule ShortCraft.MixProject do
       {:ueberauth_facebook, "~> 0.8"},
       # {:ueberauth_twitter, "~> 0.4"}, # Temporarily disabled due to httpoison version conflict
 
-      # Video Processing
-      {:membrane_core, "~> 1.0"},
-      {:membrane_file_plugin, "~> 0.17"},
-      {:membrane_ffmpeg_swscale_plugin, "~> 0.16"},
-      {:membrane_mp4_plugin, "~> 0.35"},
-      {:membrane_h264_ffmpeg_plugin, "~> 0.32"},
-
       # Asset Pipeline
       {:esbuild, "~> 0.8", runtime: Mix.env() == :dev},
       {:tailwind, "~> 0.2", runtime: Mix.env() == :dev},
