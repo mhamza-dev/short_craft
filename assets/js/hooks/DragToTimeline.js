@@ -7,10 +7,10 @@ const DragToTimeline = {
   setupDragAndDrop() {
     // Make sidebar items draggable
     this.setupDraggableItems();
-    
+
     // Make timeline droppable
     this.setupDroppableTimeline();
-    
+
     // Make video container droppable
     this.setupDroppableVideoContainer();
   },
@@ -86,7 +86,9 @@ const DragToTimeline = {
   },
 
   setupDroppableVideoContainer() {
-    const videoContainer = this.el.querySelector('[data-video-container="true"]');
+    const videoContainer = this.el.querySelector(
+      '[data-video-container="true"]'
+    );
 
     if (!videoContainer) return;
 
@@ -111,9 +113,53 @@ const DragToTimeline = {
 
       if (!this.draggedItem) return;
 
-      // Send the drop event to LiveView
+      // Find the <video> element inside the container
+      const videoEl = videoContainer.querySelector("video");
+      const containerRect = videoContainer.getBoundingClientRect();
+      let x = e.clientX - containerRect.left;
+      let y = e.clientY - containerRect.top;
+      let overlayWidth = 200;
+      let overlayHeight = 50;
+      // Try to get default overlay size from draggedItem type
+      if (
+        this.draggedItem.type === "shape" ||
+        this.draggedItem.type === "image" ||
+        this.draggedItem.type === "video" ||
+        this.draggedItem.type === "chart"
+      ) {
+        overlayWidth = 100;
+        overlayHeight = 100;
+      }
+      if (this.draggedItem.type === "text") {
+        overlayWidth = 200;
+        overlayHeight = 50;
+      }
+      // Clamp to video area if possible
+      if (videoEl) {
+        const videoRect = videoEl.getBoundingClientRect();
+        const videoX = videoRect.left - containerRect.left;
+        const videoY = videoRect.top - containerRect.top;
+        const videoWidth = videoRect.width;
+        const videoHeight = videoRect.height;
+        // Clamp x/y so overlay stays fully within video
+        x = Math.max(videoX, Math.min(x, videoX + videoWidth - overlayWidth));
+        y = Math.max(videoY, Math.min(y, videoY + videoHeight - overlayHeight));
+        // If mouse is outside video, snap to top-left of video
+        if (
+          e.clientX < videoRect.left ||
+          e.clientX > videoRect.right ||
+          e.clientY < videoRect.top ||
+          e.clientY > videoRect.bottom
+        ) {
+          x = videoX;
+          y = videoY;
+        }
+      }
+      // Send the drop event to LiveView with position
       this.pushEvent("drop_on_video_container", {
         item: this.draggedItem,
+        x: Math.round(x),
+        y: Math.round(y),
       });
 
       this.draggedItem = null;

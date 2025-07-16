@@ -33,17 +33,113 @@ defmodule ShortCraftWeb.ShortsLive.Index do
        timeline_zoom: 1.0,
        show_help: false,
        form: nil,
-       sidebar_tab: "Templates",
+       sidebar_tab: nil,
        show_context_menu: false,
        context_menu_x: 0,
        context_menu_y: 0,
-       context_menu_overlay_id: nil
+       context_menu_overlay_id: nil,
+       # Video control state
+       video_playing: false,
+       video_current_time: 0.0,
+       video_duration: duration
      )}
   end
 
   def handle_event("timeline_zoom", %{"factor" => factor}, socket) do
     zoom = String.to_float(factor)
     {:noreply, assign(socket, timeline_zoom: zoom)}
+  end
+
+  # Video control event handlers
+  def handle_event("video_play", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(video_playing: true)
+     |> push_event("video_play", %{})}
+  end
+
+  def handle_event("video_pause", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(video_playing: false)
+     |> push_event("video_pause", %{})}
+  end
+
+    def handle_event("video_toggle_play", _params, socket) do
+    new_state = !socket.assigns.video_playing
+
+    # Send event immediately
+    socket = push_event(socket, if(new_state, do: "video_play", else: "video_pause"), %{})
+
+    {:noreply, assign(socket, video_playing: new_state)}
+  end
+
+  def handle_event("video_stop", _params, socket) do
+    {:noreply,
+     socket
+     |> assign(video_playing: false, video_current_time: 0)
+     |> push_event("video_stop", %{})}
+  end
+
+  def handle_event("video_seek", %{"time" => time}, socket) do
+    current_time =
+      case time do
+        time when is_binary(time) -> String.to_float(time)
+        time when is_number(time) -> time * 1.0
+        _ -> 0.0
+      end
+
+    {:noreply,
+     socket
+     |> assign(video_current_time: current_time)
+     |> push_event("video_seek", %{time: current_time})}
+  end
+
+  def handle_event("video_time_update", %{"current_time" => current_time}, socket) do
+    time = case current_time do
+      time when is_binary(time) -> String.to_float(time)
+      time when is_number(time) -> time * 1.0
+      _ -> 0.0
+    end
+
+    # Only update if significant change
+    if abs(socket.assigns.video_current_time - time) > 0.1 do
+      {:noreply, assign(socket, video_current_time: time)}
+    else
+      {:noreply, socket}
+    end
+  end
+
+  def handle_event("video_previous_frame", _params, socket) do
+    new_time = max(0, socket.assigns.video_current_time - 1 / 30)
+
+    {:noreply,
+     socket
+     |> assign(video_current_time: new_time)
+     |> push_event("video_previous_frame", %{})}
+  end
+
+  def handle_event("video_next_frame", _params, socket) do
+    new_time = min(socket.assigns.video_duration, socket.assigns.video_current_time + 1 / 30)
+
+    {:noreply,
+     socket
+     |> assign(video_current_time: new_time)
+     |> push_event("video_next_frame", %{})}
+  end
+
+    def handle_event("timeline_seek", %{"time" => time}, socket) do
+    seek_time = case time do
+      time when is_binary(time) -> String.to_float(time)
+      time when is_number(time) -> time * 1.0
+      _ -> 0.0
+    end
+
+    # Always update for timeline seeks
+    {:noreply,
+     socket
+     |> assign(video_current_time: seek_time)
+     |> push_event("video_seek", %{time: seek_time})}
   end
 
   def handle_event("drop_on_timeline", %{"item" => item, "time" => time}, socket) do
@@ -126,7 +222,7 @@ defmodule ShortCraftWeb.ShortsLive.Index do
     end
   end
 
-  def handle_event("drop_on_video_container", %{"item" => item}, socket) do
+  def handle_event("drop_on_video_container", %{"item" => item, "x" => x, "y" => y}, socket) do
     # Create a new overlay based on the dropped item (without timeline timing)
     new_overlay =
       case item do
@@ -145,8 +241,8 @@ defmodule ShortCraftWeb.ShortsLive.Index do
             "font" => font,
             "font_size" => size,
             "color" => color,
-            "x" => 50,
-            "y" => 50,
+            "x" => x || 50,
+            "y" => y || 50,
             "width" => 200,
             "height" => 50,
             "id" => System.unique_integer([:positive])
@@ -156,8 +252,8 @@ defmodule ShortCraftWeb.ShortsLive.Index do
           %{
             "type" => "shape",
             "shape" => shape_type,
-            "x" => 40,
-            "y" => 40,
+            "x" => x || 40,
+            "y" => y || 40,
             "width" => 80,
             "height" => 80,
             "color" => default_shape_color(shape_type),
@@ -168,8 +264,8 @@ defmodule ShortCraftWeb.ShortsLive.Index do
           %{
             "type" => "video",
             "src" => src,
-            "x" => 10,
-            "y" => 10,
+            "x" => x || 10,
+            "y" => y || 10,
             "width" => 160,
             "height" => 90,
             "id" => System.unique_integer([:positive])
@@ -179,8 +275,8 @@ defmodule ShortCraftWeb.ShortsLive.Index do
           %{
             "type" => "chart",
             "chart_type" => chart_type,
-            "x" => 60,
-            "y" => 60,
+            "x" => x || 60,
+            "y" => y || 60,
             "width" => 100,
             "height" => 100,
             "id" => System.unique_integer([:positive])
@@ -469,7 +565,11 @@ defmodule ShortCraftWeb.ShortsLive.Index do
 
   @impl true
   def handle_event("sidebar_tab", %{"tab" => tab}, socket) do
-    {:noreply, assign(socket, sidebar_tab: tab)}
+    if socket.assigns.sidebar_tab == tab do
+      {:noreply, assign(socket, sidebar_tab: nil)}
+    else
+      {:noreply, assign(socket, sidebar_tab: tab)}
+    end
   end
 
   def handle_event("play_overlay_animation", %{"idx" => idx}, socket) do
@@ -546,27 +646,51 @@ defmodule ShortCraftWeb.ShortsLive.Index do
           else: o
       end)
 
-    {:noreply, assign(socket, overlays: overlays) |> maybe_clear_selection()}
+    # Update the changeset if this overlay is selected
+    selected_overlay_changeset =
+      if socket.assigns.selected_overlay_id == overlay_id do
+        updated_overlay = Enum.find(overlays, &(&1["id"] == overlay_id))
+        overlay_struct = map_to_overlay_struct(updated_overlay)
+        Overlay.changeset(overlay_struct, %{})
+      else
+        socket.assigns.selected_overlay_changeset
+      end
+
+    {:noreply, assign(socket, overlays: overlays, selected_overlay_changeset: selected_overlay_changeset)}
   end
 
-  def handle_event("resize_overlay", %{"id" => id, "width" => width, "height" => height}, socket) do
+  def handle_event("resize_overlay", %{"id" => id, "width" => width, "height" => height} = params, socket) do
     overlay_id = if is_binary(id), do: String.to_integer(id), else: id
     width_int = if is_binary(width), do: String.to_integer(width), else: width
     height_int = if is_binary(height), do: String.to_integer(height), else: height
-    current_overlay = Enum.find(socket.assigns.overlays, &(&1["id"] == overlay_id))
-
-    Logger.info(
-      "Resizing overlay #{overlay_id} from #{current_overlay["width"]}x#{current_overlay["height"]} to #{width_int}x#{height_int}"
-    )
+    font_size = Map.get(params, "font_size")
+    font_size_int = if font_size, do: (if is_binary(font_size), do: String.to_integer(font_size), else: font_size), else: nil
 
     overlays =
       Enum.map(socket.assigns.overlays, fn o ->
-        if o["id"] == overlay_id,
-          do: Map.merge(o, %{"width" => width_int, "height" => height_int}),
-          else: o
+        if o["id"] == overlay_id do
+          updated = Map.merge(o, %{"width" => width_int, "height" => height_int})
+          if o["type"] == "text" and font_size_int do
+            Map.put(updated, "font_size", font_size_int)
+          else
+            updated
+          end
+        else
+          o
+        end
       end)
 
-    {:noreply, assign(socket, overlays: overlays) |> maybe_clear_selection()}
+    # Update the changeset if this overlay is selected
+    selected_overlay_changeset =
+      if socket.assigns.selected_overlay_id == overlay_id do
+        updated_overlay = Enum.find(overlays, &(&1["id"] == overlay_id))
+        overlay_struct = map_to_overlay_struct(updated_overlay)
+        Overlay.changeset(overlay_struct, %{})
+      else
+        socket.assigns.selected_overlay_changeset
+      end
+
+    {:noreply, assign(socket, overlays: overlays, selected_overlay_changeset: selected_overlay_changeset)}
   end
 
   def handle_event("bring_forward", %{"id" => id}, socket) do

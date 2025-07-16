@@ -285,7 +285,7 @@
                 
 <!-- Tags -->
                 <%= if short.tags && length(short.tags) > 0 do %>
-                  <.show_more more_count={length(short.tags)} class="flex flex-wrap gap-1 mb-3">
+                  <.show_more more_count={length(short.tags)} id={short.id} class="flex flex-wrap gap-1 mb-3">
                     <:less>
                       <%= for tag <- Enum.take(short.tags, 3) do %>
                         <span class="text-xs bg-gray-100 text-gray-600 px-2 py-1 rounded-full">

@@ -52,450 +52,481 @@
       <button class="w-full py-2 mb-4 rounded-md bg-gradient-to-r from-purple-500 to-blue-500 text-white font-semibold text-sm shadow hover:from-purple-600 hover:to-blue-600 transition">
         Record Yourself
       </button>
-      <!-- Sidebar Tabs -->
-      <nav class="flex flex-col gap-1 mb-6">
-        <button
-          class={"flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition " <>
-            if @sidebar_tab == "Templates", do: "bg-blue-100 text-blue-700", else: "hover:bg-blue-100 text-gray-700"}
-          phx-click="sidebar_tab"
-          phx-value-tab="Templates"
-        >
-          <.icon name="hero-squares-2x2" class="w-5 h-5 text-blue-500" /> Templates
-        </button>
-        <button
-          class={"flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition " <>
-            if @sidebar_tab == "Elements", do: "bg-blue-100 text-blue-700", else: "hover:bg-blue-100 text-gray-700"}
-          phx-click="sidebar_tab"
-          phx-value-tab="Elements"
-        >
-          <.icon name="hero-puzzle-piece" class="w-5 h-5 text-purple-500" /> Elements
-        </button>
-        <button
-          class={"flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition " <>
-            if @sidebar_tab == "Uploads", do: "bg-blue-100 text-blue-700", else: "hover:bg-blue-100 text-gray-700"}
-          phx-click="sidebar_tab"
-          phx-value-tab="Uploads"
-        >
-          <.icon name="hero-arrow-up-tray" class="w-5 h-5 text-green-500" /> Uploads
-        </button>
-        <button
-          class={"flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition " <>
-            if @sidebar_tab == "Text", do: "bg-blue-100 text-blue-700", else: "hover:bg-blue-100 text-gray-700"}
-          phx-click="sidebar_tab"
-          phx-value-tab="Text"
-        >
-          <.icon name="hero-document-text" class="w-5 h-5 text-pink-500" /> Text
-        </button>
-        <button
-          class={"flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition " <>
-            if @sidebar_tab == "Videos", do: "bg-blue-100 text-blue-700", else: "hover:bg-blue-100 text-gray-700"}
-          phx-click="sidebar_tab"
-          phx-value-tab="Videos"
-        >
-          <.icon name="hero-video-camera" class="w-5 h-5 text-indigo-500" /> Videos
-        </button>
-        <button
-          class={"flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition " <>
-            if @sidebar_tab == "Charts", do: "bg-blue-100 text-blue-700", else: "hover:bg-blue-100 text-gray-700"}
-          phx-click="sidebar_tab"
-          phx-value-tab="Charts"
-        >
-          <.icon name="hero-chart-bar" class="w-5 h-5 text-yellow-500" /> Charts
-        </button>
-        <button
-          class={"flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition " <>
-            if @sidebar_tab == "More", do: "bg-blue-100 text-blue-700", else: "hover:bg-blue-100 text-gray-700"}
-          phx-click="sidebar_tab"
-          phx-value-tab="More"
-        >
-          <.icon name="hero-ellipsis-horizontal" class="w-5 h-5 text-gray-400" /> More
-        </button>
-      </nav>
-      <!-- Sidebar Tab Content -->
-      <div class="flex-1 overflow-y-auto space-y-6 px-1">
-        <%= case @sidebar_tab do %>
-          <% "Templates" -> %>
-            <!-- Asset Sections (Aerial Shots, Nature, Business, Beach) -->
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-semibold text-gray-600">Aerial Shots</span>
-                <a href="#" class="text-xs text-blue-500 hover:underline">See all</a>
-              </div>
-              <div class="flex gap-2 overflow-x-auto pb-2">
-                <div class="relative w-28 h-16 rounded-md overflow-hidden bg-gray-200">
-                  <img
-                    src="/images/aerial1.jpg"
-                    alt="Aerial 1"
-                    class="object-cover w-full h-full"
-                  />
-                  <span class="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
-                    22.0s
-                  </span>
+      
+<!-- Sidebar Tabs with Dropdown Content -->
+      <div class="flex-1 overflow-y-auto space-y-2">
+        <!-- Templates Tab -->
+        <div class="space-y-2">
+          <button
+            class={"w-full flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition " <>
+              if @sidebar_tab == "Templates", do: "bg-blue-100 text-blue-700", else: "hover:bg-blue-100 text-gray-700"}
+            phx-click="sidebar_tab"
+            phx-value-tab="Templates"
+          >
+            <.icon name="hero-squares-2x2" class="w-5 h-5 text-blue-500" /> Templates
+            <.icon
+              name="hero-chevron-down"
+              class={"w-4 h-4 ml-auto transition-transform " <> if @sidebar_tab == "Templates", do: "rotate-180", else: ""}
+            />
+          </button>
+          <%= if @sidebar_tab == "Templates" do %>
+            <div class="ml-4 max-h-48 overflow-y-auto space-y-3 bg-white/50 rounded-lg p-3 border border-gray-100">
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold text-gray-600">Aerial Shots</span>
+                  <a href="#" class="text-xs text-blue-500 hover:underline">See all</a>
                 </div>
-                <div class="relative w-28 h-16 rounded-md overflow-hidden bg-gray-200">
-                  <img
-                    src="/images/aerial2.jpg"
-                    alt="Aerial 2"
-                    class="object-cover w-full h-full"
-                  />
-                  <span class="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
-                    24.0s
-                  </span>
+                <div class="grid grid-cols-2 gap-2">
+                  <div class="relative w-full h-16 rounded-md overflow-hidden bg-gray-200 cursor-pointer hover:ring-2 ring-blue-400 transition">
+                    <img
+                      src="/images/aerial1.jpg"
+                      alt="Aerial 1"
+                      class="object-cover w-full h-full"
+                    />
+                    <span class="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                      22.0s
+                    </span>
+                  </div>
+                  <div class="relative w-full h-16 rounded-md overflow-hidden bg-gray-200 cursor-pointer hover:ring-2 ring-blue-400 transition">
+                    <img
+                      src="/images/aerial2.jpg"
+                      alt="Aerial 2"
+                      class="object-cover w-full h-full"
+                    />
+                    <span class="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                      24.0s
+                    </span>
+                  </div>
+                </div>
+              </div>
+              <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                  <span class="text-xs font-semibold text-gray-600">Nature</span>
+                  <a href="#" class="text-xs text-blue-500 hover:underline">See all</a>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                  <div class="relative w-full h-16 rounded-md overflow-hidden bg-gray-200 cursor-pointer hover:ring-2 ring-blue-400 transition">
+                    <img
+                      src="/images/nature1.jpg"
+                      alt="Nature 1"
+                      class="object-cover w-full h-full"
+                    />
+                    <span class="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                      18.0s
+                    </span>
+                  </div>
+                  <div class="relative w-full h-16 rounded-md overflow-hidden bg-gray-200 cursor-pointer hover:ring-2 ring-blue-400 transition">
+                    <img
+                      src="/images/nature2.jpg"
+                      alt="Nature 2"
+                      class="object-cover w-full h-full"
+                    />
+                    <span class="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
+                      20.0s
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-semibold text-gray-600">Nature</span>
-                <a href="#" class="text-xs text-blue-500 hover:underline">See all</a>
-              </div>
-              <div class="flex gap-2 overflow-x-auto pb-2">
-                <div class="relative w-28 h-16 rounded-md overflow-hidden bg-gray-200">
-                  <img
-                    src="/images/nature1.jpg"
-                    alt="Nature 1"
-                    class="object-cover w-full h-full"
-                  />
-                  <span class="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
-                    13.0s
-                  </span>
-                </div>
-                <div class="relative w-28 h-16 rounded-md overflow-hidden bg-gray-200">
-                  <img
-                    src="/images/nature2.jpg"
-                    alt="Nature 2"
-                    class="object-cover w-full h-full"
-                  />
-                  <span class="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
-                    16.0s
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-semibold text-gray-600">Business</span>
-                <a href="#" class="text-xs text-blue-500 hover:underline">See all</a>
-              </div>
-              <div class="flex gap-2 overflow-x-auto pb-2">
-                <div class="relative w-28 h-16 rounded-md overflow-hidden bg-gray-200">
-                  <img
-                    src="/images/business1.jpg"
-                    alt="Business 1"
-                    class="object-cover w-full h-full"
-                  />
-                  <span class="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
-                    20.0s
-                  </span>
-                </div>
-                <div class="relative w-28 h-16 rounded-md overflow-hidden bg-gray-200">
-                  <img
-                    src="/images/business2.jpg"
-                    alt="Business 2"
-                    class="object-cover w-full h-full"
-                  />
-                  <span class="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
-                    9.0s
-                  </span>
-                </div>
-              </div>
-            </div>
-            <div>
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-xs font-semibold text-gray-600">Beach</span>
-                <a href="#" class="text-xs text-blue-500 hover:underline">See all</a>
-              </div>
-              <div class="flex gap-2 overflow-x-auto pb-2">
-                <div class="relative w-28 h-16 rounded-md overflow-hidden bg-gray-200">
-                  <img src="/images/beach1.jpg" alt="Beach 1" class="object-cover w-full h-full" />
-                  <span class="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
-                    15.0s
-                  </span>
-                </div>
-                <div class="relative w-28 h-16 rounded-md overflow-hidden bg-gray-200">
-                  <img src="/images/beach2.jpg" alt="Beach 2" class="object-cover w-full h-full" />
-                  <span class="absolute bottom-1 right-1 bg-black/70 text-white text-xs px-1.5 py-0.5 rounded">
-                    38.0s
-                  </span>
-                </div>
-              </div>
-            </div>
-          <% "Elements" -> %>
-            <div>
-              <div class="text-xs font-semibold text-gray-600 mb-2">Shapes & Elements</div>
-              <div class="grid grid-cols-4 gap-4">
+          <% end %>
+        </div>
+        
+<!-- Elements Tab -->
+        <div class="space-y-2">
+          <button
+            class={"w-full flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition " <>
+              if @sidebar_tab == "Elements", do: "bg-blue-100 text-blue-700", else: "hover:bg-blue-100 text-gray-700"}
+            phx-click="sidebar_tab"
+            phx-value-tab="Elements"
+          >
+            <.icon name="hero-puzzle-piece" class="w-5 h-5 text-purple-500" /> Elements
+            <.icon
+              name="hero-chevron-down"
+              class={"w-4 h-4 ml-auto transition-transform " <> if @sidebar_tab == "Elements", do: "rotate-180", else: ""}
+            />
+          </button>
+          <%= if @sidebar_tab == "Elements" do %>
+            <div class="ml-4 max-h-48 overflow-y-auto space-y-3 bg-white/50 rounded-lg p-3 border border-gray-100">
+              <div class="grid grid-cols-3 gap-2">
                 <button
+                  class="flex flex-col items-center gap-1 p-2 rounded-md hover:bg-blue-50 transition"
+                  phx-click="add_element"
+                  phx-value-type="circle"
                   draggable="true"
                   data-draggable="true"
                   data-type="shape"
                   data-subtype="circle"
-                  phx-click="add_element"
-                  phx-value-type="circle"
-                  class="bg-white rounded-md shadow p-2 flex items-center justify-center hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing"
                 >
-                  <svg width="32" height="32">
-                    <circle cx="16" cy="16" r="12" fill="#6366f1" />
-                  </svg>
+                  <div class="w-8 h-8 bg-blue-500 rounded-full"></div>
+                  <span class="text-xs text-gray-600">Circle</span>
                 </button>
                 <button
+                  class="flex flex-col items-center gap-1 p-2 rounded-md hover:bg-blue-50 transition"
+                  phx-click="add_element"
+                  phx-value-type="square"
                   draggable="true"
                   data-draggable="true"
                   data-type="shape"
                   data-subtype="square"
-                  phx-click="add_element"
-                  phx-value-type="square"
-                  class="bg-white rounded-md shadow p-2 flex items-center justify-center hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing"
                 >
-                  <svg width="32" height="32">
-                    <rect x="6" y="6" width="20" height="20" fill="#a21caf" />
-                  </svg>
+                  <div class="w-8 h-8 bg-purple-500 rounded-md"></div>
+                  <span class="text-xs text-gray-600">Square</span>
                 </button>
                 <button
+                  class="flex flex-col items-center gap-1 p-2 rounded-md hover:bg-blue-50 transition"
+                  phx-click="add_element"
+                  phx-value-type="triangle"
                   draggable="true"
                   data-draggable="true"
                   data-type="shape"
                   data-subtype="triangle"
-                  phx-click="add_element"
-                  phx-value-type="triangle"
-                  class="bg-white rounded-md shadow p-2 flex items-center justify-center hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing"
                 >
-                  <svg width="32" height="32">
-                    <polygon points="16,6 28,26 4,26" fill="#f59e42" />
-                  </svg>
+                  <div class="w-0 h-0 border-l-[8px] border-r-[8px] border-b-[16px] border-l-transparent border-r-transparent border-b-orange-500">
+                  </div>
+                  <span class="text-xs text-gray-600">Triangle</span>
                 </button>
                 <button
+                  class="flex flex-col items-center gap-1 p-2 rounded-md hover:bg-blue-50 transition"
+                  phx-click="add_element"
+                  phx-value-type="star"
                   draggable="true"
                   data-draggable="true"
                   data-type="shape"
                   data-subtype="star"
-                  phx-click="add_element"
-                  phx-value-type="star"
-                  class="bg-white rounded-md shadow p-2 flex items-center justify-center hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing"
                 >
-                  <svg width="32" height="32">
-                    <polygon
-                      points="16,4 20,14 31,14 22,20 25,30 16,24 7,30 10,20 1,14 12,14"
-                      fill="#fbbf24"
-                    />
-                  </svg>
+                  <div
+                    class="w-8 h-8 bg-yellow-500"
+                    style="clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);"
+                  >
+                  </div>
+                  <span class="text-xs text-gray-600">Star</span>
                 </button>
                 <button
+                  class="flex flex-col items-center gap-1 p-2 rounded-md hover:bg-blue-50 transition"
+                  phx-click="add_element"
+                  phx-value-type="arrow"
                   draggable="true"
                   data-draggable="true"
                   data-type="shape"
                   data-subtype="arrow"
-                  phx-click="add_element"
-                  phx-value-type="arrow"
-                  class="bg-white rounded-md shadow p-2 flex items-center justify-center hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing"
                 >
-                  <svg width="32" height="32">
-                    <line x1="4" y1="16" x2="28" y2="16" stroke="#10b981" stroke-width="4" /><polygon
-                      points="28,16 22,10 22,22"
-                      fill="#10b981"
-                    />
-                  </svg>
+                  <div class="w-8 h-4 bg-green-500 rounded-l-full relative">
+                    <div class="absolute right-0 top-0 w-0 h-0 border-l-[8px] border-t-[8px] border-b-[8px] border-l-green-500 border-t-transparent border-b-transparent">
+                    </div>
+                  </div>
+                  <span class="text-xs text-gray-600">Arrow</span>
                 </button>
                 <button
+                  class="flex flex-col items-center gap-1 p-2 rounded-md hover:bg-blue-50 transition"
+                  phx-click="add_element"
+                  phx-value-type="line"
                   draggable="true"
                   data-draggable="true"
                   data-type="shape"
                   data-subtype="line"
-                  phx-click="add_element"
-                  phx-value-type="line"
-                  class="bg-white rounded-md shadow p-2 flex items-center justify-center hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing"
                 >
-                  <svg width="32" height="32">
-                    <line x1="6" y1="26" x2="26" y2="6" stroke="#64748b" stroke-width="4" />
-                  </svg>
-                </button>
-                <button
-                  draggable="true"
-                  data-draggable="true"
-                  data-type="shape"
-                  data-subtype="heart"
-                  phx-click="add_element"
-                  phx-value-type="heart"
-                  class="bg-white rounded-md shadow p-2 flex items-center justify-center hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing"
-                >
-                  <svg width="32" height="32">
-                    <path
-                      d="M16 29s-13-8.35-13-15.5S8.5 2 16 9.5 29 5.5 29 13.5 16 29 16 29z"
-                      fill="#ef4444"
-                    />
-                  </svg>
+                  <div class="w-8 h-1 bg-gray-500 rounded-full"></div>
+                  <span class="text-xs text-gray-600">Line</span>
                 </button>
               </div>
             </div>
-          <% "Uploads" -> %>
-            <div>
-              <div class="text-xs font-semibold text-gray-600 mb-2">Upload Images/Videos</div>
-              <label class="block w-full cursor-pointer bg-gradient-to-r from-blue-500 to-purple-500 text-white text-center py-2 rounded-md mb-4 hover:from-blue-600 hover:to-purple-600 transition">
-                <input type="file" class="hidden" phx-change="upload_file" multiple />
-                + Upload Files
-              </label>
-              <div class="grid grid-cols-3 gap-2">
-                <div class="aspect-square bg-gray-100 rounded-md flex items-center justify-center overflow-hidden">
-                  <img src="/images/aerial1.jpg" class="object-cover w-full h-full" />
-                </div>
-                <div class="aspect-square bg-gray-100 rounded-md flex items-center justify-center overflow-hidden">
-                  <img src="/images/nature1.jpg" class="object-cover w-full h-full" />
-                </div>
-                <div class="aspect-square bg-gray-100 rounded-md flex items-center justify-center overflow-hidden">
-                  <img src="/images/business1.jpg" class="object-cover w-full h-full" />
-                </div>
-              </div>
-            </div>
-          <% "Text" -> %>
-            <div>
-              <div class="text-xs font-semibold text-gray-600 mb-2">Text Styles</div>
-              <div class="flex flex-col gap-2">
+          <% end %>
+        </div>
+        
+<!-- Text Tab -->
+        <div class="space-y-2">
+          <button
+            class={"w-full flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition " <>
+              if @sidebar_tab == "Text", do: "bg-blue-100 text-blue-700", else: "hover:bg-blue-100 text-gray-700"}
+            phx-click="sidebar_tab"
+            phx-value-tab="Text"
+          >
+            <.icon name="hero-document-text" class="w-5 h-5 text-pink-500" /> Text
+            <.icon
+              name="hero-chevron-down"
+              class={"w-4 h-4 ml-auto transition-transform " <> if @sidebar_tab == "Text", do: "rotate-180", else: ""}
+            />
+          </button>
+          <%= if @sidebar_tab == "Text" do %>
+            <div class="ml-4 max-h-48 overflow-y-auto space-y-3 bg-white/50 rounded-lg p-3 border border-gray-100">
+              <div class="grid grid-cols-1 gap-2">
                 <button
+                  class="flex items-center gap-2 p-2 rounded-md hover:bg-blue-50 transition text-left"
+                  phx-click="add_text_style"
+                  phx-value-style="heading"
                   draggable="true"
                   data-draggable="true"
                   data-type="text"
                   data-style="heading"
                   data-text="Heading"
-                  phx-click="add_text_style"
-                  phx-value-style="heading"
-                  class="bg-white rounded-md shadow px-4 py-2 text-lg font-bold text-gray-900 hover:ring-2 ring-blue-400 text-left cursor-grab active:cursor-grabbing"
                 >
-                  Heading
+                  <div class="w-8 h-8 bg-blue-100 rounded-md flex items-center justify-center">
+                    <span class="text-sm font-bold text-blue-600">H</span>
+                  </div>
+                  <div>
+                    <div class="text-sm font-semibold text-gray-800">Heading</div>
+                    <div class="text-xs text-gray-500">Large, bold text</div>
+                  </div>
                 </button>
                 <button
+                  class="flex items-center gap-2 p-2 rounded-md hover:bg-blue-50 transition text-left"
+                  phx-click="add_text_style"
+                  phx-value-style="subtitle"
                   draggable="true"
                   data-draggable="true"
                   data-type="text"
                   data-style="subtitle"
                   data-text="Subtitle"
-                  phx-click="add_text_style"
-                  phx-value-style="subtitle"
-                  class="bg-white rounded-md shadow px-4 py-2 text-base font-semibold text-gray-700 hover:ring-2 ring-purple-400 text-left cursor-grab active:cursor-grabbing"
                 >
-                  Subtitle
+                  <div class="w-8 h-8 bg-purple-100 rounded-md flex items-center justify-center">
+                    <span class="text-sm font-semibold text-purple-600">S</span>
+                  </div>
+                  <div>
+                    <div class="text-sm font-semibold text-gray-800">Subtitle</div>
+                    <div class="text-xs text-gray-500">Medium, elegant text</div>
+                  </div>
                 </button>
                 <button
+                  class="flex items-center gap-2 p-2 rounded-md hover:bg-blue-50 transition text-left"
+                  phx-click="add_text_style"
+                  phx-value-style="quote"
                   draggable="true"
                   data-draggable="true"
                   data-type="text"
                   data-style="quote"
                   data-text="Quote"
-                  phx-click="add_text_style"
-                  phx-value-style="quote"
-                  class="bg-white rounded-md shadow px-4 py-2 italic text-gray-600 hover:ring-2 ring-pink-400 text-left cursor-grab active:cursor-grabbing"
                 >
-                  "Quote"
+                  <div class="w-8 h-8 bg-pink-100 rounded-md flex items-center justify-center">
+                    <span class="text-sm font-medium text-pink-600">"</span>
+                  </div>
+                  <div>
+                    <div class="text-sm font-semibold text-gray-800">Quote</div>
+                    <div class="text-xs text-gray-500">Italic, styled text</div>
+                  </div>
                 </button>
               </div>
             </div>
-          <% "Videos" -> %>
-            <div>
-              <div class="text-xs font-semibold text-gray-600 mb-2">Video Assets</div>
-              <div class="flex flex-col gap-2">
-                <button
-                  draggable="true"
-                  data-draggable="true"
-                  data-type="video"
-                  data-src="/storage/videos/z1qG80Jkzi8_e1fa6449-a2de-4a53-ab17-040ce3767837_1751619131.webm"
-                  phx-click="add_video_asset"
-                  phx-value-src="/storage/videos/z1qG80Jkzi8_e1fa6449-a2de-4a53-ab17-040ce3767837_1751619131.webm"
-                  class="bg-white rounded-md shadow flex items-center gap-3 px-3 py-2 hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing"
-                >
-                  <.icon name="hero-video-camera" class="w-5 h-5 text-indigo-500" />
-                  <span class="truncate">React Native Short</span>
-                </button>
-                <button
-                  draggable="true"
-                  data-draggable="true"
-                  data-type="video"
-                  data-src="/storage/videos/0TI6ceqKxpQ_e1fa6449-a2de-4a53-ab17-040ce3767837_1751899067.webm"
-                  phx-click="add_video_asset"
-                  phx-value-src="/storage/videos/0TI6ceqKxpQ_e1fa6449-a2de-4a53-ab17-040ce3767837_1751899067.webm"
-                  class="bg-white rounded-md shadow flex items-center gap-3 px-3 py-2 hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing"
-                >
-                  <.icon name="hero-video-camera" class="w-5 h-5 text-indigo-500" />
-                  <span class="truncate">Sample Video 2</span>
-                </button>
+          <% end %>
+        </div>
+        
+<!-- Videos Tab -->
+        <div class="space-y-2">
+          <button
+            class={"w-full flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition " <>
+              if @sidebar_tab == "Videos", do: "bg-blue-100 text-blue-700", else: "hover:bg-blue-100 text-gray-700"}
+            phx-click="sidebar_tab"
+            phx-value-tab="Videos"
+          >
+            <.icon name="hero-video-camera" class="w-5 h-5 text-indigo-500" /> Videos
+            <.icon
+              name="hero-chevron-down"
+              class={"w-4 h-4 ml-auto transition-transform " <> if @sidebar_tab == "Videos", do: "rotate-180", else: ""}
+            />
+          </button>
+          <%= if @sidebar_tab == "Videos" do %>
+            <div class="ml-4 max-h-48 overflow-y-auto space-y-3 bg-white/50 rounded-lg p-3 border border-gray-100">
+              <div class="space-y-2">
+                <div class="text-xs font-semibold text-gray-600">Video Assets</div>
+                <div class="space-y-2">
+                  <button
+                    draggable="true"
+                    data-draggable="true"
+                    data-type="video"
+                    data-src="/storage/videos/z1qG80Jkzi8_e1fa6449-a2de-4a53-ab17-040ce3767837_1751619131.webm"
+                    phx-click="add_video_asset"
+                    phx-value-src="/storage/videos/z1qG80Jkzi8_e1fa6449-a2de-4a53-ab17-040ce3767837_1751619131.webm"
+                    class="w-full bg-white rounded-md shadow flex items-center gap-3 px-3 py-2 hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing transition"
+                  >
+                    <.icon name="hero-video-camera" class="w-5 h-5 text-indigo-500" />
+                    <span class="truncate text-sm">React Native Short</span>
+                  </button>
+                  <button
+                    draggable="true"
+                    data-draggable="true"
+                    data-type="video"
+                    data-src="/storage/videos/0TI6ceqKxpQ_e1fa6449-a2de-4a53-ab17-040ce3767837_1751899067.webm"
+                    phx-click="add_video_asset"
+                    phx-value-src="/storage/videos/0TI6ceqKxpQ_e1fa6449-a2de-4a53-ab17-040ce3767837_1751899067.webm"
+                    class="w-full bg-white rounded-md shadow flex items-center gap-3 px-3 py-2 hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing transition"
+                  >
+                    <.icon name="hero-video-camera" class="w-5 h-5 text-indigo-500" />
+                    <span class="truncate text-sm">Sample Video 2</span>
+                  </button>
+                </div>
               </div>
             </div>
-          <% "Charts" -> %>
-            <div>
-              <div class="text-xs font-semibold text-gray-600 mb-2">Charts</div>
-              <div class="grid grid-cols-3 gap-4">
+          <% end %>
+        </div>
+        
+<!-- Charts Tab -->
+        <div class="space-y-2">
+          <button
+            class={"w-full flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition " <>
+              if @sidebar_tab == "Charts", do: "bg-blue-100 text-blue-700", else: "hover:bg-blue-100 text-gray-700"}
+            phx-click="sidebar_tab"
+            phx-value-tab="Charts"
+          >
+            <.icon name="hero-chart-bar" class="w-5 h-5 text-yellow-500" /> Charts
+            <.icon
+              name="hero-chevron-down"
+              class={"w-4 h-4 ml-auto transition-transform " <> if @sidebar_tab == "Charts", do: "rotate-180", else: ""}
+            />
+          </button>
+          <%= if @sidebar_tab == "Charts" do %>
+            <div class="ml-4 max-h-48 overflow-y-auto space-y-3 bg-white/50 rounded-lg p-3 border border-gray-100">
+              <div class="grid grid-cols-3 gap-2">
                 <button
+                  class="flex flex-col items-center gap-1 p-2 rounded-md hover:bg-blue-50 transition"
+                  phx-click="add_chart"
+                  phx-value-type="bar"
                   draggable="true"
                   data-draggable="true"
                   data-type="chart"
                   data-subtype="bar"
-                  phx-click="add_chart"
-                  phx-value-type="bar"
-                  class="bg-white rounded-md shadow p-2 flex items-center justify-center hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing"
                 >
-                  <svg width="32" height="32">
-                    <rect x="6" y="16" width="4" height="10" fill="#6366f1" /><rect
-                      x="14"
-                      y="10"
-                      width="4"
-                      height="16"
-                      fill="#a21caf"
-                    /><rect x="22" y="6" width="4" height="20" fill="#f59e42" />
-                  </svg>
+                  <div class="w-8 h-6 flex items-end gap-1">
+                    <div class="w-1 bg-blue-500 h-3"></div>
+                    <div class="w-1 bg-blue-500 h-5"></div>
+                    <div class="w-1 bg-blue-500 h-2"></div>
+                    <div class="w-1 bg-blue-500 h-4"></div>
+                  </div>
+                  <span class="text-xs text-gray-600">Bar</span>
                 </button>
                 <button
+                  class="flex flex-col items-center gap-1 p-2 rounded-md hover:bg-blue-50 transition"
+                  phx-click="add_chart"
+                  phx-value-type="pie"
                   draggable="true"
                   data-draggable="true"
                   data-type="chart"
                   data-subtype="pie"
-                  phx-click="add_chart"
-                  phx-value-type="pie"
-                  class="bg-white rounded-md shadow p-2 flex items-center justify-center hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing"
                 >
-                  <svg width="32" height="32">
-                    <circle cx="16" cy="16" r="12" fill="#fbbf24" /><path
-                      d="M16 16 L28 16 A12 12 0 0 0 16 4 Z"
-                      fill="#6366f1"
-                    />
-                  </svg>
+                  <div class="w-6 h-6 rounded-full bg-gradient-to-r from-blue-500 to-purple-500">
+                  </div>
+                  <span class="text-xs text-gray-600">Pie</span>
                 </button>
                 <button
+                  class="flex flex-col items-center gap-1 p-2 rounded-md hover:bg-blue-50 transition"
+                  phx-click="add_chart"
+                  phx-value-type="line"
                   draggable="true"
                   data-draggable="true"
                   data-type="chart"
                   data-subtype="line"
-                  phx-click="add_chart"
-                  phx-value-type="line"
-                  class="bg-white rounded-md shadow p-2 flex items-center justify-center hover:ring-2 ring-blue-400 cursor-grab active:cursor-grabbing"
                 >
-                  <svg width="32" height="32">
-                    <polyline
-                      points="4,28 10,18 16,22 22,10 28,14"
-                      fill="none"
-                      stroke="#10b981"
-                      stroke-width="3"
-                    />
-                  </svg>
+                  <div class="w-8 h-6 flex items-center">
+                    <svg class="w-full h-full" viewBox="0 0 32 24">
+                      <path
+                        d="M2,20 L8,16 L16,8 L24,4 L30,2"
+                        stroke="#6366f1"
+                        stroke-width="2"
+                        fill="none"
+                      />
+                    </svg>
+                  </div>
+                  <span class="text-xs text-gray-600">Line</span>
                 </button>
               </div>
             </div>
-          <% "More" -> %>
-            <div class="text-center text-gray-400 text-sm py-8">More features coming soon!</div>
-          <% _ -> %>
-            <div class="text-center text-gray-400 text-sm py-8">Select a panel</div>
-        <% end %>
+          <% end %>
+        </div>
+        
+<!-- Uploads Tab -->
+        <div class="space-y-2">
+          <button
+            class={"w-full flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition " <>
+              if @sidebar_tab == "Uploads", do: "bg-blue-100 text-blue-700", else: "hover:bg-blue-100 text-gray-700"}
+            phx-click="sidebar_tab"
+            phx-value-tab="Uploads"
+          >
+            <.icon name="hero-arrow-up-tray" class="w-5 h-5 text-green-500" /> Uploads
+            <.icon
+              name="hero-chevron-down"
+              class={"w-4 h-4 ml-auto transition-transform " <> if @sidebar_tab == "Uploads", do: "rotate-180", else: ""}
+            />
+          </button>
+          <%= if @sidebar_tab == "Uploads" do %>
+            <div class="ml-4 max-h-48 overflow-y-auto space-y-3 bg-white/50 rounded-lg p-3 border border-gray-100">
+              <div class="space-y-2">
+                <div class="text-xs font-semibold text-gray-600">Upload Files</div>
+                <button
+                  class="w-full p-3 border-2 border-dashed border-gray-300 rounded-md hover:border-blue-400 hover:bg-blue-50 transition text-center"
+                  phx-click="upload_file"
+                >
+                  <div class="flex flex-col items-center gap-2">
+                    <.icon name="hero-cloud-arrow-up" class="w-6 h-6 text-gray-400" />
+                    <div>
+                      <div class="text-sm font-medium text-gray-600">Upload Files</div>
+                      <div class="text-xs text-gray-500">Images, videos, audio</div>
+                    </div>
+                  </div>
+                </button>
+              </div>
+            </div>
+          <% end %>
+        </div>
+        
+<!-- More Tab -->
+        <div class="space-y-2">
+          <button
+            class={"w-full flex items-center gap-3 px-3 py-2 rounded-md font-medium text-sm transition " <>
+              if @sidebar_tab == "More", do: "bg-blue-100 text-blue-700", else: "hover:bg-blue-100 text-gray-700"}
+            phx-click="sidebar_tab"
+            phx-value-tab="More"
+          >
+            <.icon name="hero-ellipsis-horizontal" class="w-5 h-5 text-gray-400" /> More
+            <.icon
+              name="hero-chevron-down"
+              class={"w-4 h-4 ml-auto transition-transform " <> if @sidebar_tab == "More", do: "rotate-180", else: ""}
+            />
+          </button>
+          <%= if @sidebar_tab == "More" do %>
+            <div class="ml-4 max-h-48 overflow-y-auto space-y-3 bg-white/50 rounded-lg p-3 border border-gray-100">
+              <div class="space-y-2">
+                <div class="text-xs font-semibold text-gray-600">Additional Tools</div>
+                <button class="w-full flex items-center gap-2 p-2 rounded-md hover:bg-blue-50 transition">
+                  <.icon name="hero-cog-6-tooth" class="w-4 h-4 text-gray-500" />
+                  <span class="text-sm text-gray-700">Settings</span>
+                </button>
+                <button class="w-full flex items-center gap-2 p-2 rounded-md hover:bg-blue-50 transition">
+                  <.icon name="hero-question-mark-circle" class="w-4 h-4 text-gray-500" />
+                  <span class="text-sm text-gray-700">Help</span>
+                </button>
+                <button class="w-full flex items-center gap-2 p-2 rounded-md hover:bg-blue-50 transition">
+                  <.icon name="hero-information-circle" class="w-4 h-4 text-gray-500" />
+                  <span class="text-sm text-gray-700">About</span>
+                </button>
+              </div>
+            </div>
+          <% end %>
+        </div>
       </div>
     </aside>
     
 <!-- Main Canvas Area -->
-    <main class="flex-1 flex flex-col items-center justify-center py-8 px-6 overflow-auto">
-      <div class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 p-8 flex flex-col items-center w-full max-w-3xl">
+    <main class="flex-1 flex flex-col items-center justify-center py-4 px-6 overflow-auto">
+      <div
+        id="main-canvas"
+        class="bg-white/80 backdrop-blur-sm rounded-2xl shadow-xl border border-gray-100 p-6 flex flex-col items-center w-full max-w-3xl"
+        phx-hook="DragToTimeline"
+      >
         <div
-          class="relative w-full bg-gradient-to-br from-gray-900 to-black rounded-xl flex items-center justify-center overflow-hidden"
+          class="relative w-full max-h-80 md:max-h-96 bg-gradient-to-br from-gray-900 to-black rounded-xl flex items-center justify-center overflow-hidden"
           data-video-container="true"
-          style={"aspect-ratio: #{get_video_aspect_ratio(@short)};"}
+          style={"aspect-ratio: #{get_video_aspect_ratio(@short)}; max-height: 20rem;"}
         >
           <video
+            id="main-video"
             src={@preview_url}
             controls={false}
+            preload="metadata"
+            muted
             class="w-full h-full object-contain rounded-md"
+            phx-hook="VideoControls"
+            data-playing={@video_playing}
+            data-current-time={@video_current_time}
+            data-duration={@video_duration}
+            data-video-state={"#{@video_playing}-#{@video_current_time}"}
           />
           
 <!-- Overlays -->
@@ -505,10 +536,6 @@
                 <div
                   style={"position:absolute; left:#{overlay["x"]}px; top:#{overlay["y"]}px; width:#{overlay["width"]}px; height:#{overlay["height"]}px; pointer-events:auto;"}
                   class={"border-2 transition-all duration-200 " <> if @selected_overlay_id == overlay["id"], do: "border-blue-500 shadow-lg", else: "border-transparent hover:border-blue-300"}
-                  phx-click="select_canvas_overlay"
-                  phx-value-id={overlay["id"]}
-                  phx-capture-click
-                  phx-stop-propagation
                   phx-hook="OverlayCombined"
                   data-id={overlay["id"]}
                   id={"overlay-#{overlay["id"]}"}
@@ -550,14 +577,22 @@
                     <% "arrow" -> %>
                       <svg width={overlay["width"]} height={overlay["height"]}>
                         <line
-                          x1="4"
+                          x1="8"
                           y1={overlay["height"] / 2}
-                          x2={overlay["width"] - 4}
+                          x2={overlay["width"] - 24}
                           y2={overlay["height"] / 2}
                           stroke={overlay["color"]}
-                          stroke-width="4"
-                        /><polygon
-                          points={"#{overlay["width"]-4},#{overlay["height"]/2} #{overlay["width"]-16},#{overlay["height"]/2-8} #{overlay["width"]-16},#{overlay["height"]/2+8}"}
+                          stroke-width="8"
+                          stroke-linecap="round"
+                        />
+                        <polygon
+                          points={
+                            """
+                            #{overlay["width"] - 8},#{overlay["height"] / 2}
+                            #{overlay["width"] - 32},#{overlay["height"] / 2 - 16}
+                            #{overlay["width"] - 32},#{overlay["height"] / 2 + 16}
+                            """
+                          }
                           fill={overlay["color"]}
                         />
                       </svg>
@@ -589,14 +624,11 @@
                 </div>
               <% "text" -> %>
                 <div
-                  style={"position:absolute; left:#{overlay["x"]}px; top:#{overlay["y"]}px; color:#{overlay["color"]}; font-family:#{get_font_family(overlay["font"])}; font-size:#{overlay["font_size"]}px; font-weight:bold; pointer-events:auto; min-width:20px; min-height:20px;"}
-                  class={"border-2 transition-all duration-200 " <> if @selected_overlay_id == overlay["id"], do: "border-blue-500 shadow-lg", else: "border-transparent hover:border-blue-300"}
-                  phx-click="select_canvas_overlay"
-                  phx-value-id={overlay["id"]}
-                  phx-capture-click
-                  phx-stop-propagation
+                  style={"position:absolute; left:#{overlay["x"]}px; top:#{overlay["y"]}px; width:#{overlay["width"]}px; height:#{overlay["height"]}px; color:#{overlay["color"]}; font-family:#{get_font_family(overlay["font"])}; font-size:#{overlay["font_size"]}px; font-weight:bold; pointer-events:auto; min-width:20px; min-height:20px; display:flex; align-items:center; justify-content:center; overflow:hidden; text-align:center; line-height:1; word-break:break-word;"}
+                  class={"border-2 transition-all duration-200 text-overlay " <> if @selected_overlay_id == overlay["id"], do: "border-blue-500 shadow-lg", else: "border-transparent hover:border-blue-300"}
                   phx-hook="OverlayCombined"
                   data-id={overlay["id"]}
+                  data-type="text"
                   id={"overlay-#{overlay["id"]}"}
                 >
                   {overlay["text"]}
@@ -609,10 +641,6 @@
                 <div
                   style={"position:absolute; left:#{overlay["x"]}px; top:#{overlay["y"]}px; width:#{overlay["width"]}px; height:#{overlay["height"]}px; pointer-events:auto;"}
                   class={"border-2 transition-all duration-200 " <> if @selected_overlay_id == overlay["id"], do: "border-blue-500 shadow-lg", else: "border-transparent hover:border-blue-300"}
-                  phx-click="select_canvas_overlay"
-                  phx-value-id={overlay["id"]}
-                  phx-capture-click
-                  phx-stop-propagation
                   phx-hook="OverlayCombined"
                   data-id={overlay["id"]}
                   id={"overlay-#{overlay["id"]}"}
@@ -630,10 +658,6 @@
                 <div
                   style={"position:absolute; left:#{overlay["x"]}px; top:#{overlay["y"]}px; width:#{overlay["width"]}px; height:#{overlay["height"]}px; pointer-events:auto;"}
                   class={"border-2 transition-all duration-200 " <> if @selected_overlay_id == overlay["id"], do: "border-blue-500 shadow-lg", else: "border-transparent hover:border-blue-300"}
-                  phx-click="select_canvas_overlay"
-                  phx-value-id={overlay["id"]}
-                  phx-capture-click
-                  phx-stop-propagation
                   phx-hook="OverlayCombined"
                   data-id={overlay["id"]}
                   id={"overlay-#{overlay["id"]}"}
@@ -652,10 +676,6 @@
                 <div
                   style={"position:absolute; left:#{overlay["x"]}px; top:#{overlay["y"]}px; width:#{overlay["width"]}px; height:#{overlay["height"]}px; pointer-events:auto;"}
                   class={"border-2 transition-all duration-200 " <> if @selected_overlay_id == overlay["id"], do: "border-blue-500 shadow-lg", else: "border-transparent hover:border-blue-300"}
-                  phx-click="select_canvas_overlay"
-                  phx-value-id={overlay["id"]}
-                  phx-capture-click
-                  phx-stop-propagation
                   phx-hook="OverlayCombined"
                   data-id={overlay["id"]}
                   id={"overlay-#{overlay["id"]}"}
@@ -679,10 +699,11 @@
 <!-- Timeline -->
         <div class="mt-6 w-full">
           <.editor_timeline
-            current_time={0}
-            duration={60}
+            current_time={@video_current_time || 0.0}
+            duration={@video_duration}
             overlays={@overlays}
             timeline_zoom={@timeline_zoom}
+            video_playing={@video_playing}
           />
         </div>
       </div>
@@ -702,7 +723,7 @@
                 class="space-y-2"
               >
                 <%= if selected_overlay["type"] == "text" do %>
-                  <.input field={f[:text]} label="Text" />
+                  <.input field={f[:text]} type="textarea" label="Text" />
                   <.input field={f[:color]} type="color" label="Color" />
                   <.input field={f[:font_size]} type="number" min="8" max="120" label="Font Size" />
                   <.input
@@ -711,6 +732,33 @@
                     label="Font"
                     options={[{"Sans", "sans"}, {"Serif", "serif"}, {"Monospace", "mono"}]}
                   />
+                  <div class="flex items-center gap-2 mt-2">
+                    <label class="text-sm font-medium">Text Alignment:</label>
+                    <button
+                      type="button"
+                      phx-click="update_overlay_props"
+                      phx-value-overlay-text_align="left"
+                      class={"px-2 py-1 rounded border " <> if f[:text_align].value == "left", do: "bg-blue-500 text-white border-blue-500", else: "bg-white text-gray-700 border-gray-300"}
+                    >
+                      <span class="icon">L</span>
+                    </button>
+                    <button
+                      type="button"
+                      phx-click="update_overlay_props"
+                      phx-value-overlay-text_align="center"
+                      class={"px-2 py-1 rounded border " <> if f[:text_align].value == "center", do: "bg-blue-500 text-white border-blue-500", else: "bg-white text-gray-700 border-gray-300"}
+                    >
+                      <span class="icon">C</span>
+                    </button>
+                    <button
+                      type="button"
+                      phx-click="update_overlay_props"
+                      phx-value-overlay-text_align="right"
+                      class={"px-2 py-1 rounded border " <> if f[:text_align].value == "right", do: "bg-blue-500 text-white border-blue-500", else: "bg-white text-gray-700 border-gray-300"}
+                    >
+                      <span class="icon">R</span>
+                    </button>
+                  </div>
                 <% end %>
                 <%= if selected_overlay["type"] == "shape" do %>
                   <.input

@@ -1436,7 +1436,7 @@ defmodule ShortCraftWeb.CoreComponents do
               </a>
             </div>
           </div>
-
+          
     <!-- Product Links -->
           <div>
             <h3 class="font-semibold text-gray-900 mb-4">Product</h3>
@@ -1477,7 +1477,7 @@ defmodule ShortCraftWeb.CoreComponents do
               </li>
             </ul>
           </div>
-
+          
     <!-- Company & Support -->
           <div>
             <h3 class="font-semibold text-gray-900 mb-4">Company & Support</h3>
@@ -1507,7 +1507,7 @@ defmodule ShortCraftWeb.CoreComponents do
             </ul>
           </div>
         </div>
-
+        
     <!-- Newsletter Signup -->
         <div class="mt-12 pt-8 border-t border-gray-200">
           <div class="max-w-md">
@@ -1531,7 +1531,7 @@ defmodule ShortCraftWeb.CoreComponents do
           </div>
         </div>
       </div>
-
+      
     <!-- Bottom Footer -->
       <div class="border-t border-gray-200 bg-white/50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
@@ -1763,10 +1763,11 @@ defmodule ShortCraftWeb.CoreComponents do
   @doc """
   Renders a video editor timeline with modern styling like Canva.
   """
-  attr :current_time, :integer, default: 0
+  attr :current_time, :float, default: 0.0
   attr :duration, :integer, default: 60
   attr :overlays, :list, default: []
   attr :timeline_zoom, :float, default: 1.0
+  attr :video_playing, :boolean, default: false
   attr :class, :string, default: nil
   attr :rest, :global
   slot :inner_block, required: false
@@ -1774,16 +1775,13 @@ defmodule ShortCraftWeb.CoreComponents do
   def editor_timeline(assigns) do
     px_per_second = 20 * (assigns[:timeline_zoom] || 1.0)
     timeline_width = (assigns[:duration] || 60) * px_per_second
+    current_time_rounded = Float.round(assigns[:current_time] || 0.0, 2)
     assigns = assign(assigns, :px_per_second, px_per_second)
     assigns = assign(assigns, :timeline_width, timeline_width)
+    assigns = assign(assigns, :current_time_rounded, current_time_rounded)
 
     ~H"""
-    <div
-      class={["bg-white rounded-xl border border-gray-200 p-4", @class]}
-      {@rest}
-      id={"timeline-component-#{@overlays[:id]}"}
-      phx-hook="TimelineOverlayDrag"
-    >
+    <div class={["bg-white rounded-xl border border-gray-200 p-4", @class]} {@rest}>
       <!-- Timeline Header -->
 
       <div class="flex items-center justify-center gap-4">
@@ -1791,21 +1789,40 @@ defmodule ShortCraftWeb.CoreComponents do
         <div class="flex items-center gap-2 text-sm text-gray-600">
           <span>Duration: {@duration}s</span>
           <span>•</span>
-          <span>Current: {@current_time}s</span>
+          <span>Current: {@current_time_rounded}s</span>
         </div>
       </div>
       <div class="flex items-center justify-between mb-4">
         <div class="flex items-center gap-2">
-          <button class="p-2 rounded-lg hover:bg-gray-100 transition" title="Play/Pause">
-            <.icon name="hero-play" class="w-4 h-4 text-gray-600" />
+          <button
+            class="p-2 rounded-lg hover:bg-gray-100 transition"
+            title="Play/Pause"
+            data-video-control="toggle_play"
+          >
+            <.icon
+              name={if @video_playing, do: "hero-pause", else: "hero-play"}
+              class="w-4 h-4 text-gray-600"
+            />
           </button>
-          <button class="p-2 rounded-lg hover:bg-gray-100 transition" title="Stop">
+          <button
+            class="p-2 rounded-lg hover:bg-gray-100 transition"
+            title="Stop"
+            data-video-control="stop"
+          >
             <.icon name="hero-stop" class="w-4 h-4 text-gray-600" />
           </button>
-          <button class="p-2 rounded-lg hover:bg-gray-100 transition" title="Previous Frame">
+          <button
+            class="p-2 rounded-lg hover:bg-gray-100 transition"
+            title="Previous Frame"
+            data-video-control="previous_frame"
+          >
             <.icon name="hero-backward" class="w-4 h-4 text-gray-600" />
           </button>
-          <button class="p-2 rounded-lg hover:bg-gray-100 transition" title="Next Frame">
+          <button
+            class="p-2 rounded-lg hover:bg-gray-100 transition"
+            title="Next Frame"
+            data-video-control="next_frame"
+          >
             <.icon name="hero-forward" class="w-4 h-4 text-gray-600" />
           </button>
         </div>
@@ -1828,7 +1845,7 @@ defmodule ShortCraftWeb.CoreComponents do
           </button>
         </div>
       </div>
-
+      
     <!-- Timeline Scrollable Area -->
       <div class="w-full overflow-x-auto">
         <div style={"width: #{@timeline_width}px; min-width: 100%;"} data-timeline="true">
@@ -1844,7 +1861,7 @@ defmodule ShortCraftWeb.CoreComponents do
                 style="width: 100%; min-width: 100%;"
               >
                 <%= for i <- 0..@duration do %>
-                  <div style={"position: absolute; left: #{i * @px_per_second}px; width: 1px;"}>
+                  <div style={"position: absolute; left: #{Float.round(i * @px_per_second * 1.0, 2)}px; width: 1px;"}>
                     <%= if rem(i, 5) == 0 do %>
                       <div class="w-px h-3 bg-gray-300"></div>
                     <% else %>
@@ -1856,10 +1873,18 @@ defmodule ShortCraftWeb.CoreComponents do
               <!-- Playhead -->
               <div
                 class="absolute top-0 bottom-0 w-0.5 bg-red-500 z-10 transition-all duration-100"
-                style={"left: #{(@current_time * @px_per_second)}px"}
+                style={"left: #{(@current_time_rounded * @px_per_second)}px"}
               >
                 <div class="absolute -top-1 -left-1 w-3 h-3 bg-red-500 rounded-full border-2 border-white shadow-sm">
                 </div>
+              </div>
+              
+    <!-- Clickable timeline for seeking -->
+              <div
+                class="absolute inset-0 cursor-pointer"
+                data-timeline="true"
+                data-px-per-second={@px_per_second}
+              >
               </div>
             </div>
             <!-- Time labels row -->
@@ -1869,7 +1894,7 @@ defmodule ShortCraftWeb.CoreComponents do
                 <%= if time <= @duration do %>
                   <span
                     class="absolute text-xs text-gray-500 select-none"
-                    style={"left: #{time * @px_per_second - 8}px; top: 0; min-width: 16px; text-align: center;"}
+                    style={"left: #{Float.round(time * @px_per_second * 1.0 - 8, 2)}px; top: 0; min-width: 16px; text-align: center;"}
                   >
                     {time}
                   </span>
@@ -1877,9 +1902,14 @@ defmodule ShortCraftWeb.CoreComponents do
               <% end %>
             </div>
           </div>
-
+          
     <!-- Timeline Tracks -->
-          <div class="space-y-2" style="width: 100%;">
+          <div
+            class="space-y-2"
+            style="width: 100%;"
+            phx-hook="TimelineOverlayDrag"
+            id="timeline-component"
+          >
             <!-- Video Track -->
             <div class="flex items-center gap-3">
               <div class="w-16 text-xs font-medium text-gray-600">Video</div>
@@ -1894,7 +1924,7 @@ defmodule ShortCraftWeb.CoreComponents do
                 </div>
               </div>
             </div>
-
+            
     <!-- Audio Track -->
             <div class="flex items-center gap-3">
               <div class="w-16 text-xs font-medium text-gray-600">Audio</div>
@@ -1909,7 +1939,7 @@ defmodule ShortCraftWeb.CoreComponents do
                 </div>
               </div>
             </div>
-
+            
     <!-- Overlays Track -->
             <div class="flex items-center gap-3">
               <div class="w-16 text-xs font-medium text-gray-600">Overlays</div>
@@ -1925,7 +1955,7 @@ defmodule ShortCraftWeb.CoreComponents do
                   <%= if start < @duration and width > 0 do %>
                     <div
                       class="absolute h-8 bg-yellow-400 rounded border border-yellow-600 opacity-90 hover:opacity-100 transition cursor-grab active:cursor-grabbing"
-                      style={"left: #{start * @px_per_second}px; width: #{width}px; top: 2px;"}
+                      style={"left: #{Float.round(start * @px_per_second, 2)}px; width: #{Float.round(width, 2)}px; top: 2px;"}
                       title={"#{overlay["type"]}: #{overlay["text"] || overlay["shape"] || "Overlay"}"}
                       data-timeline-overlay="true"
                       data-overlay-id={overlay["id"]}
@@ -1943,7 +1973,7 @@ defmodule ShortCraftWeb.CoreComponents do
           </div>
         </div>
       </div>
-
+      
     <!-- Timeline Controls -->
       <div class="flex items-center justify-center mt-4 pt-4 border-t border-gray-200">
         <div class="flex items-center gap-2 text-sm text-gray-600">
@@ -1952,7 +1982,7 @@ defmodule ShortCraftWeb.CoreComponents do
           <span>Resolution: 1080p</span>
         </div>
       </div>
-
+      
     <!-- Additional Controls -->
       <%= if @inner_block do %>
         <div class="mt-4">

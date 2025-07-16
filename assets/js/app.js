@@ -25,12 +25,14 @@ import OverlayCombined from "./hooks/OverlayCombined";
 import ShowMore from "./hooks/ShowMore";
 import DragToTimeline from "./hooks/DragToTimeline";
 import TimelineOverlayDrag from "./hooks/TimelineOverlayDrag";
+import VideoControls from "./hooks/VideoControls";
 
 let Hooks = {
   OverlayCombined,
   ShowMore,
   DragToTimeline,
   TimelineOverlayDrag,
+  VideoControls,
 };
 
 let csrfToken = document

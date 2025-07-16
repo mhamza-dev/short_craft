@@ -1,12 +1,11 @@
 const TimelineOverlayDrag = {
   mounted() {
-    console.log("TimelineOverlayDrag mounted");
     this.setupTimelineOverlayDrag();
+    this.setupTimelineSeeking();
   },
 
   setupTimelineOverlayDrag() {
     const overlayBlocks = this.el.querySelectorAll("[data-timeline-overlay]");
-    console.log("Found overlay blocks:", overlayBlocks.length);
 
     overlayBlocks.forEach((block) => {
       let isDragging = false;
@@ -16,7 +15,6 @@ const TimelineOverlayDrag = {
       let originalDuration = 0;
 
       const handleMouseDown = (e) => {
-        console.log("Mouse down on overlay block");
         if (e.target.closest("[data-resize-handle]")) return; // Don't start drag if clicking resize handle
 
         isDragging = true;
@@ -26,13 +24,6 @@ const TimelineOverlayDrag = {
         // Get original timing data
         originalStart = parseFloat(block.dataset.start) || 0;
         originalDuration = parseFloat(block.dataset.duration) || 5;
-
-        console.log("Starting drag:", {
-          startX,
-          startLeft,
-          originalStart,
-          originalDuration,
-        });
 
         // Add dragging class
         block.classList.add("dragging");
@@ -56,14 +47,11 @@ const TimelineOverlayDrag = {
 
         // Update data attributes
         block.dataset.start = newStart.toFixed(1);
-
-        console.log("Dragging:", { newLeft, newStart });
       };
 
       const handleMouseUp = () => {
         if (!isDragging) return;
 
-        console.log("Mouse up, ending drag");
         isDragging = false;
         block.classList.remove("dragging");
         document.body.style.cursor = "";
@@ -71,12 +59,6 @@ const TimelineOverlayDrag = {
         // Send update to LiveView
         const overlayId = block.dataset.overlayId;
         const newStart = parseFloat(block.dataset.start);
-
-        console.log("Sending update:", {
-          overlayId,
-          newStart,
-          originalDuration,
-        });
 
         this.pushEvent("update_overlay_timing", {
           id: overlayId,
@@ -97,10 +79,33 @@ const TimelineOverlayDrag = {
     });
   },
 
+  setupTimelineSeeking() {
+    const timelineRuler = this.el.querySelector("[data-timeline]");
+    if (!timelineRuler) return;
+
+    const handleTimelineClick = (e) => {
+      const rect = timelineRuler.getBoundingClientRect();
+      const clickX = e.clientX - rect.left;
+      const pxPerSecond = parseFloat(timelineRuler.dataset.pxPerSecond) || 20;
+      const seekTime = clickX / pxPerSecond;
+
+      // Find the video element and seek directly
+      const video = document.getElementById("main-video");
+      if (video) {
+        video.currentTime = seekTime;
+      }
+    };
+
+    // Remove existing listener
+    timelineRuler.removeEventListener("click", handleTimelineClick);
+    // Add new listener
+    timelineRuler.addEventListener("click", handleTimelineClick);
+  },
+
   updated() {
-    console.log("TimelineOverlayDrag updated");
     // Re-setup when component updates
     this.setupTimelineOverlayDrag();
+    this.setupTimelineSeeking();
   },
 };
 
