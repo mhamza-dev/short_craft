@@ -5,6 +5,10 @@ defmodule ShortCraft.Services.GenerateAiContent do
 
   require Logger
 
+  @deepseek_ai_key Application.compile_env!(:short_craft, :deepseek_api_key)
+  @gemini_ai_key Application.compile_env!(:short_craft, :gemini_api_key)
+  @openai_ai_key Application.compile_env!(:short_craft, :openai_api_key)
+
   # Model configurations
   @models [
     %{
@@ -12,7 +16,7 @@ defmodule ShortCraft.Services.GenerateAiContent do
       provider: :google,
       url:
         "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
-      api_key: Application.compile_env(:short_craft, :gemini_api_key),
+      api_key: @gemini_ai_key,
       priority: 1
     },
     %{
@@ -20,28 +24,28 @@ defmodule ShortCraft.Services.GenerateAiContent do
       provider: :google,
       url:
         "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent",
-      api_key: Application.compile_env(:short_craft, :gemini_api_key),
+      api_key: @gemini_ai_key,
       priority: 2
     },
     %{
       name: :deepseek_chat,
       provider: :deepseek,
       url: "https://api.deepseek.com/chat/completions",
-      api_key: Application.compile_env(:short_craft, :deepseek_api_key),
+      api_key: @deepseek_ai_key,
       priority: 3
     },
     %{
       name: :openai_gpt4,
       provider: :openai,
       url: "https://api.openai.com/v1/chat/completions",
-      api_key: Application.compile_env(:short_craft, :openai_api_key),
+      api_key: @openai_ai_key,
       priority: 4
     },
     %{
       name: :openai_gpt35,
       provider: :openai,
       url: "https://api.openai.com/v1/chat/completions",
-      api_key: Application.compile_env(:short_craft, :openai_api_key),
+      api_key: @openai_ai_key,
       priority: 5
     }
   ]

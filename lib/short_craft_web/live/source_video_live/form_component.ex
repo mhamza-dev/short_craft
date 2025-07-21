@@ -154,8 +154,14 @@ defmodule ShortCraftWeb.SourceVideoLive.FormComponent do
   end
 
   def handle_event("validate", %{"source_video" => params}, socket) do
+    dbg(is_nil(Ecto.Changeset.get_field(socket.assigns.form.source, :url)))
+
     if socket.assigns.need_validation do
-      {:noreply, socket}
+      if is_nil(Ecto.Changeset.get_field(socket.assigns.form.source, :url)) do
+        {:noreply, assign(socket, need_validation: true)}
+      else
+        {:noreply, socket}
+      end
     else
       changeset =
         socket.assigns.source_video

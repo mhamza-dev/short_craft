@@ -9,13 +9,13 @@ echo "🎥 Setting up yt-dlp for YouTube video downloads..."
 if command -v yt-dlp &> /dev/null; then
     YTDLP_PATH="$(command -v yt-dlp)"
     echo "✅ yt-dlp is already installed at $YTDLP_PATH"
-    if grep -q '^YTDLP_PATH=' .env 2>/dev/null; then
+    if grep -q 'YTDLP_PATH=' .env 2>/dev/null; then
         # Update existing YTDLP_PATH
-        sed -i.bak "s|^YTDLP_PATH=.*$|YTDLP_PATH=\"$YTDLP_PATH\"|" .env
+        sed -i.bak "s|^export YTDLP_PATH=.*$|export YTDLP_PATH=\"$YTDLP_PATH\"|" .env
         rm -f .env.bak
     else
         # Append if not present
-        echo "YTDLP_PATH=\"$YTDLP_PATH\"" >> .env
+        echo "export YTDLP_PATH=\"$YTDLP_PATH\"" >> .env
     fi
     echo "YTDLP_PATH set in .env"
     yt-dlp --version
@@ -25,11 +25,15 @@ fi
 # 2. Try asdf (if available)
 if command -v asdf &> /dev/null; then
     echo "🔍 asdf detected. Trying to install yt-dlp with asdf python..."
-    if ! asdf plugin-list | grep -q python; then
-        asdf plugin-add python
+    if ! asdf plugin list | grep -q python; then
+        asdf plugin add python
     fi
-    asdf install python 3.12.2
-    asdf global python 3.12.2
+    # Use current Python version from .tool-versions
+    PYTHON_VERSION=$(grep "^python" .tool-versions | awk '{print $2}')
+    if [ -z "$PYTHON_VERSION" ]; then
+        PYTHON_VERSION="3.11.5"
+    fi
+    asdf install python $PYTHON_VERSION
     python3 -m pip install --user --upgrade yt-dlp
     # Find yt-dlp in asdf python user base
     YTDLP_PATH="$(asdf where python)/bin/yt-dlp"
@@ -39,13 +43,13 @@ if command -v asdf &> /dev/null; then
     fi
     if [ -x "$YTDLP_PATH" ]; then
         echo "✅ yt-dlp installed at: $YTDLP_PATH"
-        if grep -q '^YTDLP_PATH=' .env 2>/dev/null; then
+        if grep -q 'YTDLP_PATH=' .env 2>/dev/null; then
             # Update existing YTDLP_PATH
-            sed -i.bak "s|^YTDLP_PATH=.*$|YTDLP_PATH=\"$YTDLP_PATH\"|" .env
+            sed -i.bak "s|^export YTDLP_PATH=.*$|export YTDLP_PATH=\"$YTDLP_PATH\"|" .env
             rm -f .env.bak
         else
             # Append if not present
-            echo "YTDLP_PATH=\"$YTDLP_PATH\"" >> .env
+            echo "export YTDLP_PATH=\"$YTDLP_PATH\"" >> .env
         fi
         echo "YTDLP_PATH set in .env"
         "$YTDLP_PATH" --version
@@ -60,13 +64,13 @@ if command -v pip3 &> /dev/null; then
     YTDLP_PATH="$(python3 -m site --user-base)/bin/yt-dlp"
     if [ -x "$YTDLP_PATH" ]; then
         echo "✅ yt-dlp installed at: $YTDLP_PATH"
-        if grep -q '^YTDLP_PATH=' .env 2>/dev/null; then
+        if grep -q 'YTDLP_PATH=' .env 2>/dev/null; then
             # Update existing YTDLP_PATH
-            sed -i.bak "s|^YTDLP_PATH=.*$|YTDLP_PATH=\"$YTDLP_PATH\"|" .env
+            sed -i.bak "s|^export YTDLP_PATH=.*$|export YTDLP_PATH=\"$YTDLP_PATH\"|" .env
             rm -f .env.bak
         else
             # Append if not present
-            echo "YTDLP_PATH=\"$YTDLP_PATH\"" >> .env
+            echo "export YTDLP_PATH=\"$YTDLP_PATH\"" >> .env
         fi
         echo "YTDLP_PATH set in .env"
         "$YTDLP_PATH" --version
@@ -81,13 +85,13 @@ if command -v python3 &> /dev/null; then
     YTDLP_PATH="$(python3 -m site --user-base)/bin/yt-dlp"
     if [ -x "$YTDLP_PATH" ]; then
         echo "✅ yt-dlp installed at: $YTDLP_PATH"
-        if grep -q '^YTDLP_PATH=' .env 2>/dev/null; then
+        if grep -q 'YTDLP_PATH=' .env 2>/dev/null; then
             # Update existing YTDLP_PATH
-            sed -i.bak "s|^YTDLP_PATH=.*$|YTDLP_PATH=\"$YTDLP_PATH\"|" .env
+            sed -i.bak "s|^export YTDLP_PATH=.*$|export YTDLP_PATH=\"$YTDLP_PATH\"|" .env
             rm -f .env.bak
         else
             # Append if not present
-            echo "YTDLP_PATH=\"$YTDLP_PATH\"" >> .env
+            echo "export YTDLP_PATH=\"$YTDLP_PATH\"" >> .env
         fi
         echo "YTDLP_PATH set in .env"
         "$YTDLP_PATH" --version

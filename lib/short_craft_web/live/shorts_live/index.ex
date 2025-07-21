@@ -983,18 +983,4 @@ defmodule ShortCraftWeb.ShortsLive.Index do
   def get_font_family(_),
     do:
       "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif"
-
-  # --- Robustness: Always clear changeset if selection is invalid ---
-  defp maybe_clear_selection(socket) do
-    if socket.assigns.selected_overlay_id do
-      found =
-        Enum.any?(socket.assigns.overlays, &(&1["id"] == socket.assigns.selected_overlay_id))
-
-      if found,
-        do: socket,
-        else: assign(socket, selected_overlay_id: nil, selected_overlay_changeset: nil)
-    else
-      assign(socket, selected_overlay_changeset: nil)
-    end
-  end
 end
